@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "core" },
+    { "path": "cryptography" },
+    { "path": "dom-view" },
+    { "path": "payments" }
+  ]
+}

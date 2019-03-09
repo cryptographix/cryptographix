@@ -1,0 +1,39 @@
+{
+  "name": "@cryptographix/core",
+  "version": "0.1.0",
+  "main": "dist/build/index.js",
+  "module": "dist/build/index.js",
+  "browser": "dist/build/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "homepage": "https://cryptographix.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cryptographix/cryptographix"
+  },
+  "bugs": {
+    "url": "https://github.com/cryptographix/cryptographix/issues"
+  },
+  "keywords": [
+    "cryptographix",
+    "core"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "LICENSE"
+  ],
+  "scripts": {
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "tslint --project tsconfig.json -t stylish",
+    "lint:test": "tslint --project tsconfig-test.json --config ../tslint-test.json -e \"src/**/*.ts\" -t stylish",
+    "build": "tsc -b",
+    "build:test": "tsc -p test/tsconfig.json --outDir dist/test",
+    "bundle": "ts-node -P ../../scripts/tsconfig.json ../../scripts/bundle.ts umd,esm,system kernel",
+    "dev": "tsc -b -w",
+    "publish:local": "npm pack"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
