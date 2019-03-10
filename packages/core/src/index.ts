@@ -1,4 +1,5 @@
 export * from './schema';
+export * from './byte-array';
 
 export * from './block/block';
 export * from './block/block-factory';

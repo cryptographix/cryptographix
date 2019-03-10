@@ -1,4 +1,5 @@
 export * from './primitives/block-cipher';
+export * from './primitives/cmac';
 export * from './blocks/block-cipher-block';
 
 /*import { booleanProp } from '@cryptographix/core';

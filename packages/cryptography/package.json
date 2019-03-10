@@ -16,7 +16,7 @@
   },
   "keywords": [
     "cryptographix",
-    "payment-blocks"
+    "cryptography"
   ],
   "files": [
     "dist",
@@ -24,13 +24,13 @@
     "LICENSE"
   ],
   "scripts": {
+    "clean": "rm -rf ./dist",
     "lint": "npm run lint:src && npm run lint:test",
     "lint:src": "tslint --project tsconfig.json -t stylish",
     "lint:test": "tslint --project tsconfig-test.json --config ../tslint-test.json -e \"src/**/*.ts\" -t stylish",
     "build": "tsc -b",
-    "test": "mocha dist/*.spec.js dist/**/*.spec.js",
-    "build:test": "tsc -p tsconfig-test.json --outDir dist/test",
-    "bundle": "ts-node -P ../../scripts/tsconfig.json ../../scripts/bundle.ts umd,esm,system kernel",
+    "test": "npm run build:test && mocha dist/**/*.spec.js",
+    "build:test": "tsc -b tsconfig-test.json",
     "dev": "tsc -b -w",
     "publish:local": "npm pack"
   },

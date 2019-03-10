@@ -1,5 +1,5 @@
 {
-  "name": "@cryptographix/core",
+  "name": "@cryptographix/payments",
   "version": "0.1.0",
   "main": "dist/build/index.js",
   "module": "dist/build/index.js",
@@ -16,7 +16,7 @@
   },
   "keywords": [
     "cryptographix",
-    "core"
+    "payment-blocks"
   ],
   "files": [
     "dist",
@@ -30,11 +30,16 @@
     "lint:test": "tslint --project tsconfig-test.json --config ../tslint-test.json -e \"src/**/*.ts\" -t stylish",
     "build": "tsc -b",
     "build:test": "tsc -b tsconfig-test.json",
-    "test": "npm run build:test && mocha dist/**/*.spec.js",
+    "test": "mocha dist/**/*.spec.js",
     "dev": "tsc -b -w",
     "publish:local": "npm pack"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@cryptographix/core": "0.1.0",
+    "@cryptographix/cryptography": "0.1.0",
+    "@cryptographix/dom-view": "0.1.0"
   }
 }
