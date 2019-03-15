@@ -74,7 +74,7 @@ export class BlockCipherHelper {
   ];
 
   static getAlgorithm(name: string) {
-    return BlockCipherHelper.algorithms.find(algorithm => algorithm.name === name)
+    return BlockCipherHelper.algorithms.find(algorithm => algorithm.name === name.toLowerCase())
   }
 
   /**
@@ -92,7 +92,7 @@ export class BlockCipherHelper {
    * Returns mode for given name.
    */
   static getMode(name: string) {
-    return BlockCipherHelper.getModes().find(mode => mode.name === name)
+    return BlockCipherHelper.getModes().find(mode => mode.name === name.toLowerCase())
   }
 
   /**

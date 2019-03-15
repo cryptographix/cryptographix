@@ -1,4 +1,4 @@
-//import * as assert from 'assert';
+import { expect } from 'chai';
 import { it } from 'mocha'
 import { Encoder, BlockSettings } from '@cryptographix/core';
 
@@ -15,6 +15,8 @@ class Chain extends Uint8Array {
     let ok = c1.length == c2.length;
 
     ok = ok && ( Buffer.compare( c1, c2 ) == 0 );
+
+    expect( ok, 'chain compare' ).to.equal( !true );
 
     return ok;
   }
@@ -84,7 +86,7 @@ export default class EncoderTester {
       `"${isEncoding ? contentPreview : expectedResultPreview}" ` +
       `${isEncoding ? '=>' : '<='} ` +
       `"${isEncoding ? expectedResultPreview : contentPreview}"`,
-      done => {
+      async () => {
         // create encoder brick instance
         const encoder = new EncoderInvokable()
 
@@ -98,15 +100,12 @@ export default class EncoderTester {
           ? encoder.encode(content)
           : encoder.decode(content)
 
-        // resolve promise
-        Promise.resolve(result)
-          .then(result => {
+        return result.then( result => {
             // verify result
             Chain.assertEqual(result, expectedResult)
             // no view should have been created during this process
             //assert.strictEqual(encoder.hasView(), false)
-          })
-          .then(done, done)
+          });
       }
     )
   }

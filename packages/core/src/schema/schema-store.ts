@@ -103,7 +103,7 @@ export function schemaProp( propOptions: ISchemaProp ) {
     schema.items[propertyKey] = namedItem;
 
       //target.enumerable = opts.defaultValue;
-    console.log(propertyKey + " => " + JSON.stringify(namedItem) )
+    //console.log(propertyKey + " => " + JSON.stringify(namedItem) )
   }
 }
 

@@ -29,7 +29,7 @@
     "lint:src": "tslint --project tsconfig.json -t stylish",
     "lint:test": "tslint --project tsconfig-test.json --config ../tslint-test.json -e \"src/**/*.ts\" -t stylish",
     "build": "tsc -b",
-    "test": "npm run build:test && mocha dist/**/*.spec.js",
+    "test": "mocha dist/**/*.spec.js",
     "build:test": "tsc -b tsconfig-test.json",
     "dev": "tsc -b -w",
     "publish:local": "npm pack"
@@ -38,6 +38,11 @@
     "access": "public"
   },
   "dependencies": {
-    "@cryptographix/core": "0.1.0"
+    "@cryptographix/core": "0.1.0",
+    "node-forge": "^0.7.1"
+  },
+  "devDependencies": {
+    "@types/jsbn": "^1.2.28",
+    "@types/node-forge": "^0.6.10"
   }
 }

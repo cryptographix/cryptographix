@@ -12,10 +12,10 @@ export function getCipherName( keyType: string, keyLength: number ) {
 export async function generateSubKeys( keyType: string, macKey: Uint8Array ): Promise<{ k1: Uint8Array, k2: Uint8Array }> {
   const isAES = ( keyType == 'AES' );
 
-  const valR = isAES ? ByteArray.from( '00000000000000000000000000000087', 'hex')
-                     : ByteArray.from( '000000000000001B', 'hex')
+  const valR = isAES ? ByteArray.fromString( '00000000000000000000000000000087', 'hex')
+                     : ByteArray.fromString( '000000000000001B', 'hex')
 
-  let zeros = ByteArray.from( '0000000000000000', 'hex');
+  let zeros = ByteArray.fromString( '0000000000000000', 'hex');
   if ( isAES ) {
     zeros = Buffer.concat( [ zeros, zeros ] );
   }
@@ -80,7 +80,7 @@ export async function calculateCMAC( msg: Uint8Array, keyType: string, macKey: U
   let block = ByteArray.xor( msgN.slice( nOffset, nOffset + blockLen ), xorKey );
   msgN.set( block, nOffset );
 
-  let zeros = ByteArray.from( '0000000000000000', 'hex');
+  let zeros = ByteArray.fromString( '0000000000000000', 'hex');
   if ( isAES ) zeros = Buffer.concat( [ zeros, zeros ] );
 
   let iv = zeros;
