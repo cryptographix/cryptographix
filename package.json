@@ -5,11 +5,13 @@
     "packages/*"
   ],
   "devDependencies": {
-    "@types/node": "^11.9.5",
-    "reflect-metadata": "^0.1.13",
     "@types/chai": "^4",
-    "chai": "^4",
+    "@types/chai-string": "^1.4.1",
     "@types/mocha": "^5.2.6",
-    "mocha": "^6.0.2"
+    "@types/node": "^11.9.5",
+    "chai": "^4",
+    "chai-string": "^1.5.0",
+    "mocha": "^6.0.2",
+    "reflect-metadata": "^0.1.13"
   }
 }

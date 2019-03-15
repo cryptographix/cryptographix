@@ -17,10 +17,10 @@ export class TR31 {
     this.bpkeyType = keyType;
     const keyLength = kbpkKey.length;
 
-    let kbek = await calculateCMAC( ByteArray.from('0100000000040100', 'hex'), keyType, kbpkKey );
+    let kbek = await calculateCMAC( ByteArray.fromString('0100000000040100', 'hex'), keyType, kbpkKey );
 
     if ( keyLength > 16 ) {
-      let kbek2 = await calculateCMAC( ByteArray.from('0200000000040100', 'hex'), keyType, kbpkKey );
+      let kbek2 = await calculateCMAC( ByteArray.fromString('0200000000040100', 'hex'), keyType, kbpkKey );
 
       kbek = ByteArray.concat( [ kbek, kbek2 ] );
     }
@@ -28,9 +28,9 @@ export class TR31 {
 
     //console.log( "kbek:" + ByteArray.toString(this.kbek,'hex'));
 
-    let kbak = await calculateCMAC( ByteArray.from('0100010000040100', 'hex'), keyType, kbpkKey );
+    let kbak = await calculateCMAC( ByteArray.fromString('0100010000040100', 'hex'), keyType, kbpkKey );
     if ( keyLength > 16 ) {
-      let kbak2 = await calculateCMAC( ByteArray.from('0200010000040100', 'hex'), keyType, kbpkKey );
+      let kbak2 = await calculateCMAC( ByteArray.fromString('0200010000040100', 'hex'), keyType, kbpkKey );
 
       kbak = ByteArray.concat( [ kbak, kbak2 ] );
     }
@@ -47,7 +47,7 @@ export class TR31 {
    *
    */
   setBlockHeader( blockHeader: string ): this {
-    this._blockHeader = ByteArray.from(blockHeader);
+    this._blockHeader = ByteArray.fromString(blockHeader);
 
     //console.log('header:' + ByteArray.toString(this._blockHeader,'hex'));
 
