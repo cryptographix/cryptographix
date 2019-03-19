@@ -1,73 +1,96 @@
-import { ISerializer } from './serializer';
+import { IConstructable, ByteArray, ISchemaPropertyType, schemaStore } from '.';
 
-export interface IEmptyConstructor<T=any> {
-  new():T;
-}
+/**
+ * Base Schema descriptor for any Object
+ */
+export interface ISchema<TO=Object> {
+  //
+  type: string;
 
-export interface ISchema {
-  target: IEmptyConstructor<any>;
+  // Constructor for the class described by this schema
+  target: IConstructable<TO>;
+
+  //
   name?: string;
-  items?: { [key: string]: ISchemaProp };
+
+  //
+  description?: string;
+
+  //
+  namespace?: string;
+
+  //
+  properties: { [key: string]: ISchemaPropertyType };
 }
 
 /**
- * Base descriptor for a property defined by Schema
- *
- * To be extended by specific typed schema items
+ * Static helpers for Schemas
  */
-export interface ISchemaProp<T=any> {
-  type: string | { new(): T };
+export abstract class Schema {
+  static initObjectFromClass<TO>( target: IConstructable<TO>, initObject?: TO ): TO {
+    let schema = schemaStore.ensure<ISchema<TO>>( target );
 
-  name?: string;
+    return Schema.initObjectFromSchema( schema, initObject || {} );
+  }
 
-  label?: string;
+  static initObjectFromSchema<TO, TSchema extends ISchema<TO>>( schema: TSchema, initObject: Object = {} ): TO {
+    let object = new schema.target();
 
-  ignore?: boolean;
+//    console.log( "initObjectFromSchema" );
 
-  viewWidth?: number;
+    Object.entries( schema.properties ).forEach( ([key, propInfo]) => {
+      if ( propInfo.type instanceof Object ) {
+        object[ key ] = Schema.initObjectFromSchema( propInfo.type, initObject[ key ] );
+      }
+      else {
+        // use initObject
+        if ( initObject[ key ] ) {
+          object[ key ] = initObject[ key ];
+        }
+        else {
+          let value = propInfo.defaultValue;
 
-  optional?: boolean;
+          if ( !value ) {
+            switch( propInfo.type ) {
+              case 'boolean': value = false; break;
+              case 'number': value = propInfo.min || 0; break;
+              case 'string': value = ''; break;
+              case 'enum': value = propInfo.options.elements[0]; break;
+              case 'bytes': value = ByteArray.from( [] ); break;
+            }
+          }
 
-  defaultValue?: T;
+          object[ key ] = value;
+        }
+      }
 
-  converter?: ISerializer<T>;
-}
+//      console.log(key + " :> ", propInfo);
+    } );
 
-export interface IBooleanSchemaProp extends ISchemaProp<boolean> {
-  type: 'boolean';
-  trueLabel?: string;
-  falseLabel?: string;
-}
-
-export interface IStringSchemaProp extends ISchemaProp<string> {
-  type: 'string';
-  minLength?: number;
-  maxLength?: number;
-}
-
-export interface INumberSchemaProp extends ISchemaProp<number> {
-  type: 'number';
-  integer?: boolean;
-  min?: number;
-  max?: number;
-  step?: number;
-}
-
-export interface IEnumSchemaProp extends ISchemaProp<string> {
-  type: 'enum';
-  options: {
-    elements: string[];
-    labels: string[];
+    return {
+      ...object,
+      ...initObject,
+    }
   }
 }
 
-export interface IBytesSchemaProp extends ISchemaProp<ArrayBuffer> {
-  type: 'bytes';
-  minSize?: number;
-  maxSize?: number;
-  stepSize?: number;
-}
+/**
+ * Schema descriptor that describes a serializable Object
+ */
+export interface IObjectSchema<TO extends Object = {}> extends ISchema {
+  type: 'object';
 
-export interface IObjectSchemaProp<T=any> extends ISchemaProp<T> {
-  type: { new(): T };
+  serializer?: {
+    // serialize to a JSON object
+    toJSON?( data: TO ): Object;
+
+    // serialize to a byte buffer
+    toBytes?( data: TO ): ByteArray;
+
+    // deserialize from a JSON object
+    fromJSON?( obj?: Object ): TO;
+
+    // deserialize from a byte buffer
+    fromBytes?( raw: ByteArray ): TO;
+  }
 }

@@ -321,7 +321,7 @@ export class DUKPT {
         iv,
       }
 
-      return enc.performTranslate( message, encrypt );
+      return enc.transform( message, encrypt );
     }
 
     static encryptAES(key: ISymKey, data: ByteArray) {

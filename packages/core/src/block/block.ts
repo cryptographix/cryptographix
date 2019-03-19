@@ -1,21 +1,50 @@
 import { IViewable, IView } from '../viewable';
-import { ISchemaProp, schemaStore } from '../schema';
+import { ISchema, ISchemaProperty, schemaStore } from '../schema';
 
-export abstract class BlockSettings {
+interface BSC<BSType extends BlockSettings> {
+  new(): BSType;
+}
+/**
+ * Schema descriptor for a Block
+ */
+export interface IBlockSchema extends ISchema<Block> {
+  type: 'block';
+
+  name: string;
+
+  namespace: string;
+
+  title: string;
+
+  category: string;
+
+  settings: BSC<any>;
 }
 
-export interface IBlock<S extends BlockSettings> extends IViewable {
+/**
+ * Block Settings store configuration items for a block
+ *
+ * BlockSettings can be serialized
+ */
+export abstract class BlockSettings {
+  static initSettings() {};
+}
+
+/*export interface IBlock<S extends BlockSettings> extends IViewable {
   settings: S;
 
   getSettingValue<RT>(key: keyof S): RT;
 
   settingChanged(setting: string, value: string ): boolean;
-}
+}*/
 
-export abstract class Block<S extends BlockSettings> implements IBlock<S> {
+export abstract class Block<S extends BlockSettings={}> implements IViewable /*implements IBlock<S>*/ {
   _view?: IView;
 
   constructor( ) {
+    let blockSchema = schemaStore.ensure<IBlockSchema>( this.constructor );
+
+    this._settings = new blockSchema.settings();
   }
 
   protected _settings: S;
@@ -29,9 +58,9 @@ export abstract class Block<S extends BlockSettings> implements IBlock<S> {
     //console.log( 'Settings: ' + JSON.stringify( settings ))
   }
 
-  getSettingSchema<TItem extends ISchemaProp>(key: keyof S): TItem {
-    let _schema = schemaStore.get( this._settings.constructor );
-    let _schemaItem = _schema.items[ key as string ] as unknown as TItem;
+  getSettingSchema<TSchemaProp extends ISchemaProperty<any>>(key: keyof S): TSchemaProp {
+    let _schema = schemaStore.ensure( this._settings.constructor );
+    let _schemaItem = _schema.properties[ key as string ] as TSchemaProp;
 
     return _schemaItem;
   }
@@ -47,7 +76,3 @@ export abstract class Block<S extends BlockSettings> implements IBlock<S> {
 
 
 export class InvalidInputError extends Error {};
-
-/*interface BlockSettingConstructor {
-  new<S extends BlockSettings>(): S;
-}*/

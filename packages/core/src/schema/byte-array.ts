@@ -122,7 +122,7 @@ export class ByteArray extends Uint8Array {
   }
 }
 
-interface XXBuffer {
+export interface XXBuffer {
 /**
  * When passed a reference to the .buffer property of a TypedArray instance,
  * the newly created Buffer will share the same allocated memory as the TypedArray.

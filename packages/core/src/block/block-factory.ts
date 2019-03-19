@@ -1,17 +1,7 @@
-import { Block, BlockSettings } from './block';
+import { IConstructable, Omit, schemaStore } from '../index';
+import { Block, IBlockSchema } from './block';
 
-export interface BlockMeta {
-  name: string;
-  namespace: string;
-  title: string;
-  category: string;
-  type: string;
-  settings: { new(): BlockSettings }
-}
-
-type BlockConstructor = { new(): Block<any>; };
-
-export class BlockFactory {
+/*export class BlockFactory {
   private _blockRegistry: Map<typeof Block, BlockMeta>;
 
   constructor() {
@@ -23,10 +13,17 @@ export class BlockFactory {
   }
 }
 
-export const blockFactory = new BlockFactory();
+export const blockFactory = new BlockFactory();*/
 
-export function block( meta: BlockMeta ) {
-  return function( target: BlockConstructor ) {
-    blockFactory.register( meta, target );
+export function block( meta: Omit<IBlockSchema, 'target'|'properties'|'type'> ) {
+  return function( target: IConstructable<Block> ) {
+    let schema = schemaStore.ensure<IBlockSchema>( target, 'block' );
+
+    schema = {
+      ...schema,
+      ...meta,
+    };
+
+    schemaStore.set( target, schema );
   }
 }

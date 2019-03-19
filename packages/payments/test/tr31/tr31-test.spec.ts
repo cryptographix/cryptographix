@@ -1,6 +1,6 @@
 import 'mocha';
 import * as assert from 'assert';
-import { BlockCipher } from '@cryptographix/cryptography';
+//import { BlockCipher } from '@cryptographix/cryptography';
 
 import { TR31BuilderBlock, TR31, TR31BuilderSettings } from '@cryptographix/payments';
 //import { generateSubKeys, calculateCMAC } from '@cryptographix/cryptography';

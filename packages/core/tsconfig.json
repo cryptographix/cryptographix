@@ -4,6 +4,10 @@
     "lib": [ "dom" ],
     "declarationDir": "dist",
     "outDir": "dist/build",
+    "baseUrl": "src",
+    "paths": {
+      "@cryptographix/core": ["./index"]
+    },
     "rootDir": "src"
   },
   "include": ["src"]

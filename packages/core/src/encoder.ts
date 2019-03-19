@@ -1,22 +1,21 @@
 import { BlockSettings, Block } from './block/block';
-import { ISchema, ISchemaProp } from './schema';
 
 export interface Encoder<S extends BlockSettings> {
-  performTranslate(content: Uint8Array, isEncode: boolean): Promise<Uint8Array>;
+  transform(content: Uint8Array, isEncode: boolean): Promise<Uint8Array>;
 }
 
 export abstract class Encoder<S extends BlockSettings> extends Block<S> implements Encoder<S> {
 
   encode( content: Uint8Array ): Promise<Uint8Array> {
-    return this.performTranslate(content, true);
+    return this.transform(content, true);
   }
 
   decode( content: Uint8Array ): Promise<Uint8Array> {
-    return this.performTranslate(content, false);
+    return this.transform(content, false);
   };
 }
 
-export class BlockSettingHelper<S extends BlockSettings, TItem extends ISchemaProp> {
+/*export class BlockSettingHelper<S extends BlockSettings, TItem extends ISchemaProp> {
   protected _block: Block<S>;
   protected _key: keyof S;
   protected _schema: ISchema;
@@ -28,4 +27,4 @@ export class BlockSettingHelper<S extends BlockSettings, TItem extends ISchemaPr
 
     this._SchemaProp = block.getSettingSchema<TItem>( key );
   }
-}
+}*/

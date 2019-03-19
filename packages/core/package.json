@@ -30,7 +30,7 @@
     "lint:test": "tslint --project tsconfig-test.json --config ../tslint-test.json -e \"src/**/*.ts\" -t stylish",
     "build": "tsc -b",
     "build:test": "tsc -b tsconfig-test.json",
-    "test": "npm run build:test && mocha dist/**/*.spec.js",
+    "test": "mocha dist/**/*.spec.js",
     "dev": "tsc -b -w",
     "publish:local": "npm pack"
   },

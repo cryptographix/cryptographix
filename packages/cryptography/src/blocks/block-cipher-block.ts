@@ -11,7 +11,6 @@ import { IBytesSchemaProp } from '@cryptographix/core';
   namespace: 'org.cryptographix.cryptography',
   title: 'Block Cipher',
   category: 'Modern cryptography',
-  type: 'encoder',
   settings: BlockCipherSettings
 } )
 export class BlockCipherEncoder extends Transformer<BlockCipherSettings> {
@@ -59,7 +58,7 @@ export class BlockCipherEncoder extends Transformer<BlockCipherSettings> {
   /**
    * Performs encode or decode on given content.
    */
-  async performTranslate( content: Uint8Array, isEncode: boolean ): Promise<Uint8Array> {
+  async transform( content: Uint8Array, isEncode: boolean ): Promise<Uint8Array> {
     const message = content; //.getBytes()
     const { algorithm, mode, key, padding, iv } = this._settings;
 

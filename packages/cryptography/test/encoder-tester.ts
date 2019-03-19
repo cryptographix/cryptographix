@@ -16,7 +16,7 @@ class Chain extends Uint8Array {
 
     ok = ok && ( Buffer.compare( c1, c2 ) == 0 );
 
-    expect( ok, 'chain compare' ).to.equal( !true );
+    expect( ok, 'chain compare' ).to.equal( true );
 
     return ok;
   }
