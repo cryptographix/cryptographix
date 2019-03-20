@@ -8,20 +8,23 @@ export class ByteArray extends Uint8Array {
     *
     */
   static fromString( data: string, fmt?: 'hex' ): ByteArray {
+    let bytes: Uint8Array;
+
     if ( !fmt )
     {
-      let bytes = Buffer.alloc( data.length );
+      bytes = Buffer.alloc( data.length );
 
       for( let i = 0; i < data.length; ++i )
         bytes[ i ] = data.charCodeAt( i );
+    }
+    else {
+      if ( fmt == 'hex' && typeof data == "string" )
+        data = data.replace(/\s/g, '');
 
-      return bytes;
+      bytes = Buffer.from( data, fmt );
     }
 
-    if ( fmt == 'hex' )
-      data = data.replace(/\s/g, '');
-
-    return Buffer.from( data, fmt );
+    return ByteArray.from( bytes );
   }
 
   /**

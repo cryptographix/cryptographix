@@ -55,7 +55,7 @@ export abstract class Schema {
               case 'boolean': value = false; break;
               case 'number': value = propInfo.min || 0; break;
               case 'string': value = ''; break;
-              case 'enum': value = propInfo.options.elements[0]; break;
+              case 'enum': value = Object.keys(propInfo.options)[0]; break;
               case 'bytes': value = ByteArray.from( [] ); break;
             }
           }

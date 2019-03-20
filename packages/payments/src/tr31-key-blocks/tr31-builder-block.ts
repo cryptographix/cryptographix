@@ -8,7 +8,9 @@ export class TR31BuilderSettings extends BlockSettings {
   @bytesProp()
   blockProtectionKey: Uint8Array;
 
-  @enumProp( { options: { elements: ['aes','des'], labels: ['AES','DES'] } } )
+  @enumProp( {
+    options: { 'aes': 'AES', 'des':'DES' }
+  } )
   keyType: string;
 }
 

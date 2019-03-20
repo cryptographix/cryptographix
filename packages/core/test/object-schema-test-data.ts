@@ -1,7 +1,5 @@
 import {
   schema,
-  Schema,
-  schemaStore,
   booleanProp,
   numberProp,
   stringProp,
@@ -39,7 +37,7 @@ export class Y {
   @bytesProp( )
   bytes: ByteArray;
 
-  @enumProp( { options: { elements: [ "1","2","3" ], labels: [ "one", "two", "three" ] } } )
+  @enumProp( { options: { "1": "one", "2": "two", "3": "three" } } )
   option: string;
 
   @objectProp( X )
@@ -61,7 +59,8 @@ export class Z {
   @bytesProp( { defaultValue: H2BA("0123456789abcdef"), minSize: 8 } )
   bytes: ByteArray;
 
-  @enumProp( { options: { elements: [ "1","2","3" ], labels: [ "one", "two", "three" ] }} )
+  // @enumProp( { options: { elements: [ "1","2","3" ], labels: [ "one", "two", "three" ] }} )
+  @enumProp( { options: { "1": "one", "2": "two", "3": "three" } } )
   option: string;
 
   @objectProp( Y, { defaultValue: { bool: false, num: 1, text: 'hello', bytes: H2BA('deadbeef'), option: "1" } } )

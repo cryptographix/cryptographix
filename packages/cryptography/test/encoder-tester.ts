@@ -1,34 +1,18 @@
-import { expect } from 'chai';
-import { it } from 'mocha'
-import { Encoder, BlockSettings } from '@cryptographix/core';
+import 'mocha'
+import * as chai from 'chai';
+import chaiBytes = require( 'chai-bytes' );
+chai.use( chaiBytes );
 
-class Chain extends Uint8Array {
-  static wrap( content: string ): Chain {
-    return Buffer.from( content, 'hex' );
-  }
-
-  static preview( x: Chain ) {
-    return Buffer.from(x).toString( 'hex' );
-  }
-
-  static assertEqual(c1: Chain, c2: Chain) {
-    let ok = c1.length == c2.length;
-
-    ok = ok && ( Buffer.compare( c1, c2 ) == 0 );
-
-    expect( ok, 'chain compare' ).to.equal( true );
-
-    return ok;
-  }
-}
+import { ByteArray, Encoder, BlockSettings, H2BA, BA2H } from '@cryptographix/core';
 
 interface Test<S extends BlockSettings = {}> {
   name?: string;
   direction?: string;
-  content: string | Chain;
-  expectedResult: string | Chain;
+  content: string | ByteArray;
+  expectedResult: string | ByteArray;
   settings: S;
 }
+
 /**
  * Utility class for testing Encoder objects.
  */
@@ -64,21 +48,21 @@ export default class EncoderTester {
     // read direction from test entry
     const isEncoding = test.direction.toLowerCase() === 'encode'
 
-    // wrap content in Chain
+    // convert content to bytes
     const content =
-      test.content instanceof Chain
+      test.content instanceof ByteArray
         ? test.content
-        : Chain.wrap(test.content)
+        : H2BA(test.content)
 
-    // wrap expected result in Chain
+    // convert expected result to bytes
     const expectedResult =
-      test.expectedResult instanceof Chain
+      test.expectedResult instanceof ByteArray
         ? test.expectedResult
-        : Chain.wrap(test.expectedResult)
+        : H2BA(test.expectedResult)
 
     // create content and result preview that will be logged
-    const contentPreview = Chain.preview(content)
-    const expectedResultPreview = Chain.preview(expectedResult)
+    const contentPreview = BA2H(content)
+    const expectedResultPreview = BA2H(expectedResult)
 
     it(
       (test.name ? `${test.name} ` : "" ) +
@@ -102,7 +86,7 @@ export default class EncoderTester {
 
         return result.then( result => {
             // verify result
-            Chain.assertEqual(result, expectedResult)
+            chai.expect(result).equalBytes(expectedResult);
             // no view should have been created during this process
             //assert.strictEqual(encoder.hasView(), false)
           });

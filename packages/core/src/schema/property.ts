@@ -90,8 +90,7 @@ export interface IEnumSchemaProp extends ISchemaProperty<string> {
 
   //
   options: {
-    elements: string[];
-    labels: string[];
+    //tring]: string;
   }
 }
 

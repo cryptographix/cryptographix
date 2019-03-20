@@ -137,15 +137,17 @@ const defaultAlgorithm = BlockCipherHelper.getAlgorithms()[0];
 const modes = BlockCipherHelper.getModes();
 const paddingAvailable = BlockCipherHelper.isPaddingAvailable();
 
+algorithms.map( el => { [ el.name, el.label ] } );
+
+algorithms.reduce<object>( (obj,el)=>{ return obj[el.name] = el.label, obj; }, {} );
+
+
 export class BlockCipherSettings extends BlockSettings {
 
   @enumProp({
     defaultValue: defaultAlgorithm.name,
     viewWidth: paddingAvailable ? 8 : 12,
-    options: {
-      elements: algorithms.map(algorithm => algorithm.name),
-      labels: algorithms.map(algorithm => algorithm.label)
-    }
+    options: algorithms.reduce( (obj,el)=>{ obj[el.name] = el.label; return obj; }, {} ),
   })
   algorithm: string;
 
@@ -157,10 +159,7 @@ export class BlockCipherSettings extends BlockSettings {
 
   @enumProp({
     defaultValue: defaultAlgorithm.name,
-    options: {
-      elements: modes.map(mode => mode.name),
-      labels: modes.map(mode => mode.label)
-    }
+    options: modes.reduce( (obj,el)=>{ obj[el.name] = el.label; return obj; }, {} ),
   })
   mode?: string;
 
