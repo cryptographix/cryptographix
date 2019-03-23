@@ -1,10 +1,13 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 //import typescript from 'rollup-plugin-typescript';
+
+function name(s) { return s.slice(1+s.indexOf('/')); }
+
 let packages = require( '../../lerna.json' ).packages || [];
 //console.log( packages );
 
-packages = packages.map( (n)=> n.slice(1+n.indexOf('/')) );
+packages = packages.map( (n)=> name(n) );
 
 export default function ( pkg, local = {} ) {
   let globals = {
@@ -24,7 +27,7 @@ export default function ( pkg, local = {} ) {
     {
       input: './dist/build/index.js',
       output: {
-        name: pkg.name,
+        name: 'cryptographix.'+name(pkg.name),
         file: pkg.browser,
         format: 'umd',
         //exports: 'named',
