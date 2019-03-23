@@ -1,6 +1,6 @@
 import { ByteArray, H2BA } from '@cryptographix/core';
 import { IAESKey, IDESKey } from '@cryptographix/cryptography';
-import { BlockCipherEncoder } from '@cryptographix/cryptography';
+import { SecretKeyEncrypter } from '@cryptographix/cryptography';
 
 type ISymKey = IAESKey | IDESKey;
 type DUKPTMode = 'pinkey'|'datakey'|'mackey';
@@ -311,11 +311,12 @@ export class DUKPT {
     }
 
     static async _des(key: ISymKey, message: ByteArray, encrypt: boolean, mode: 0|1, iv: ByteArray) {
-      let enc = new BlockCipherEncoder();
+      let enc = new SecretKeyEncrypter();
       let len = key.data.k.length;
 
       enc.settings = {
         algorithm: (len == 8 ) ? "DES" : "DES3",
+        encrypt: true,
         key: key.data.k,
         mode: "CBC",
         iv,

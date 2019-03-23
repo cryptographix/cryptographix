@@ -1,5 +1,5 @@
-import { IConstructable, Omit, schemaStore } from '../index';
-import { Block, IBlockSchema } from './block';
+import { IConstructable, Omit, schemaStore } from '../schema/index';
+import { Block, BlockSettings, IBlockSchema } from './block';
 
 /*export class BlockFactory {
   private _blockRegistry: Map<typeof Block, BlockMeta>;
@@ -15,9 +15,9 @@ import { Block, IBlockSchema } from './block';
 
 export const blockFactory = new BlockFactory();*/
 
-export function block( meta: Omit<IBlockSchema, 'target'|'properties'|'type'> ) {
+export function block<BS extends BlockSettings>( meta: Omit<IBlockSchema<BS>, 'target'|'properties'|'type'> ) {
   return function( target: IConstructable<Block> ) {
-    let schema = schemaStore.ensure<IBlockSchema>( target, 'block' );
+    let schema = schemaStore.ensure<IBlockSchema<BS>>( target, 'block' );
 
     schema = {
       ...schema,

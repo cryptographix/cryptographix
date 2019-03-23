@@ -1,19 +1,14 @@
+import { IConstructable, Omit } from './helpers';
+import { ISchema, IObjectSchema } from './schema';
 import {
-  IConstructable,
-  IObjectSchema,
-  ISchema,
   ISchemaProperty,
   IBooleanSchemaProp,
   INumberSchemaProp,
   IStringSchemaProp,
   IEnumSchemaProp,
   IBytesSchemaProp,
-  IObjectSchemaProp,
-
-  Omit,
-
-  schemaStore
-} from '.';
+  IObjectSchemaProp, } from './property';
+import { schemaStore } from './schema-store';
 
 /**
  * Decorator to annotate a schema.

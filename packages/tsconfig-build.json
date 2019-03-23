@@ -2,10 +2,10 @@
   "compilerOptions": {
     "pretty": true,
     "lib": ["esnext"],
-    "target": "es2018",
-    "module": "commonjs",
+    "target": "esnext",
+    "module": "esnext",
     "moduleResolution": "node",
-  //  "importHelpers": true,
+    "importHelpers": true,
     "experimentalDecorators": true,
     "rootDir": ".",
 

@@ -1,5 +1,5 @@
 import { ByteArray, Block, BlockSettings } from '@cryptographix/core';
-import { RSAEncryptor, IRSAKey } from '@cryptographix/cryptography';
+import { RSAEncrypter, IRSAKey } from '@cryptographix/cryptography';
 
 //import { forge, Bytes } from "./node-forge";
 
@@ -42,7 +42,7 @@ export class EMVCertificateDecoder {
         }
       }
 
-      let plain = await new RSAEncryptor( key ).decrypt( issuerCert );
+      let plain = await new RSAEncrypter( key ).decrypt( issuerCert );
       let plainLen = plain.length;
 
       let modulusLen = plain[ 13 ];

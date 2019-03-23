@@ -1,17 +1,17 @@
 import { BlockSettings, Block } from './block/block';
 
-export interface Encoder<S extends BlockSettings> {
+export interface Encoder<BS extends BlockSettings> {
   transform(content: Uint8Array, isEncode: boolean): Promise<Uint8Array>;
 }
 
-export abstract class Encoder<S extends BlockSettings> extends Block<S> implements Encoder<S> {
+export abstract class Encoder<BS extends BlockSettings> extends Block<BS> implements Encoder<BS> {
 
-  encode( content: Uint8Array ): Promise<Uint8Array> {
-    return this.transform(content, true);
+  async encode( content: Uint8Array ): Promise<Uint8Array> {
+    return this.transform( content, true );
   }
 
-  decode( content: Uint8Array ): Promise<Uint8Array> {
-    return this.transform(content, false);
+  async decode( content: Uint8Array ): Promise<Uint8Array> {
+    return this.transform( content, false );
   };
 }
 

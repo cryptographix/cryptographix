@@ -1,5 +1,5 @@
 import { ByteArray } from '@cryptographix/core';
-import { BlockCipher } from '@cryptographix/cryptography';
+import { BlockCipher } from './block-cipher';
 
 export function getCipherName( keyType: string, keyLength: number ) {
   const isAES = ( keyType == 'AES' );

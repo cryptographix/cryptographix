@@ -1,7 +1,7 @@
 import 'mocha'
 
 import { H2BA } from '@cryptographix/core';
-import { BlockCipherEncoder } from '@cryptographix/cryptography';
+import { SecretKeyEncrypter } from '@cryptographix/cryptography';
 import EncoderTester from '../encoder-tester'
 
 /**
@@ -9,9 +9,9 @@ import EncoderTester from '../encoder-tester'
  * @see  https://github.com/ircmaxell/quality-checker/blob/master/tmp/gh_18/PHP-PasswordLib-master/test/Data/Vectors/aes-ecb.test-vectors
  * @see  https://github.com/ircmaxell/quality-checker/blob/master/tmp/gh_18/PHP-PasswordLib-master/test/Data/Vectors/aes-cbc.test-vectors
  * @see  https://github.com/ircmaxell/quality-checker/blob/master/tmp/gh_18/PHP-PasswordLib-master/test/Data/Vectors/aes-ctr.test-vectors
- * @test {BlockCipherEncoder}
+ * @test {SecretKeyCipherEncoder}
  */
-describe('BlockCipherEncoder', () => EncoderTester.test(BlockCipherEncoder, [
+describe('SecretKeyEncrypter', () => EncoderTester.test(SecretKeyEncrypter, [
   // DES-56
   // -ECB
   {

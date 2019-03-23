@@ -1,4 +1,7 @@
-import { IConstructable, ByteArray, ISchemaPropertyType, schemaStore } from '.';
+import { IConstructable } from './helpers';
+import { ByteArray } from './byte-array';
+import { ISchemaPropertyType } from './property';
+import { schemaStore } from './schema-store';
 
 /**
  * Base Schema descriptor for any Object
@@ -27,50 +30,43 @@ export interface ISchema<TO=Object> {
  * Static helpers for Schemas
  */
 export abstract class Schema {
+  /**
+   *
+   */
   static initObjectFromClass<TO>( target: IConstructable<TO>, initObject?: TO ): TO {
     let schema = schemaStore.ensure<ISchema<TO>>( target );
 
     return Schema.initObjectFromSchema( schema, initObject || {} );
   }
 
+  /**
+   *
+   */
   static initObjectFromSchema<TO, TSchema extends ISchema<TO>>( schema: TSchema, initObject: Object = {} ): TO {
     let object = new schema.target();
 
-//    console.log( "initObjectFromSchema" );
-
     Object.entries( schema.properties ).forEach( ([key, propInfo]) => {
+      let value = initObject[ key ] || object[ key ];
+
       if ( propInfo.type instanceof Object ) {
-        object[ key ] = Schema.initObjectFromSchema( propInfo.type, initObject[ key ] );
+        // initialize sub-object
+        value = Schema.initObjectFromSchema( propInfo.type, value );
       }
-      else {
-        // use initObject
-        if ( initObject[ key ] ) {
-          object[ key ] = initObject[ key ];
-        }
-        else {
-          let value = propInfo.defaultValue;
-
-          if ( !value ) {
-            switch( propInfo.type ) {
-              case 'boolean': value = false; break;
-              case 'number': value = propInfo.min || 0; break;
-              case 'string': value = ''; break;
-              case 'enum': value = Object.keys(propInfo.options)[0]; break;
-              case 'bytes': value = ByteArray.from( [] ); break;
-            }
-          }
-
-          object[ key ] = value;
+      else if ( !value && !propInfo.optional ) {
+        // no initial or default value .. use default for type
+        switch( propInfo.type ) {
+          case 'boolean': value = false; break;
+          case 'number': value = propInfo.min || 0; break;
+          case 'string': value = ''; break;
+          case 'enum': value = Object.keys(propInfo.options)[0] || ""; break;
+          case 'bytes': value = ByteArray.from([]); break;
         }
       }
 
-//      console.log(key + " :> ", propInfo);
+      object[ key ] = value;
     } );
 
-    return {
-      ...object,
-      ...initObject,
-    }
+    return object;
   }
 }
 

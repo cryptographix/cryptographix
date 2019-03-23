@@ -1,4 +1,4 @@
-import { ISchema } from '.';
+import { ISchema } from './schema';
 
 export class SchemaStorage {
 

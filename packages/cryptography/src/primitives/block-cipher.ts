@@ -1,9 +1,6 @@
 import { Env as Browser } from '@cryptographix/core';
 import { XWindow } from './webcrypto-ie-shim';
 
-import { BlockSettings } from '@cryptographix/core';
-import { booleanProp, /*numberField, stringField,*/ enumProp, bytesProp } from '@cryptographix/core';
-
 import * as nodeCrypto from 'crypto';
 declare var window: XWindow;
 
@@ -132,55 +129,7 @@ export class BlockCipherHelper {
   }
 }
 
-const algorithms = BlockCipherHelper.getAlgorithms();
-const defaultAlgorithm = BlockCipherHelper.getAlgorithms()[0];
-const modes = BlockCipherHelper.getModes();
-const paddingAvailable = BlockCipherHelper.isPaddingAvailable();
-
-algorithms.map( el => { [ el.name, el.label ] } );
-
-algorithms.reduce<object>( (obj,el)=>{ return obj[el.name] = el.label, obj; }, {} );
-
-
-export class BlockCipherSettings extends BlockSettings {
-
-  @enumProp({
-    defaultValue: defaultAlgorithm.name,
-    viewWidth: paddingAvailable ? 8 : 12,
-    options: algorithms.reduce( (obj,el)=>{ obj[el.name] = el.label; return obj; }, {} ),
-  })
-  algorithm: string;
-
-  @booleanProp({
-    ignore: !paddingAvailable,
-    viewWidth: paddingAvailable ? 4 : 12
-  })
-  padding?: boolean;
-
-  @enumProp({
-    defaultValue: defaultAlgorithm.name,
-    options: modes.reduce( (obj,el)=>{ obj[el.name] = el.label; return obj; }, {} ),
-  })
-  mode?: string;
-
-  @bytesProp({
-    defaultValue: new Uint8Array([
-      0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
-      0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c]
-    )
-  })
-  key: Uint8Array;
-
-  @bytesProp()
-  iv?: Uint8Array;
-}
-
 export class BlockCipher {
-  _settings: BlockCipherSettings;
-
-  constructor(settings: BlockCipherSettings) {
-    this._settings = settings;
-  }
 
   /**
     * Creates message cipher using given algorithm.

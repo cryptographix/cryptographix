@@ -1,4 +1,4 @@
-export * from './schema';
+export * from './schema/index';
 
 export * from './block/block';
 export * from './block/block-factory';

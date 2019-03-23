@@ -1,15 +1,28 @@
 import { ByteArray } from '@cryptographix/core';
 import { IRSAKey } from '@cryptographix/cryptography';
 
-import './node-forge';
-import { forge } from './node-forge';
+import '../provider/node-forge';
+import { forge } from '../provider/node-forge';
 
+import { Encoder, BlockSettings, block } from '@cryptographix/core';
 
+export class RSAEncrypterSettings extends BlockSettings {
+}
 
-export class RSAEncryptor {
+@block( {
+  name: 'rsa-encrypter',
+  namespace: 'org.cryptographix.cryptography',
+  title: 'RSA Encrypter',
+  category: 'Modern cryptography',
+  settings: RSAEncrypterSettings
+})
+export class RSAEncrypter extends Encoder<RSAEncrypterSettings> {
+
   _key: IRSAKey;
 
   constructor( key: IRSAKey ) {
+    super();
+
     this._key = key;
   }
 
