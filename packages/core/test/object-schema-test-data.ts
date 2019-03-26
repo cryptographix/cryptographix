@@ -6,73 +6,87 @@ import {
   enumProp,
   bytesProp,
   objectProp,
-  ByteArray, H2BA,
-} from '@cryptographix/core';
+  ByteArray,
+  H2BA
+} from "@cryptographix/core";
 
 // Simple Class, no properties
-@schema( { serializer: {} } )
+@schema({ serializer: {} })
 export class X {
   private _priv: string;
   protected prot: string;
   public pub: string;
 
   constructor() {
-    this._priv = 'private';
-    this.prot = 'protected';
-    this.pub = 'public';
+    this._priv = "private";
+    this.prot = "protected";
+    this.pub = "public";
   }
 }
 
-@schema( { description: 'All prop types, no default values', namespace: 'cryptographix.org/objects' })
+@schema({
+  description: "All prop types, no default values",
+  namespace: "cryptographix.org/objects"
+})
 export class Y {
-  @booleanProp( )
+  @booleanProp()
   bool: boolean;
 
-  @numberProp( )
+  @numberProp()
   num: number;
 
-  @stringProp( )
+  @stringProp()
   text: string;
 
-  @bytesProp( )
+  @bytesProp()
   bytes: ByteArray;
 
-  @enumProp( { options: { "1": "one", "2": "two", "3": "three" } } )
+  @enumProp({ options: { "1": "one", "2": "two", "3": "three" } })
   option: string;
 
-  @objectProp( X )
+  @objectProp(X)
   obj: X;
 }
 
-
-@schema( { description: 'All prop types with default values', namespace: 'cryptographix.org/objects' })
+@schema({
+  description: "All prop types with default values",
+  namespace: "cryptographix.org/objects"
+})
 export class Z {
-  @booleanProp( { defaultValue: true } )
+  @booleanProp({ default: true })
   bool: boolean;
 
-  @numberProp( { defaultValue: 99 } )
+  @numberProp({ default: 99 })
   num: number;
 
-  @stringProp( { defaultValue: 'a string' } )
+  @stringProp({ default: "a string" })
   text: string;
 
-  @bytesProp( { defaultValue: H2BA("0123456789abcdef"), minSize: 8 } )
+  @bytesProp({ default: H2BA("0123456789abcdef"), minSize: 8 })
   bytes: ByteArray;
 
   // @enumProp( { options: { elements: [ "1","2","3" ], labels: [ "one", "two", "three" ] }} )
-  @enumProp( { options: { "1": "one", "2": "two", "3": "three" } } )
+  @enumProp({ options: { "1": "one", "2": "two", "3": "three" } })
   option: string;
 
-  @objectProp( Y, { defaultValue: { bool: false, num: 1, text: 'hello', bytes: H2BA('deadbeef'), option: "1" } } )
+  @objectProp(Y, {
+    default: {
+      bool: false,
+      num: 1,
+      text: "hello",
+      bytes: H2BA("deadbeef"),
+      option: "1"
+    }
+  })
   obj: Y;
 }
 
-@schema( { description: 'Class ZZ', namespace: 'cryptographix.org/objects' })
+@schema({ description: "Class ZZ", namespace: "cryptographix.org/objects" })
 export class ZZ {
-  @objectProp( Z )
+  @objectProp(Z)
   z: Z;
 
-  @numberProp( { defaultValue: 100 } )
+  @numberProp({ default: 100, ui: { int: 1234 } })
   num: Number;
 }
 

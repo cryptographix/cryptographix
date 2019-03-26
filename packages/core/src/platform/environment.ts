@@ -1,6 +1,6 @@
 export const Env = {
   isNode(): boolean {
-    return true;
+    return (typeof process !== 'undefined');
   }
 
 

@@ -1,0 +1,45 @@
+{
+  "name": "@cryptographix/block-viewer",
+  "version": "0.1.0",
+  "main": "dist/build/index.js",
+  "module": "dist/build/index.js",
+  "browser": "dist/build/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "homepage": "https://cryptographix.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cryptographix/cryptographix"
+  },
+  "bugs": {
+    "url": "https://github.com/cryptographix/cryptographix/issues"
+  },
+  "keywords": [
+    "cryptographix",
+    "block-viewer"
+  ],
+  "files": [
+    "dist",
+    "src",
+    "LICENSE"
+  ],
+  "scripts": {
+    "clean": "rm -rf ./dist",
+    "lint": "npm run lint:src && npm run lint:test",
+    "lint:src": "tslint --project tsconfig.json -t stylish",
+    "lint:test": "tslint --project tsconfig-test.json --config ../tslint-test.json -e \"src/**/*.ts\" -t stylish",
+    "build": "tsc -b",
+    "build:test": "tsc -b tsconfig-test.json",
+    "test": "mocha dist/**/*.spec.js",
+    "dev": "tsc -b -w",
+    "publish:local": "npm pack"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@cryptographix/core": "0.1.0",
+    "@cryptographix/cryptography": "0.1.0",
+    "express": "^4.16.4"
+  }
+}

@@ -1,13 +1,13 @@
-import config from '../rollup-config-build';
-import pkg from './package.json';
+import config from "../rollup-config-build";
+import pkg from "./package.json";
 
 let localConfig = {
-  external: [
-    'forge','jsbn','crypto'
-  ],
+  external: ["node-forge", "crypto"],
   globals: {
-    'crypto': 'crypto'
-  },
-}
+    "node-forge": "forge",
+    "@cryptographix/core": "cryptographix.core",
+    "@cryptographix/cryptography": "cryptographix.cryptography"
+  }
+};
 
-export default config( pkg, localConfig );
+export default config(pkg, localConfig);

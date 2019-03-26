@@ -1,4 +1,4 @@
-import { ISchema } from '.';
+import { ISchema } from ".";
 
 /**
  * Base descriptor for a property defined by Schema
@@ -13,35 +13,37 @@ export interface ISchemaProperty<Type> {
   name?: string;
 
   //
-  label?: string;
+  title?: string;
+
+  //
+  description?: string;
 
   //
   ignore?: boolean;
 
   //
-  viewWidth?: number;
-
-  //
-  priority?: number;
-
-  //
   optional?: boolean;
 
   //
-  defaultValue?: Type;
+  default?: Type;
+
+  //
+  ui?: ISchemaUIProperties;
 
   //
   converter?: {
-    fromJSON( name: string, obj: object ): Type;
-    toJSON( prop: Type ): any;
+    fromJSON(name: string, obj: object): Type;
+    toJSON(prop: Type): any;
   };
 }
+
+export interface ISchemaUIProperties {}
 
 /**
  *
  */
 export interface IBooleanSchemaProp extends ISchemaProperty<boolean> {
-  type: 'boolean';
+  type: "boolean";
 
   //
   trueLabel?: string;
@@ -54,7 +56,7 @@ export interface IBooleanSchemaProp extends ISchemaProperty<boolean> {
  *
  */
 export interface IStringSchemaProp extends ISchemaProperty<string> {
-  type: 'string';
+  type: "string";
 
   //
   minLength?: number;
@@ -67,7 +69,7 @@ export interface IStringSchemaProp extends ISchemaProperty<string> {
  *
  */
 export interface INumberSchemaProp extends ISchemaProperty<number> {
-  type: 'number';
+  type: "number";
 
   //
   integer?: boolean;
@@ -86,19 +88,19 @@ export interface INumberSchemaProp extends ISchemaProperty<number> {
  *
  */
 export interface IEnumSchemaProp extends ISchemaProperty<string> {
-  type: 'enum';
+  type: "enum";
 
   //
   options: {
     //tring]: string;
-  }
+  };
 }
 
 /**
  *
  */
 export interface IBytesSchemaProp extends ISchemaProperty<ArrayBuffer> {
-  type: 'bytes';
+  type: "bytes";
 
   //
   minSize?: number;
@@ -110,9 +112,16 @@ export interface IBytesSchemaProp extends ISchemaProperty<ArrayBuffer> {
 /**
  *
  */
-export interface IObjectSchemaProp<TO extends Object = {}> extends ISchemaProperty<TO> {
+export interface IObjectSchemaProp<TO extends Object = {}>
+  extends ISchemaProperty<TO> {
   //
   type: ISchema<TO>;
 }
 
-export type ISchemaPropertyType = IBooleanSchemaProp | IStringSchemaProp | INumberSchemaProp | IEnumSchemaProp | IBytesSchemaProp | IObjectSchemaProp;
+export type ISchemaPropertyType =
+  | IBooleanSchemaProp
+  | IStringSchemaProp
+  | INumberSchemaProp
+  | IEnumSchemaProp
+  | IBytesSchemaProp
+  | IObjectSchemaProp;

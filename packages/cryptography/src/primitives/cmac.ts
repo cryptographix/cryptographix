@@ -1,74 +1,86 @@
-import { ByteArray } from '@cryptographix/core';
-import { BlockCipher } from './block-cipher';
+import { ByteArray } from "@cryptographix/core";
+import { BlockCipher } from "./block-cipher";
 
-export function getCipherName( keyType: string, keyLength: number ) {
-  const isAES = ( keyType == 'AES' );
+export function getCipherName(keyType: string, keyLength: number) {
+  const isAES = keyType == "AES";
 
-  let cipherName = ( isAES ) ? `aes-${8*keyLength}` : 'des-2';
+  let cipherName = isAES ? `aes-${8 * keyLength}` : "des-2";
 
   return cipherName;
 }
 
-export async function generateSubKeys( keyType: string, macKey: Uint8Array ): Promise<{ k1: Uint8Array, k2: Uint8Array }> {
-  const isAES = ( keyType == 'AES' );
+export async function generateSubKeys(
+  keyType: string,
+  macKey: Uint8Array
+): Promise<{ k1: Uint8Array; k2: Uint8Array }> {
+  const isAES = keyType == "AES";
 
-  const valR = isAES ? ByteArray.fromString( '00000000000000000000000000000087', 'hex')
-                     : ByteArray.fromString( '000000000000001B', 'hex')
+  const valR = isAES
+    ? ByteArray.fromString("00000000000000000000000000000087", "hex")
+    : ByteArray.fromString("000000000000001B", "hex");
 
-  let zeros = ByteArray.fromString( '0000000000000000', 'hex');
-  if ( isAES ) {
-    zeros = Buffer.concat( [ zeros, zeros ] );
+  let zeros = ByteArray.fromString("0000000000000000", "hex");
+  if (isAES) {
+    zeros = ByteArray.concat([zeros, zeros]);
   }
 
-  let cipherName = getCipherName( keyType, macKey.length );
+  let cipherName = getCipherName(keyType, macKey.length);
 
   let s = await BlockCipher.createCipher(
     cipherName,
-    'ecb',
+    "cbc",
     macKey,
-    null,
+    zeros,
     false,
     true,
-    zeros );
+    zeros
+  );
 
-  let K1 = ByteArray.shiftBitsLeft( s );
+  // Remove padding (CBC -> ECB)
+  s = s.slice(0, zeros.length);
 
-	if ( s[ 0 ] & 0x80 ) {
-    K1 = ByteArray.xor( K1, valR );
+  let K1 = ByteArray.shiftBitsLeft(s);
+
+  if (s[0] & 0x80) {
+    K1 = ByteArray.xor(K1, valR);
   }
 
-  let K2 = ByteArray.shiftBitsLeft( K1 );
+  let K2 = ByteArray.shiftBitsLeft(K1);
 
-  if ( K1[ 0 ] & 0x80 ) {
-    K2 = ByteArray.xor( K2, valR );
+  if (K1[0] & 0x80) {
+    K2 = ByteArray.xor(K2, valR);
   }
 
   return {
     k1: K1,
-    k2: K2,
-  }
+    k2: K2
+  };
 }
 
-export async function calculateCMAC( msg: Uint8Array, keyType: string, macKey: Uint8Array ): Promise<Uint8Array> {
+export async function calculateCMAC(
+  msg: Uint8Array,
+  keyType: string,
+  macKey: Uint8Array
+): Promise<Uint8Array> {
   const keyLength = macKey.length;
-  const isAES = ( keyType == 'AES' );
-  const blockLen = (isAES) ? 16 : 8;
+  const isAES = keyType == "AES";
+  const blockLen = isAES ? 16 : 8;
 
-  let keys = await generateSubKeys( keyType, macKey );
+  let keys = await generateSubKeys(keyType, macKey);
 
   let msgN = msg;
   let xorKey = keys.k1;
 
-  if ( msg.length % blockLen != 0 ) {
-    let padLen = blockLen - ( msg.length % blockLen );
-    let padBytes = new Uint8Array( padLen );
+  if (msg.length % blockLen != 0) {
+    let padLen = blockLen - (msg.length % blockLen);
+    let padBytes = new Uint8Array(padLen);
 
-    padBytes[ 0 ] = 0x80;
-    for( let i = 1; i < padLen; ++i ) {
-      padBytes[ i ] = 0x00;
+    padBytes[0] = 0x80;
+    for (let i = 1; i < padLen; ++i) {
+      padBytes[i] = 0x00;
     }
 
-    msgN = ByteArray.concat( [ msg, padBytes ] );
+    msgN = ByteArray.concat([msg, padBytes]);
     xorKey = keys.k2;
     //console.log( 'padded' )
   }
@@ -77,27 +89,28 @@ export async function calculateCMAC( msg: Uint8Array, keyType: string, macKey: U
 
   let nOffset = msgN.length - blockLen;
 
-  let block = ByteArray.xor( msgN.slice( nOffset, nOffset + blockLen ), xorKey );
-  msgN.set( block, nOffset );
+  let block = ByteArray.xor(msgN.slice(nOffset, nOffset + blockLen), xorKey);
+  msgN.set(block, nOffset);
 
-  let zeros = ByteArray.fromString( '0000000000000000', 'hex');
-  if ( isAES ) zeros = Buffer.concat( [ zeros, zeros ] );
+  let zeros = ByteArray.fromString("0000000000000000", "hex");
+  if (isAES) zeros = ByteArray.concat([zeros, zeros]);
 
   let iv = zeros;
 
-  let cipherName = getCipherName( keyType, keyLength );
+  let cipherName = getCipherName(keyType, keyLength);
 
   let ct = await BlockCipher.createCipher(
     cipherName,
-    'cbc',
+    "cbc",
     macKey,
     iv,
     false,
     true,
-    msgN );
+    msgN
+  );
 
   //console.log( msgN.toString( 'hex' ) );
   //console.log( ct.toString( 'hex' ) );
 
-  return ct.slice( nOffset );
+  return ct.slice(nOffset);
 }
