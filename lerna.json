@@ -3,9 +3,8 @@
   "npmClient": "yarn",
   "packages": [
     "packages/core",
-    "packages/cryptii",
     "packages/cryptography",
-    "packages/dom-view",
+    "packages/block-viewer",
     "packages/payments"
   ],
   "version": "0.1.0"

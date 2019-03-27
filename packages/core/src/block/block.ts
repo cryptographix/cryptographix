@@ -1,11 +1,18 @@
-import { IViewable, IView } from '../viewable';
-import { ISchema, Schema, ISchemaProperty, IConstructable, schemaStore } from '../schema/index';
+import { IViewable, IView } from "../viewable";
+import {
+  ISchema,
+  Schema,
+  ISchemaProperty,
+  IConstructable,
+  schemaStore
+} from "../schema/index";
 
 /**
  * Schema descriptor for a Block
  */
-export interface IBlockSchema<BS extends BlockSettings> extends ISchema<Block<BS>> {
-  type: 'block';
+export interface IBlockSchema<BS extends BlockSettings>
+  extends ISchema<Block<BS>> {
+  type: "block";
 
   name: string;
 
@@ -24,7 +31,7 @@ export interface IBlockSchema<BS extends BlockSettings> extends ISchema<Block<BS
  * BlockSettings can be serialized
  */
 export abstract class BlockSettings {
-//  static initSettings() {};
+  //  static initSettings() {};
 }
 
 /*export interface IBlock<S extends BlockSettings> extends IViewable {
@@ -35,13 +42,17 @@ export abstract class BlockSettings {
   settingChanged(setting: string, value: string ): boolean;
 }*/
 
-export abstract class Block<BS extends BlockSettings={}> implements IViewable /*implements IBlock<S>*/ {
+export abstract class Block<BS extends BlockSettings = {}>
+  implements IViewable /*implements IBlock<S>*/ {
   _view?: IView;
 
-  constructor( ) {
-    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>( this.constructor );
+  constructor(initSettings?: Partial<BS>) {
+    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this.constructor);
 
-    this._settings = new blockSchema.settings();
+    this._settings = Schema.initObjectFromClass<BS>(
+      blockSchema.settings,
+      initSettings
+    );
   }
 
   protected _settings: BS;
@@ -50,28 +61,31 @@ export abstract class Block<BS extends BlockSettings={}> implements IViewable /*
     return this._settings;
   }
 
-  set settings( settings: BS ) {
-    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>( this.constructor );
+  set settings(settings: BS) {
+    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this.constructor);
 
-    this._settings = Schema.initObjectFromClass<BS>( blockSchema.settings, settings );
-    //console.log( 'Settings: ' + JSON.stringify( settings ))
+    this._settings = Schema.initObjectFromClass<BS>(
+      blockSchema.settings,
+      settings
+    );
   }
 
-  getSettingSchema<TSchemaProp extends ISchemaProperty<any>>(key: keyof BS): TSchemaProp {
-    let _schema = schemaStore.ensure( this._settings.constructor );
-    let _schemaItem = _schema.properties[ key as string ] as TSchemaProp;
+  getSettingSchema<TSchemaProp extends ISchemaProperty<any>>(
+    key: keyof BS
+  ): TSchemaProp {
+    let _schema = schemaStore.ensure(this._settings.constructor);
+    let _schemaItem = _schema.properties[key as string] as TSchemaProp;
 
     return _schemaItem;
   }
 
-  getSettingValue<RT=any>(key: keyof BS): RT {
-    return this._settings[ key ] as unknown as RT;
+  getSettingValue<RT = any>(key: keyof BS): RT {
+    return (this._settings[key] as unknown) as RT;
   }
 
-  settingChanged( _setting: string, _value: string ): boolean {
+  settingChanged(_setting: string, _value: string): boolean {
     return false;
   }
 }
 
-
-export class InvalidInputError extends Error {};
+export class InvalidInputError extends Error {}

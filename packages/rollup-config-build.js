@@ -10,6 +10,7 @@ let packages = require("../../lerna.json").packages || [];
 //console.log( packages );
 
 packages = packages.map(n => name(n));
+console.log( packages );
 
 export default function(pkg, local = {}) {
   let me = name(pkg.name);
@@ -24,7 +25,7 @@ export default function(pkg, local = {}) {
   };
 
   let external = [
-    //...packages.map( n=> '@cryptographix/'+n ),
+    ...packages.map( n=> '@cryptographix/'+n ),
     ...(local.external || [])
   ];
   if (me != "core") external.push("tslib");
@@ -43,11 +44,15 @@ export default function(pkg, local = {}) {
       },
       plugins: [
         //typescript(),
-        resolve(),
-        commonjs()
+        resolve({
+          main: true,
+          modules: true,
+        }),
+        commonjs(),
+        ...(local.plugins||[]),
       ],
       external: external
-    }
+    },
 
     // CommonJS (for Node) and ES module (for bundlers) build.
     // (We could have three entries in the configuration array
@@ -55,7 +60,7 @@ export default function(pkg, local = {}) {
     // builds from a single configuration where possible, using
     // an array for the `output` option, where we can specify
     // `file` and `format` for each target)
-    /*    {
+    {
       input: "./dist/build/index.js",
       //      input: 'src/index.ts',
       output: [
@@ -75,6 +80,6 @@ export default function(pkg, local = {}) {
         //typescript(),
       ],
       external: external
-    }*/
+    }
   ];
 }

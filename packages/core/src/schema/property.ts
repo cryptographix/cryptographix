@@ -5,11 +5,14 @@ import { ISchema } from ".";
  *
  * To be extended by specific typed schema items
  */
-export interface ISchemaProperty<Type> {
+export interface ISchemaProperty<
+  Type,
+  UIProps extends ISchemaUIProperties = any
+> {
   //
   type: string | ISchema<Type>;
 
-  //
+  // property name on object
   name?: string;
 
   //
@@ -28,7 +31,7 @@ export interface ISchemaProperty<Type> {
   default?: Type;
 
   //
-  ui?: ISchemaUIProperties;
+  ui?: UIProps;
 
   //
   converter?: {
@@ -37,7 +40,11 @@ export interface ISchemaProperty<Type> {
   };
 }
 
-export interface ISchemaUIProperties {}
+export interface ISchemaUIProperties {
+  label?: string;
+
+  hint?: string;
+}
 
 /**
  *

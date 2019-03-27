@@ -3,6 +3,7 @@
   "references": [
     { "path": "core" },
     { "path": "cryptography" },
-    { "path": "payments" }
+    { "path": "payments" },
+    { "path": "block-viewer" }
   ]
 }

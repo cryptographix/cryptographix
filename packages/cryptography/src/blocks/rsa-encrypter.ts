@@ -1,5 +1,5 @@
 import { ByteArray } from '@cryptographix/core';
-import { IRSAKey } from '@cryptographix/cryptography';
+import { IRSAKey } from '../primitives/keys';
 
 import '../provider/node-forge';
 import { forge } from '../provider/node-forge';

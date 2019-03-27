@@ -13,31 +13,43 @@ import { BlockCipher, BlockCipherHelper } from "../primitives/block-cipher";
 import { IBytesSchemaProp } from "@cryptographix/core";
 
 const paddingAvailable = BlockCipherHelper.isPaddingAvailable();
-//const defaultAlgorithm = BlockCipherHelper.getAlgorithms()[0];
+
+/**
+ * Map algorithm name: label pairs onto an object
+ */
 const algorithmNameMap = BlockCipherHelper.getAlgorithms().reduce((obj, el) => {
   obj[el.name] = el.label;
   return obj;
 }, {});
 
+/**
+ * Map mode name: label pairs onto an object
+ */
 const modeNameMap = BlockCipherHelper.getModes().reduce((obj, el) => {
   obj[el.name] = el.label;
   return obj;
 }, {});
 
+/**
+ * Settings
+ */
 export class SecretKeyEncrypterSettings extends BlockSettings {
   @enumProp({
+    title: "Algorithm Name",
     ui: { viewWidth: paddingAvailable ? 8 : 12 },
     options: algorithmNameMap
   })
   algorithm: string = BlockCipherHelper.getAlgorithms()[0].name;
 
   @booleanProp({
+    title: "Direction",
     trueLabel: "Encrypt",
     falseLabel: "Decrypt"
   })
   encrypt: boolean = true;
 
   @booleanProp({
+    title: "Pad using PKCS#7",
     optional: true,
     ignore: !paddingAvailable,
     ui: { viewWidth: paddingAvailable ? 8 : 12 }
@@ -69,13 +81,6 @@ export class SecretKeyEncrypterSettings extends BlockSettings {
 })
 export class SecretKeyEncrypter extends Encoder<SecretKeyEncrypterSettings> {
   _blockCipher: BlockCipher;
-
-  /**
-   * Constructor
-   */
-  constructor() {
-    super();
-  }
 
   /**
    * Triggered when a setting field has changed.

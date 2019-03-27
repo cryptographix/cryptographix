@@ -1,13 +1,11 @@
 {
   "extends": "../tsconfig-build.json",
   "compilerOptions": {
-    "lib": [ "dom" ],
+    "jsx": "react",
+    "jsxFactory": "View.createElement",
+    "lib": ["dom"],
     "declarationDir": "dist",
     "outDir": "dist/build",
-    "baseUrl": "src",
-    "paths": {
-      "@cryptographix/payments": ["./index"]
-    },
     "rootDir": "src"
   },
   "include": ["src"]

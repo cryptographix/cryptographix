@@ -4,7 +4,6 @@
     "lib": [ "dom" ],
     "declarationDir": "dist",
     "outDir": "dist/build",
-    "baseUrl": "src",
     "rootDir": "src"
   },
   "include": ["src"]

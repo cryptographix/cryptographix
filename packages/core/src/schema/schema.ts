@@ -49,11 +49,11 @@ export abstract class Schema {
    */
   static initObjectFromClass<TO>(
     target: IConstructable<TO>,
-    initObject?: TO
+    initObject?: Partial<TO>
   ): TO {
     let schema = schemaStore.ensure<ISchema<TO>>(target);
 
-    return Schema.initObjectFromSchema(schema, initObject || {});
+    return Schema.initObjectFromSchema(schema, initObject );
   }
 
   /**
@@ -61,7 +61,7 @@ export abstract class Schema {
    */
   static initObjectFromSchema<TO, TSchema extends ISchema<TO>>(
     schema: TSchema,
-    initObject: Object = {}
+    initObject: Partial<TO> = {}
   ): TO {
     let object = new schema.target();
 

@@ -6,3 +6,7 @@ export * from './secret-key-derivator';
 export * from './secret-key-generator';
 
 export * from './rsa-encrypter';
+
+export class ByteArray {
+  prop: string = 'string';
+}

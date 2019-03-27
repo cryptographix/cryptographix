@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <!-- script src='lib/tslib/tslib.js'></script -->
     <script src="lib/cryptographix/core/dist/index.umd.js"></script>
     <script>
@@ -8,77 +11,118 @@
     </script>
     <script src="lib/cryptographix/cryptography/dist/index.umd.js"></script>
     <script src="lib/cryptographix/payments/dist/index.umd.js"></script>
-    <script>
-      //import * as core from '/lib/cryptographix/core/dist/index.mjs';
-      //import * as cryp from '/lib/cryptographix/cryptography/dist/index.mjs';
-      let core = cryptographix.core;
-      let ByteArray = core.ByteArray;
-      let cryp = cryptographix.cryptography;
-      let paym = cryptographix.payments;
+    <script src="lib/cryptographix/payments/dist/index.umd.js"></script>
+    <script src="app/index.umd.js"></script>
 
-      async function tr() {
-        let tr31 = new paym.TR31();
-
-        let kbpkKey = ByteArray.fromString(
-          "88E1AB2A2E3DD38C1FA039A536500CC8A87AB9D62DC92C01058FA79F44657DE6",
-          "hex"
-        );
-
-        await tr31.deriveBlockKeys("AES", kbpkKey);
-
-        //console.log("k1:" + ByteArray.toString(keys.k1.key,'hex')) // is equal to '' but should be 014baf2278a69d331d5180103643e99a
-        //console.log("k2:" + ByteArray.toString(keys.k2.key,'hex')) // is equal to '' but should be 014baf2278a69d331d5180103643e99a
-
-        let examplePadding = ByteArray.fromString(
-          "1C2965473CE206BB855B01533782",
-          "hex"
-        );
-
-        tr31
-          .setBlockHeader("D0112P0AE00E0000")
-          .setBlockKeyData(
-            ByteArray.fromString("3F419E1CB7079442AA37474C2EFBF8B8", "hex")
-          )
-          .padKeyData(32, examplePadding);
-
-        let keyBlock = await tr31.generateKeyBlock();
-
-        return keyBlock;
-      }
-
-      let xx = core.H2BA("0123456789abcdef0123456789abcdef");
-
-      let enc = new cryp.SecretKeyEncrypter();
-      let cfg = {
-        //new cryp.SecretKeyEncrypterSettings();
-        algorithm: "aes-128",
-        key: xx,
-        iv: xx //mode: 'ecb'
-      };
-
-      enc.settings = cfg;
-
-      console.log(enc);
-
-      enc
-        .encode(xx)
-        .then(res => {
-          console.log(core.BA2H(res));
-        })
-        .catch(err => {
-          console.log("Error: ", err);
-        });
-
-      tr()
-        .then(keyBlock => {
-          console.log("keyBlock:" + ByteArray.toString(keyBlock, "hex"));
-        })
-        .catch(e => {
-          console.log(e);
-        });
-
-      //alert("Hi")
-    </script>
+    <link rel="stylesheet" href="assets/static/css/bulma.css" />
+    <link
+      rel="stylesheet"
+      href="assets/static/fonts/font-awesome/css/regular.css"
+    />
   </head>
-  <body></body>
+  <body>
+    <section class="section">
+      <div class="container has-text-centered">
+        <h1 class="title has-text-info">Block Explorer</h1>
+        <p class="subtitle has-text-info">Explore <strong>Blocks</strong>!</p>
+        <br />
+      </div>
+      <div id="settings" class="container" style="max-width: 800px">
+        <!--
+          div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" type="text" placeholder="Text input">
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Username</label>
+            <div class="control has-icons-left has-icons-right">
+              <input class="input is-success" type="text" placeholder="Text input" value="bulma">
+              <span class="icon is-small is-left">
+                <i class="fas fa-user"></i>
+              </span>
+              <span class="icon is-small is-right">
+                <i class="fas fa-check"></i>
+              </span>
+            </div>
+            <p class="help is-success">This username is available</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Email</label>
+            <div class="control has-icons-left has-icons-right">
+              <input class="input is-danger" type="email" placeholder="Email input" value="hello@">
+              <span class="icon is-small is-left">
+                <i class="fas fa-envelope"></i>
+              </span>
+              <span class="icon is-small is-right">
+                <i class="fas fa-exclamation-triangle"></i>
+              </span>
+            </div>
+            <p class="help is-danger">This email is invalid</p>
+          </div>
+
+          <div class="field">
+            <label class="label">Subject</label>
+            <div class="control">
+              <div class="select">
+                <select>
+                  <option>Select dropdown</option>
+                  <option>With options</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">Message</label>
+            <div class="control">
+              <textarea class="textarea" placeholder="Textarea"></textarea>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <label class="checkbox">
+                <input type="checkbox">
+                I agree to the <a href="#">terms and conditions</a>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="control">
+              <label class="radio">
+                <input type="radio" name="question">
+                Yes
+              </label>
+              <label class="radio">
+                <input type="radio" name="question">
+                No
+              </label>
+            </div>
+          </div>
+
+          <div class="field is-grouped">
+            <div class="control">
+              <button class="button is-link">Submit</button>
+            </div>
+            <div class="control">
+              <button class="button is-text">Cancel</button>
+            </div>
+          </div
+        -->
+      </div>
+    </section>
+  </body>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      let xx = document.getElementById("settings");
+
+      //alert( "loaded: " + xx );
+      showSettings(document.getElementById("settings"));
+    });
+  </script>
 </html>
