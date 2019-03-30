@@ -47,7 +47,8 @@ export abstract class Block<BS extends BlockSettings = {}>
   _view?: IView;
 
   constructor(initSettings?: Partial<BS>) {
-    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this.constructor);
+    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this
+      .constructor as IConstructable);
 
     this._settings = Schema.initObjectFromClass<BS>(
       blockSchema.settings,
@@ -62,7 +63,8 @@ export abstract class Block<BS extends BlockSettings = {}>
   }
 
   set settings(settings: BS) {
-    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this.constructor);
+    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this
+      .constructor as IConstructable);
 
     this._settings = Schema.initObjectFromClass<BS>(
       blockSchema.settings,
@@ -70,10 +72,15 @@ export abstract class Block<BS extends BlockSettings = {}>
     );
   }
 
+  getSettings() {
+    return Schema.getPropertiesForObject(this.settings);
+  }
+
   getSettingSchema<TSchemaProp extends ISchemaProperty<any>>(
     key: keyof BS
   ): TSchemaProp {
-    let _schema = schemaStore.ensure(this._settings.constructor);
+    let _schema = schemaStore.ensure(this._settings
+      .constructor as IConstructable);
     let _schemaItem = _schema.properties[key as string] as TSchemaProp;
 
     return _schemaItem;

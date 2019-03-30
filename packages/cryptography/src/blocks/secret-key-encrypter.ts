@@ -6,6 +6,7 @@ import {
 } from "@cryptographix/core";
 import {
   booleanProp,
+  isPort,
   /*numberField, stringField,*/ enumProp,
   bytesProp
 } from "@cryptographix/core";
@@ -36,7 +37,7 @@ const modeNameMap = BlockCipherHelper.getModes().reduce((obj, el) => {
 export class SecretKeyEncrypterSettings extends BlockSettings {
   @enumProp({
     title: "Algorithm Name",
-    ui: { viewWidth: paddingAvailable ? 8 : 12 },
+    ui: { columns: paddingAvailable ? 8 : 12, hint: "Crypto Algorithm" },
     options: algorithmNameMap
   })
   algorithm: string = BlockCipherHelper.getAlgorithms()[0].name;
@@ -52,7 +53,7 @@ export class SecretKeyEncrypterSettings extends BlockSettings {
     title: "Pad using PKCS#7",
     optional: true,
     ignore: !paddingAvailable,
-    ui: { viewWidth: paddingAvailable ? 8 : 12 }
+    ui: { columns: paddingAvailable ? 8 : 12 }
   })
   padding?: boolean;
 
@@ -65,8 +66,19 @@ export class SecretKeyEncrypterSettings extends BlockSettings {
   @bytesProp()
   key: Uint8Array;
 
-  @bytesProp({ optional: true })
+  @bytesProp({
+    optional: true,
+    ui: { hint: "Size must be equal to cipher block size" }
+  })
   iv?: Uint8Array;
+
+  @bytesProp({})
+  @isPort({ type: "in" })
+  in?: Uint8Array;
+
+  @bytesProp({})
+  @isPort({ type: "out" })
+  out?: Uint8Array;
 }
 
 /**

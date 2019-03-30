@@ -1,7 +1,7 @@
 import {
   schema,
   booleanProp,
-  numberProp,
+  integerProp,
   stringProp,
   enumProp,
   bytesProp,
@@ -32,7 +32,7 @@ export class Y {
   @booleanProp()
   bool: boolean;
 
-  @numberProp()
+  @integerProp()
   num: number;
 
   @stringProp()
@@ -56,7 +56,7 @@ export class Z {
   @booleanProp({ default: true })
   bool: boolean;
 
-  @numberProp({ default: 99 })
+  @integerProp({ default: 99 })
   num: number;
 
   @stringProp({ default: "a string" })
@@ -86,7 +86,7 @@ export class ZZ {
   @objectProp(Z)
   z: Z;
 
-  @numberProp({ default: 100, ui: { int: 1234 } })
+  @integerProp({ default: 100, ui: { int: 1234 } })
   num: Number;
 }
 

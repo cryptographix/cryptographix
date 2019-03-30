@@ -47,13 +47,31 @@ export abstract class Schema {
   /**
    *
    */
+  static getSchemaForObject(target: object) {
+    const cls = target.constructor as IConstructable;
+    let schema = schemaStore.ensure<ISchema>(cls);
+
+    return schema;
+  }
+
+  /**
+   *
+   */
+  static getSchemaForClass<TO>(target: IConstructable<TO>): ISchema<TO> {
+    let schema = schemaStore.ensure<ISchema<TO>>(target);
+
+    return schema;
+  }
+  /**
+   *
+   */
   static initObjectFromClass<TO>(
     target: IConstructable<TO>,
     initObject?: Partial<TO>
   ): TO {
     let schema = schemaStore.ensure<ISchema<TO>>(target);
 
-    return Schema.initObjectFromSchema(schema, initObject );
+    return Schema.initObjectFromSchema(schema, initObject);
   }
 
   /**
@@ -63,13 +81,13 @@ export abstract class Schema {
     schema: TSchema,
     initObject: Partial<TO> = {}
   ): TO {
-    let object = new schema.target();
+    let object = new (schema.target as IConstructable<TO>)();
 
     // Initialize each property from Schema information
     // Precedence:
     //   1. initObject parameter
     //   2. initial value from class
-    //   3. default value from schema property.default
+    //   3. "default" value from schema property.default
     //   4. the default for property type
     Object.entries(schema.properties).forEach(([key, propInfo]) => {
       let value = initObject[key] || object[key] || propInfo.default;
@@ -83,15 +101,20 @@ export abstract class Schema {
           case "boolean":
             value = false;
             break;
-          case "number":
+
+          case "integer":
             value = propInfo.min || 0;
             break;
+
           case "string":
             value = "";
             break;
+
           case "enum":
-            value = Object.keys(propInfo.options)[0] || "";
+            const values = Object.keys(propInfo.options);
+            value = (values.length > 0 && values[0]) || "";
             break;
+
           case "bytes":
             value = ByteArray.from([]);
             break;
@@ -102,6 +125,24 @@ export abstract class Schema {
     });
 
     return object;
+  }
+
+  static getPropertiesForObject(target: object, isIO: boolean = false) {
+    let schema = Schema.getSchemaForObject(target);
+
+    let props = Object.entries(schema.properties);
+
+    props = props
+      .filter(([_key, propInfo]) => !propInfo.ignore)
+      .filter(([_key, propInfo]) => (isIO ? propInfo.io : !propInfo.io));
+
+    return new Map(props);
+  }
+
+  static getPropertiesForClass(target: IConstructable) {
+    let schema = schemaStore.ensure<ISchema>(target);
+
+    return Object.entries(schema.properties);
   }
 }
 

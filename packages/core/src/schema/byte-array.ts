@@ -40,7 +40,10 @@ export class ByteArray extends Uint8Array {
         let l = data.length / 2;
         bytes = ByteArray.alloc(l);
         for (let i = 0, j = 0; j < l; j++, i += 2) {
-          bytes[j] = Number.parseInt(data.substr(i, 2), 16);
+          let b = Number.parseInt(data.substr(i, 2), 16);
+          if (!isNaN(b)) {
+            bytes[j] = b;
+          } else throw new Error("Invalid haexadecimal string");
         }
         break;
       }

@@ -1,15 +1,15 @@
-import { ISchema } from './schema';
+import { ISchema } from "./schema";
+import { IConstructable } from "./helpers";
 
 export class SchemaStorage {
-
   protected items = new Map<object, ISchema>();
 
-  public has(target: object) {
-    return this.items.has(target);// || !!this.findParentSchema(target);
+  public has(target: IConstructable) {
+    return this.items.has(target); // || !!this.findParentSchema(target);
   }
 
-  public get<S extends ISchema>(target: object): S {
-    const schema = this.items.get(target);// || this.findParentSchema(target);
+  public get<S extends ISchema>(target: IConstructable): S {
+    const schema = this.items.get(target); // || this.findParentSchema(target);
 
     if (!schema) {
       throw new Error("Cannot get schema for current target");
@@ -18,16 +18,18 @@ export class SchemaStorage {
     return schema as S;
   }
 
-  public ensure<S extends ISchema>( target: object, type: string = 'object' ): S {
+  public ensure<S extends ISchema>(
+    target: IConstructable,
+    type: string = "object"
+  ): S {
     let schema: ISchema;
 
-    if ( !this.items.has( target ) ) {
-      schema = this.create( target, type );
+    if (!this.items.has(target)) {
+      schema = this.create(target, type);
 
-      this.items.set( target, schema );
-    }
-    else {
-      schema = this.items.get( target );
+      this.items.set(target, schema);
+    } else {
+      schema = this.items.get(target);
     }
 
     return schema as S;
@@ -36,13 +38,13 @@ export class SchemaStorage {
   /**
    * Creates new schema
    */
-  protected create( target: object, type: string ) {
+  protected create(target: IConstructable, type: string): ISchema {
     // Initialize default schema
     const schema = {
       type: type,
       target: target,
       properties: {}
-    } as ISchema;
+    };
 
     // Get and assign schema from parent
     /*const parentSchema = this.findParentSchema(target);
@@ -59,7 +61,7 @@ export class SchemaStorage {
     return schema;
   }
 
-  public set(target: object, schema: ISchema) {
+  public set(target: IConstructable, schema: ISchema) {
     this.items.set(target, schema);
 
     return this;

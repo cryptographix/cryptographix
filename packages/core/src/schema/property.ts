@@ -6,11 +6,20 @@ import { ISchema } from ".";
  * To be extended by specific typed schema items
  */
 export interface ISchemaProperty<
-  Type,
-  UIProps extends ISchemaUIProperties = any
+  Type = any,
+  UIProps extends ISchemaPropUI = any,
+  IOProps extends ISchemaPropPortInfo = any
 > {
   //
   type: string | ISchema<Type>;
+
+  //
+  array?: {
+    //
+    minItems?: number;
+    //
+    maxItems?: number;
+  };
 
   // property name on object
   name?: string;
@@ -34,16 +43,38 @@ export interface ISchemaProperty<
   ui?: UIProps;
 
   //
+  io?: IOProps;
+
+  //
   converter?: {
     fromJSON(name: string, obj: object): Type;
     toJSON(prop: Type): any;
   };
 }
 
-export interface ISchemaUIProperties {
+export interface ISchemaPropPortInfo {
+  //
+  type?: "in" | "out" | ISchema<object>;
+}
+
+export interface ISchemaPropUI {
+  //
+  widget?: string;
+
+  //
   label?: string;
 
+  //
   hint?: string;
+
+  //
+  style?: string;
+
+  //
+  className?: string;
+
+  //
+  columns?: number;
 }
 
 /**
@@ -75,11 +106,8 @@ export interface IStringSchemaProp extends ISchemaProperty<string> {
 /**
  *
  */
-export interface INumberSchemaProp extends ISchemaProperty<number> {
-  type: "number";
-
-  //
-  integer?: boolean;
+export interface IIntegerSchemaProp extends ISchemaProperty<number> {
+  type: "integer";
 
   //
   min?: number;
@@ -128,7 +156,7 @@ export interface IObjectSchemaProp<TO extends Object = {}>
 export type ISchemaPropertyType =
   | IBooleanSchemaProp
   | IStringSchemaProp
-  | INumberSchemaProp
+  | IIntegerSchemaProp
   | IEnumSchemaProp
   | IBytesSchemaProp
   | IObjectSchemaProp;
