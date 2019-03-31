@@ -121,7 +121,7 @@ export abstract class Schema {
         }
       }
 
-      if (value) object[key] = value;
+      if (!propInfo.io && value) object[key] = value;
     });
 
     return object;

@@ -153,6 +153,9 @@ export interface IObjectSchemaProp<TO extends Object = {}>
   type: ISchema<TO>;
 }
 
+/**
+ *
+ */
 export type ISchemaPropertyType =
   | IBooleanSchemaProp
   | IStringSchemaProp
@@ -160,3 +163,12 @@ export type ISchemaPropertyType =
   | IEnumSchemaProp
   | IBytesSchemaProp
   | IObjectSchemaProp;
+
+/**
+ *
+ */
+export interface ISchemaPropReference {
+  target: object;
+  key: string;
+  propertyType: ISchemaPropertyType;
+}

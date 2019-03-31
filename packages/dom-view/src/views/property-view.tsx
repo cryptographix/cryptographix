@@ -1,68 +1,115 @@
+import { Action, IActionHandler } from "@cryptographix/core";
 import { View } from "../view-core/index";
-import { PropertyListView } from "./property-list-view";
 
 import {
-  ISchemaPropertyType,
+  ISchemaPropReference,
   IBooleanSchemaProp,
+  IBytesSchemaProp,
   IEnumSchemaProp,
   ISchemaPropUI
 } from "@cryptographix/core";
-import { BA2H, H2BA } from "@cryptographix/core";
+import { BA2H, H2BA, ByteArray } from "@cryptographix/core";
 
-export class PropertyView extends View<PropertyListView> {
-  //
-  protected _$field: HTMLElement;
-
-  //
-  protected _ui: ISchemaPropUI;
-
-  //
-  protected _message: string;
+export class PropertyValueChanged extends Action<object> {
+  action: "property-value-changed";
 
   constructor(
-    public target: object,
+    target: IActionHandler,
+    id: object,
     public key: string,
-    public propInfo: ISchemaPropertyType
+    public value: any
   ) {
+    super(target, id);
+
+    this.action = "property-value-changed";
+  }
+  //
+}
+
+export class PropertyView extends View {
+  //
+  protected propRef: ISchemaPropReference;
+
+  //
+  protected $field: HTMLElement;
+
+  //
+  protected ui: ISchemaPropUI;
+
+  //
+  protected message: string;
+
+  protected handler: IActionHandler;
+  constructor(handler: IActionHandler, propRef: ISchemaPropReference) {
     super();
 
-    this._ui = {
+    this.handler = handler;
+    this.propRef = propRef;
+
+    this.ui = {
       hint: "",
       widget: "",
       columns: 12,
       style: "",
       className: "",
-      label: this.propInfo.title || this.key,
-      ...propInfo.ui
+      label: propRef.propertyType.title || propRef.key,
+      ...propRef.propertyType.ui
     };
   }
 
+  get value() {
+    return this.propRef.target[this.propRef.key];
+  }
+
+  set value(value: any) {
+    this.propRef.target[this.propRef.key] = value;
+    this.notifyValueChanged();
+  }
+
+  notifyValueChanged() {
+    const prop = this.propRef;
+
+    const act = new PropertyValueChanged(
+      this.handler,
+      prop.target,
+      prop.key,
+      this.value
+    );
+
+    act.dispatch();
+  }
+
+  get key() {
+    return this.propRef.key;
+  }
+
   clearError() {
-    if (this._message) {
+    if (this.message) {
       this.triggerUpdate();
-      this._message = null;
+
+      this.message = null;
     }
   }
   setError(s: string) {
-    this._message = s;
+    this.message = s;
     this.triggerUpdate();
   }
 
   _first = false;
   render() {
-    const errClass = this._message ? " field--invalid" : "";
+    const errClass = this.message ? " field--invalid" : "";
     //TODO: first
     return (
       <div
-        class={`field ${errClass} ${this._ui.className} ${
-          this._first ? " setting--first" : ""
+        class={`field ${errClass} ${this.ui.className} ${
+          this._first ? " field--first" : ""
         }`}
         onFocus={(_evt: Event) => this.focus()}
         onBlur={(_evt: Event) => this.blur()}
       >
         {this.renderLabel()}
-        {(this._$field = this.renderProp())}
-        {(this._$message = this.renderMessage())}
+        {(this.$field = this.renderProp())}
+        {(this.$message = this.renderMessage())}
       </div>
     );
   }
@@ -71,42 +118,32 @@ export class PropertyView extends View<PropertyListView> {
    * Renders label.
    */
   renderLabel() {
-    return <label class="label">{this._ui.label}</label>;
+    return <label class="label">{this.ui.label}</label>;
   }
 
   /**
    * Renders message.
    */
-  _$message: any;
+  protected $message: any;
   renderMessage() {
-    if (this._message) {
-      return <p class="help is-danger">{this._message}</p>;
-    } else if (this._ui.hint) {
-      return <p class="help is-info">{this._ui.hint}</p>;
+    if (this.message) {
+      return <p class="help is-danger">{this.message}</p>;
+    } else if (this.ui.hint) {
+      return <p class="help is-info">{this.ui.hint}</p>;
     }
-  }
-
-  notifyValueChanged(key: string) {
-    this._parentView.propertyUpdated(key);
   }
 
   stringValueChanged(evt: any) {
     this.clearError();
     let value = (evt.target as HTMLInputElement).value;
-    this.target[this.key] = value;
-    this.notifyValueChanged(this.key);
-  }
-
-  getId() {
-    return this.key;
+    this.value = value;
   }
 
   byteValueChanged(evt: Event) {
     this.clearError();
     let value = (evt.target as HTMLInputElement).value;
     try {
-      this.target[this.key] = H2BA(value);
-      this.notifyValueChanged(this.key);
+      this.value = H2BA(value);
     } catch (E) {
       this.setError("fudeo");
     }
@@ -116,8 +153,7 @@ export class PropertyView extends View<PropertyListView> {
     this.clearError();
     let value = (evt.target as HTMLInputElement).checked;
 
-    this.target[this.key] = value;
-    this.notifyValueChanged(this.key);
+    this.value = value;
   }
 
   renderBoolean(propInfo: IBooleanSchemaProp, value: boolean) {
@@ -126,7 +162,7 @@ export class PropertyView extends View<PropertyListView> {
         <label class="checkbox">
           <input
             type="checkbox"
-            value={this.target[this.key]}
+            value={this.value}
             onChange={this.boolValueChanged.bind(this)}
             checked={value}
           />
@@ -137,7 +173,7 @@ export class PropertyView extends View<PropertyListView> {
   }
 
   renderEnum(propInfo: IEnumSchemaProp, value: string) {
-    if (this._ui.widget === "radio") {
+    if (this.ui.widget === "radio") {
       const $$radio = [];
 
       // render each option
@@ -146,7 +182,7 @@ export class PropertyView extends View<PropertyListView> {
           <label class="radio">
             <input
               type="radio"
-              name={this.getId()}
+              name={this.propRef.key + "-" + key}
               value={key}
               onChange={this.stringValueChanged.bind(this)}
               checked={value == key}
@@ -176,8 +212,8 @@ export class PropertyView extends View<PropertyListView> {
               //onclick={this.valueDidChange}
               onChange={this.stringValueChanged.bind(this)}
               class="input"
-              placeholder="Enum input"
-              value={this.target[this.key]}
+              placeholder={this.ui.hint}
+              value={this.value}
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
             >
@@ -192,10 +228,43 @@ export class PropertyView extends View<PropertyListView> {
     }
   }
 
-  renderProp() {
-    const value = this.target[this.key];
+  renderBytes(_propInfo: IBytesSchemaProp, value: ByteArray) {
+    let $inner: HTMLElement;
 
-    switch (this.propInfo.type) {
+    if (this.ui.widget == "multiline") {
+      $inner = (
+        <textarea
+          class="textarea"
+          spellcheck="false"
+          onInput={this.byteValueChanged.bind(this)}
+          onFocus={(_evt: Event) => this.focus()}
+          onBlur={(_evt: Event) => this.blur()}
+          placeholder={this.ui.hint}
+          value={BA2H(value)}
+        />
+      );
+    } else {
+      $inner = (
+        <input
+          class="input"
+          type="text"
+          spellcheck="false"
+          onInput={this.byteValueChanged.bind(this)}
+          onFocus={(_evt: Event) => this.focus()}
+          onBlur={(_evt: Event) => this.blur()}
+          placeholder={this.ui.hint}
+          value={BA2H(value)}
+        />
+      );
+    }
+    return <div class="control has-icons-right">{$inner}</div>;
+  }
+
+  renderProp() {
+    const value = this.value;
+    const propInfo = this.propRef.propertyType;
+
+    switch (propInfo.type) {
       case "number":
         return (
           <div class="control has-icons-right">
@@ -205,7 +274,7 @@ export class PropertyView extends View<PropertyListView> {
               onChange={this.stringValueChanged.bind(this)}
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
-              placeholder="Num input"
+              placeholder={this.ui.hint}
               value={value}
             />
           </div>
@@ -220,33 +289,20 @@ export class PropertyView extends View<PropertyListView> {
               onChange={this.stringValueChanged.bind(this)}
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
-              placeholder="Text input"
+              placeholder={this.ui.hint}
               value={value}
             />
           </div>
         );
 
       case "enum":
-        return this.renderEnum(this.propInfo, value);
+        return this.renderEnum(propInfo, value);
 
       case "boolean":
-        return this.renderBoolean(this.propInfo, value);
+        return this.renderBoolean(propInfo, value);
 
       case "bytes":
-        return (
-          <div class="control has-icons-right">
-            <input
-              class="input"
-              type="text"
-              spellcheck="false"
-              onInput={this.byteValueChanged.bind(this)}
-              onFocus={(_evt: Event) => this.focus()}
-              onBlur={(_evt: Event) => this.blur()}
-              placeholder="Byte input"
-              value={BA2H(value)}
-            />
-          </div>
-        );
+        return this.renderBytes(propInfo, value);
     }
   }
 
@@ -257,18 +313,18 @@ export class PropertyView extends View<PropertyListView> {
     $field.classList.toggle("field--focus", this.hasFocus());
 
     // Add invalid modifier
-    $field.classList.toggle("field--invalid", !true || !!this._message);
+    $field.classList.toggle("field--invalid", !true || !!this.message);
 
     // Remove old message, if any
-    if (this._$message) {
-      this._$message.remove();
-      this._$message = null;
+    if (this.$message) {
+      this.$message.remove();
+      this.$message = null;
     }
 
     // Create new message, if any
-    this._$message = this.renderMessage();
-    if (this._$message) {
-      this.element.appendChild(this._$message);
+    this.$message = this.renderMessage();
+    if (this.$message) {
+      this.element.appendChild(this.$message);
     }
 
     return false;

@@ -67,11 +67,11 @@ export class SecretKeyEncrypterSettings {
   })
   iv?: Uint8Array;
 
-  @bytesProp({})
+  @bytesProp({ ui: { widget: "multiline" } })
   @isPort({ type: "in" })
   in?: Uint8Array;
 
-  @bytesProp({})
+  @bytesProp({ ui: { widget: "multiline" } })
   @isPort({ type: "out" })
   out?: Uint8Array;
 }

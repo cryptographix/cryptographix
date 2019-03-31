@@ -4,20 +4,28 @@
 //  handleAction<BA extends BlockAction>(_action: BA): void {}
 //}
 
+export interface AnyAction extends Action {}
+
 export interface IActionHandler {
-  handleAction<A extends Action>(_action: A): Promise<A>;
+  handleAction<TAction extends Action = AnyAction>(
+    _action: TAction
+  ): AnyAction | Promise<AnyAction>;
 }
 
-export abstract class Action {
-  action: string;
-  protected readonly target: IActionHandler;
+export abstract class Action<TID = any> {
+  action: "action" | string;
 
-  constructor(target: IActionHandler) {
-    this.target = target;
+  protected readonly __target: IActionHandler;
+
+  protected readonly __id: TID;
+
+  constructor(target: IActionHandler, id?: TID) {
+    this.__target = target;
+    this.__id = id;
   }
 
-  async dispatch(): Promise<this> {
-    let result = this.target.handleAction(this);
+  async dispatch(): Promise<AnyAction> {
+    let result = this.__target.handleAction(this);
 
     if (result instanceof Promise) return result;
     else return Promise.resolve(result);
@@ -25,12 +33,14 @@ export abstract class Action {
 }
 
 export abstract class BlockSettingChangedAction<T = any> extends Action {
-  action: "setting-changed";
+  action: "block-setting-changed";
   readonly key: string;
   readonly value: T;
 
-  constructor(target: IActionHandler, key: string, value: T) {
-    super(target);
+  constructor(target: IActionHandler, id: object, key: string, value: T) {
+    super(target, id);
+    this.action = "block-setting-changed";
+
     this.key = key;
     this.value = value;
   }

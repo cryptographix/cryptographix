@@ -1,10 +1,15 @@
 import { View } from "../view-core/index";
 
-import { Schema, BlockConfiguration } from "@cryptographix/core";
+import {
+  Schema,
+  BlockConfiguration,
+  AnyAction,
+  IActionHandler
+} from "@cryptographix/core";
 
-import { PropertyView } from "./property-view";
+import { PropertyView, PropertyValueChanged } from "./property-view";
 
-export class PropertyListView extends View {
+export class PropertyListView extends View implements IActionHandler {
   _bs: BlockConfiguration;
 
   constructor(bs: BlockConfiguration) {
@@ -12,6 +17,17 @@ export class PropertyListView extends View {
     this._bs = bs;
 
     this.updatePropertyViews(bs);
+  }
+
+  handleAction(action: AnyAction) {
+    let act = action as PropertyValueChanged;
+    switch (act.action) {
+      case "property-value-changed": {
+        console.log("changed: ", act.key, " to ", this._bs[act.key]);
+      }
+    }
+
+    return null;
   }
 
   dumpProps() {
@@ -79,14 +95,15 @@ export class PropertyListView extends View {
   updatePropertyViews(obj: object) {
     let properties = Schema.getPropertiesForObject(obj);
 
-    properties.forEach((propInfo, key) => {
-      let newView = new PropertyView(obj, key, propInfo);
+    properties.forEach((propType, key) => {
+      const ref = {
+        target: this._bs,
+        key,
+        propertyType: propType
+      };
+      let newView = new PropertyView(this, ref);
 
       this.updatePropertyView(obj, newView);
     });
-  }
-
-  propertyUpdated(key: string) {
-    console.log("changed: ", key, " to ", this._bs[key]);
   }
 }
