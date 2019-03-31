@@ -1,10 +1,8 @@
-import { View } from "../view";
+import { View } from "../view-core/index";
 
-import { BlockSettings } from "@cryptographix/core";
+import { Schema, BlockSettings } from "@cryptographix/core";
 
 import { PropertyView } from "./property-view";
-
-import { Schema } from "@cryptographix/core";
 
 export class PropertyListView extends View {
   _bs: BlockSettings;

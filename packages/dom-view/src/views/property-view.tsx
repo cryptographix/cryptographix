@@ -1,15 +1,13 @@
+import { View } from "../view-core/index";
+import { PropertyListView } from "./property-list-view";
+
 import {
   ISchemaPropertyType,
-  //  INumberSchemaProp,
-  //  IStringSchemaProp,
   IBooleanSchemaProp,
   IEnumSchemaProp,
-  ISchemaPropUI,
-  BA2H,
-  H2BA
+  ISchemaPropUI
 } from "@cryptographix/core";
-import { View } from "../view";
-import { PropertyListView } from "./property-list-view";
+import { BA2H, H2BA } from "@cryptographix/core";
 
 export class PropertyView extends View<PropertyListView> {
   //

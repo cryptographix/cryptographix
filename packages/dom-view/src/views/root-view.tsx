@@ -1,4 +1,4 @@
-import { View } from "./view";
+import { View } from "../view-core/index";
 
 export class RootView extends View {
   bindRoot($element: HTMLElement) {
