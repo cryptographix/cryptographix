@@ -1,8 +1,9 @@
-export * from "./settings-view";
+
 
 import { ByteArray, H2BA, BA2H } from "@cryptographix/core";
 import * as cryp from "@cryptographix/cryptography";
 import { TR31 } from "@cryptographix/payments";
+import { BlockSettingsView } from "./views/settings-view";
 
 async function tr() {
   let tr31 = new TR31();

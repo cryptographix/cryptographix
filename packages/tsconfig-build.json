@@ -9,6 +9,9 @@
     "experimentalDecorators": true,
     "rootDir": ".",
 
+    "jsx": "react",
+    "jsxFactory": "View.createElement",
+
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

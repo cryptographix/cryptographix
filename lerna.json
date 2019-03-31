@@ -3,9 +3,10 @@
   "npmClient": "yarn",
   "packages": [
     "packages/core",
+    "packages/dom-view",
     "packages/cryptography",
-    "packages/block-viewer",
-    "packages/payments"
+    "packages/payments",
+    "packages/block-viewer"
   ],
   "version": "0.1.0"
 }
