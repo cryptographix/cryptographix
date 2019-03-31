@@ -1,9 +1,9 @@
-
+import { RootView } from "@cryptographix/dom-view";
+import { BlockSettingsView } from "./views/settings-view";
 
 import { ByteArray, H2BA, BA2H } from "@cryptographix/core";
 import * as cryp from "@cryptographix/cryptography";
 import { TR31 } from "@cryptographix/payments";
-import { BlockSettingsView } from "./views/settings-view";
 
 async function tr() {
   let tr31 = new TR31();
@@ -55,3 +55,14 @@ enc
   .catch(err => {
     console.log("Error: ", err);
   });
+
+export function showSettings($element: HTMLElement) {
+  let $root = new RootView();
+  $root.bindRoot($element);
+
+  let $propsView = new BlockSettingsView(/*enc.settings*/);
+
+  $root.addChildView($propsView);
+}
+
+window["showSettings"] = showSettings;
