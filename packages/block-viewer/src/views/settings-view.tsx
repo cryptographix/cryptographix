@@ -29,6 +29,6 @@ export class BlockSettingsView extends View {
   }
 
   render() {
-    return <div>{this.renderChildren()}</div>;
+    return <div>{this.renderChildViews()}</div>;
   }
 }

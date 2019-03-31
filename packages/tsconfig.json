@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "core" },
+    { "path": "dom-view" },
     { "path": "cryptography" },
     { "path": "payments" },
     { "path": "block-viewer" }

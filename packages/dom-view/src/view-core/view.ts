@@ -2,6 +2,21 @@ import { createElement } from "./helpers";
 
 export interface View<TParentView extends View<any> = any> {
   /**
+   * Renders the view.
+   */
+  //render?(): HTMLElement;
+
+  /**
+   * Update view on 'model' change
+   */
+  updateView?(): boolean;
+
+  /**
+   * Handle viewport updates
+   */
+  layoutView(): void;
+
+  /**
    * Triggered when view receives focus.
    */
   viewFocused?(): void;
@@ -10,11 +25,6 @@ export interface View<TParentView extends View<any> = any> {
    * Triggered when view loses focus.
    */
   viewBlurred?(): void;
-
-  /**
-   * Update view on 'model' change
-   */
-  updateView?(): boolean;
 }
 
 /**
@@ -111,6 +121,21 @@ export abstract class View<TParentView extends View<any> = any> {
   }
 
   /**
+   * Render all child Views
+   *
+   * Helper for use within render functions, passed as 3rd param to createElement
+   */
+  protected renderChildViews(): HTMLElement[] {
+    let result = [];
+
+    this.children.forEach(child => {
+      result.push(child.element);
+    });
+
+    return result;
+  }
+
+  /**
    * Remove child View.
    * Fluent interface
    */
@@ -132,8 +157,11 @@ export abstract class View<TParentView extends View<any> = any> {
     return this;
   }
 
-  //**************************************************************************//
-  // Focus/Blur handling
+  /*****************************************************************************
+   *
+   * Focus/Blur handling
+   *
+   ****************************************************************************/
 
   /**
    * Focus this view.
@@ -181,31 +209,21 @@ export abstract class View<TParentView extends View<any> = any> {
     return this._focus;
   }
 
-  //**************************************************************************//
+  /*****************************************************************************
+   *
+   * Methods to be overridden by subclasses
+   *
+   ****************************************************************************/
 
   /**
    * Renders the view.
    */
-  protected abstract render(): HTMLElement;
+  public abstract render(): HTMLElement;
 
   /**
    * Handle viewport updates
    */
-  protected layoutView() {
+  public layoutView(): void {
     this.children.forEach(child => child.layoutView());
-  }
-
-  /**
-   * Render all child Views
-   * Helper for use within render functions, passed as 3rd param to createElement
-   */
-  protected renderChildren(): HTMLElement[] {
-    let result = [];
-
-    this.children.forEach(child => {
-      result.push(child.element);
-    });
-
-    return result;
   }
 }

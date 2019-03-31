@@ -1,5 +1,6 @@
-import { IConstructable, Omit, schemaStore } from '../schema/index';
-import { Block, BlockSettings, IBlockSchema } from './block';
+import { IConstructable, Omit, schemaStore } from "../schema/index";
+import { Block, IBlockSchema } from "./block";
+import { BlockConfiguration } from "./block-config";
 
 /*export class BlockFactory {
   private _blockRegistry: Map<typeof Block, BlockMeta>;
@@ -15,15 +16,17 @@ import { Block, BlockSettings, IBlockSchema } from './block';
 
 export const blockFactory = new BlockFactory();*/
 
-export function block<BS extends BlockSettings>( meta: Omit<IBlockSchema<BS>, 'target'|'properties'|'type'> ) {
-  return function( target: IConstructable<Block> ) {
-    let schema = schemaStore.ensure<IBlockSchema<BS>>( target, 'block' );
+export function block<TConfig extends BlockConfiguration>(
+  meta: Omit<IBlockSchema<TConfig>, "target" | "properties" | "type">
+) {
+  return function(target: IConstructable<Block>) {
+    let schema = schemaStore.ensure<IBlockSchema<TConfig>>(target, "block");
 
     schema = {
       ...schema,
-      ...meta,
+      ...meta
     };
 
-    schemaStore.set( target, schema );
-  }
+    schemaStore.set(target, schema);
+  };
 }

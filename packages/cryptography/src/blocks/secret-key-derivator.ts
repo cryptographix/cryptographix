@@ -1,6 +1,6 @@
-import { Block, BlockSettings, block } from "@cryptographix/core";
+import { Block, block } from "@cryptographix/core";
 
-export class SecretKeyDerivatorSettings extends BlockSettings {}
+export class SecretKeyDerivatorSettings {}
 
 @block({
   name: "secret-key-derivator",

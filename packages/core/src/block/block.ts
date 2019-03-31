@@ -7,11 +7,13 @@ import {
   schemaStore
 } from "../schema/index";
 
+import { BlockConfiguration } from "./block-config";
+
 /**
  * Schema descriptor for a Block
  */
-export interface IBlockSchema<BS extends BlockSettings>
-  extends ISchema<Block<BS>> {
+export interface IBlockSchema<TConfig extends BlockConfiguration>
+  extends ISchema<Block<TConfig>> {
   type: "block";
 
   name: string;
@@ -22,19 +24,10 @@ export interface IBlockSchema<BS extends BlockSettings>
 
   category: string;
 
-  settings: IConstructable<BS>;
+  settings: IConstructable<TConfig>;
 }
 
-/**
- * Block Settings store configuration items for a block
- *
- * BlockSettings can be serialized
- */
-export abstract class BlockSettings {
-  //  static initSettings() {};
-}
-
-/*export interface IBlock<S extends BlockSettings> extends IViewable {
+/*export interface IBlock<S extends BlockConfiguration> extends IViewable {
   settings: S;
 
   getSettingValue<RT>(key: keyof S): RT;
@@ -42,31 +35,31 @@ export abstract class BlockSettings {
   settingChanged(setting: string, value: string ): boolean;
 }*/
 
-export abstract class Block<BS extends BlockSettings = {}>
+export abstract class Block<TConfig extends BlockConfiguration = {}>
   implements IViewable /*implements IBlock<S>*/ {
   _view?: IView;
 
-  constructor(initSettings?: Partial<BS>) {
-    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this
+  constructor(initSettings?: Partial<TConfig>) {
+    let blockSchema = schemaStore.ensure<IBlockSchema<TConfig>>(this
       .constructor as IConstructable);
 
-    this._settings = Schema.initObjectFromClass<BS>(
+    this._settings = Schema.initObjectFromClass<TConfig>(
       blockSchema.settings,
       initSettings
     );
   }
 
-  protected _settings: BS;
+  protected _settings: TConfig;
 
-  get settings(): BS {
+  get settings(): TConfig {
     return this._settings;
   }
 
-  set settings(settings: BS) {
-    let blockSchema = schemaStore.ensure<IBlockSchema<BS>>(this
+  set settings(settings: TConfig) {
+    let blockSchema = schemaStore.ensure<IBlockSchema<TConfig>>(this
       .constructor as IConstructable);
 
-    this._settings = Schema.initObjectFromClass<BS>(
+    this._settings = Schema.initObjectFromClass<TConfig>(
       blockSchema.settings,
       settings
     );
@@ -77,7 +70,7 @@ export abstract class Block<BS extends BlockSettings = {}>
   }
 
   getSettingSchema<TSchemaProp extends ISchemaProperty<any>>(
-    key: keyof BS
+    key: keyof TConfig
   ): TSchemaProp {
     let _schema = schemaStore.ensure(this._settings
       .constructor as IConstructable);
@@ -86,7 +79,7 @@ export abstract class Block<BS extends BlockSettings = {}>
     return _schemaItem;
   }
 
-  getSettingValue<RT = any>(key: keyof BS): RT {
+  getSettingValue<RT = any>(key: keyof TConfig): RT {
     return (this._settings[key] as unknown) as RT;
   }
 

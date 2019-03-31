@@ -1,6 +1,6 @@
-import { Block, BlockSettings, block } from "@cryptographix/core";
+import { Block, block } from "@cryptographix/core";
 
-export class SecretKeyGeneratorSettings extends BlockSettings {}
+export class SecretKeyGeneratorSettings {}
 
 @block({
   name: "secret-key-generator",

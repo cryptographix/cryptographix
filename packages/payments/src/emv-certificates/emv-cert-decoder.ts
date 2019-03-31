@@ -1,80 +1,98 @@
-import { ByteArray, Block, BlockSettings } from '@cryptographix/core';
-import { RSAEncrypter, IRSAKey } from '@cryptographix/cryptography';
+import { ByteArray } from "@cryptographix/core";
+import { RSAEncrypter, IRSAKey } from "@cryptographix/cryptography";
 
 //import { forge, Bytes } from "./node-forge";
 
 export class EMVRootKey {
-  constructor( public rid: ByteArray, public index: number, public modulus: ByteArray, public exponent: ByteArray ) {
-  }
+  constructor(
+    public rid: ByteArray,
+    public index: number,
+    public modulus: ByteArray,
+    public exponent: ByteArray
+  ) {}
 }
 
 let rootKeys: EMVRootKey[] = [
-  new EMVRootKey( ByteArray.fromString("a000000154",'hex'), 0x01,
-ByteArray.fromString("\
-BCC0C02F309EF3123B2F44FCF6230E472AA9C12468EC96D244C4B72DDE7DD33BC494D3618D51420E9DE719CBB27B83A3A7D8D544899B02679FBB9DAD945A49E9CE3CDFD053F364110A1AC01AED6CD0C0C128BB02D35FDE51C566371D0FF1AB04D570F6F9EBD70B12B3B0BE06DE0A9CFE3A38CC0D70420D3B6400E8A6F1F3C0BFD24CB083EC89B42616A841334BA3D440F38166D642E40398321593B568BE0F2C0AC705897F77D80FF4294A5C4C244026E8ECC3F70B77DFED1A8B362432E37257099BECE324D40FF694B433D8F8A7A403D0A8FBCE28915D7CDE49A30E074D9BCA1D020390E5653EDEC104BD7B82847BD5212864E8D89E1F3B",'hex'), ByteArray.fromString("\x01\x00\x01")),
-  new EMVRootKey( ByteArray.fromString("a000000154",'hex'), 0x02, ByteArray.fromString("\
+  new EMVRootKey(
+    ByteArray.fromString("a000000154", "hex"),
+    0x01,
+    ByteArray.fromString(
+      "\
+BCC0C02F309EF3123B2F44FCF6230E472AA9C12468EC96D244C4B72DDE7DD33BC494D3618D51420E9DE719CBB27B83A3A7D8D544899B02679FBB9DAD945A49E9CE3CDFD053F364110A1AC01AED6CD0C0C128BB02D35FDE51C566371D0FF1AB04D570F6F9EBD70B12B3B0BE06DE0A9CFE3A38CC0D70420D3B6400E8A6F1F3C0BFD24CB083EC89B42616A841334BA3D440F38166D642E40398321593B568BE0F2C0AC705897F77D80FF4294A5C4C244026E8ECC3F70B77DFED1A8B362432E37257099BECE324D40FF694B433D8F8A7A403D0A8FBCE28915D7CDE49A30E074D9BCA1D020390E5653EDEC104BD7B82847BD5212864E8D89E1F3B",
+      "hex"
+    ),
+    ByteArray.fromString("\x01\x00\x01")
+  ),
+  new EMVRootKey(
+    ByteArray.fromString("a000000154", "hex"),
+    0x02,
+    ByteArray.fromString(
+      "\
 CCB8BC1F9F8284C7AC81800C6BD61C9ED613524754A0A3736AD60BAF0428C9A1A48E747CF39768D740E641E7E828AE724AEE92F733C9DDAE88954F3F688757A512291861CC66408016C9000191A875982A25E63EF59E0102A3C78020AEC432BD9DBBE746492147D4C27D35C89A4B3D9C782F30474C8B6E0AB7C1F4701EA083AA64F98FBAD3193D0600413FEE9F5C1FFAC586431DBB4A646B58D4F120828A97A7053EDE24C76C87BAAB4AF6A224D5E984652D46E58DFBE60E705207FD29DF7864914473F6DD88EED0EC1538993BD606EED1D7328E9FFC0A3CCECDDA7A155C5BD524AFA7ED10259238FE42DDE203591FB17539D1FBBBEA5735\
-",'hex'), ByteArray.fromString("\x01\x00\x01")),
-
-]
+",
+      "hex"
+    ),
+    ByteArray.fromString("\x01\x00\x01")
+  )
+];
 
 export class EMVCertificateDecoder {
-  constructor() {
+  constructor() {}
 
-  }
-
-  async decodeIssuerCertificate( rid: ByteArray, index: number, issuerCert: ByteArray ): Promise<object> {
+  async decodeIssuerCertificate(
+    rid: ByteArray,
+    index: number,
+    issuerCert: ByteArray
+  ): Promise<object> {
     let decoded: any = { failed: true };
 
-    let rootKey = rootKeys.find( (k:EMVRootKey) => {
-      return ( ByteArray.compare( k.rid, rid ) == 0 ) && ( k.index == index );
+    let rootKey = rootKeys.find((k: EMVRootKey) => {
+      return ByteArray.compare(k.rid, rid) == 0 && k.index == index;
     });
 
-    if ( rootKey ) {
+    if (rootKey) {
       let key: IRSAKey = {
-        algorithm: { name: 'RSA-NOPAD' },
+        algorithm: { name: "RSA-NOPAD" },
         extractable: true,
-        type: 'public',
+        type: "public",
         usages: [],
         data: {
           e: rootKey.exponent,
-          n: rootKey.modulus,
+          n: rootKey.modulus
         }
-      }
+      };
 
-      let plain = await new RSAEncrypter( key ).decrypt( issuerCert );
+      let plain = await new RSAEncrypter(key).decrypt(issuerCert);
       let plainLen = plain.length;
 
-      let modulusLen = plain[ 13 ];
-      let exponentLen = plain[ 14 ];
+      let modulusLen = plain[13];
+      let exponentLen = plain[14];
 
       let modLeftLen = plainLen - 36;
-      let modPad = (modulusLen < modLeftLen ) ? modLeftLen - modulusLen : 0;
+      let modPad = modulusLen < modLeftLen ? modLeftLen - modulusLen : 0;
 
       decoded = {
         header: plain[0],
         format: plain[1],
-        bin: plain.slice( 2, 2+4 ),
-        expiry: plain.slice( 6, 6+2 ),
-        serial: plain.slice( 8, 8+3 ),
+        bin: plain.slice(2, 2 + 4),
+        expiry: plain.slice(6, 6 + 2),
+        serial: plain.slice(8, 8 + 3),
         hashAlgorithm: plain[11],
         pkAlgorithm: plain[12],
         modulusLen,
         exponentLen,
-        modulus: plain.slice( 15, 15+modLeftLen - modPad ),
-//        exponent: plain.substr(15 + modLeftLen, expLen),
-        hash: plain.slice( plainLen-21, plainLen-1 ),
-        trailer: plain[ plainLen-1 ],
+        modulus: plain.slice(15, 15 + modLeftLen - modPad),
+        //        exponent: plain.substr(15 + modLeftLen, expLen),
+        hash: plain.slice(plainLen - 21, plainLen - 1),
+        trailer: plain[plainLen - 1],
         __plain: plain
-      }
-    }
-    else {
-      console.log( "ERROR: Root Key not found ");
+      };
+    } else {
+      console.log("ERROR: Root Key not found ");
     }
 
     return decoded;
   }
-
 }
 /*
 let cert = forge.util.hexToBytes( `
@@ -104,15 +122,15 @@ for( let m in decoded ) {
 
 type Hash = { [index: string]: string };
 
-function parseCTV( ctv: string ): Hash {
-  let ret:Hash = {};
+function parseCTV(ctv: string): Hash {
+  let ret: Hash = {};
   let pos = 0;
 
-  while( pos + 9 <= ctv.length ) {
-    let tag = ctv.substr( pos, 4 );
-    let len = parseInt( ctv.substr(pos+4,5));
+  while (pos + 9 <= ctv.length) {
+    let tag = ctv.substr(pos, 4);
+    let len = parseInt(ctv.substr(pos + 4, 5));
 
-    ret[tag] = ctv.substr(pos+9,len);
+    ret[tag] = ctv.substr(pos + 9, len);
 
     pos += 4 + 5 + len;
   }
@@ -120,33 +138,31 @@ function parseCTV( ctv: string ): Hash {
   return ret;
 }
 
-function parseTLV( tlv: string ): Hash {
-  let ret:Hash = {};
+function parseTLV(tlv: string): Hash {
+  let ret: Hash = {};
   let pos = 0;
 
-  while( pos + 4 <= tlv.length ) {
-    let tag = tlv.substr( pos, 2 );
+  while (pos + 4 <= tlv.length) {
+    let tag = tlv.substr(pos, 2);
 
-    pos+=2;
-    if ( tag == '00')
-      continue;
+    pos += 2;
+    if (tag == "00") continue;
 
-    if ( "13579BDF".indexOf(tag[0]) >= 0 && ( tag[1]=='F')) {
-      tag += tlv.substr( pos, 2 );
-      pos+=2;
+    if ("13579BDF".indexOf(tag[0]) >= 0 && tag[1] == "F") {
+      tag += tlv.substr(pos, 2);
+      pos += 2;
     }
 
-    let lenHex = tlv.substr( pos, 2 );
-    pos+=2;
-    if ( lenHex == "81")
-    {
-      lenHex = tlv.substr( pos, 2 );
-      pos+=2;
+    let lenHex = tlv.substr(pos, 2);
+    pos += 2;
+    if (lenHex == "81") {
+      lenHex = tlv.substr(pos, 2);
+      pos += 2;
     }
 
-    let len = parseInt( lenHex, 16 );
+    let len = parseInt(lenHex, 16);
 
-    ret[tag] = tlv.substr(pos,len*2);
+    ret[tag] = tlv.substr(pos, len * 2);
 
     pos += len * 2;
   }
@@ -154,5 +170,9 @@ function parseTLV( tlv: string ): Hash {
   return ret;
 }
 
-export function H2B(h: string): ByteArray { return ByteArray.fromString( NOWS(h), 'hex'); }
-export function NOWS( s: string ): string { return s.replace( /[ \s]/g,''); }
+export function H2B(h: string): ByteArray {
+  return ByteArray.fromString(NOWS(h), "hex");
+}
+export function NOWS(s: string): string {
+  return s.replace(/[ \s]/g, "");
+}

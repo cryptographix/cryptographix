@@ -1,9 +1,4 @@
-import {
-  Encoder,
-  BlockSettings,
-  InvalidInputError,
-  block
-} from "@cryptographix/core";
+import { Encoder, InvalidInputError, block } from "@cryptographix/core";
 import {
   booleanProp,
   isPort,
@@ -34,7 +29,7 @@ const modeNameMap = BlockCipherHelper.getModes().reduce((obj, el) => {
 /**
  * Settings
  */
-export class SecretKeyEncrypterSettings extends BlockSettings {
+export class SecretKeyEncrypterSettings {
   @enumProp({
     title: "Algorithm Name",
     ui: { columns: paddingAvailable ? 8 : 12, hint: "Crypto Algorithm" },

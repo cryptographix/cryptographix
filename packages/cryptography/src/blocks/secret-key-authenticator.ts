@@ -1,11 +1,11 @@
-import { Encoder, BlockSettings, block } from "@cryptographix/core";
+import { Encoder, block } from "@cryptographix/core";
 import {
   booleanProp,
   /*numberField, stringField,*/ enumProp,
   bytesProp
 } from "@cryptographix/core";
 
-export class SecretKeyAuthenticatorSettings extends BlockSettings {
+export class SecretKeyAuthenticatorSettings {
   @booleanProp({
     trueLabel: "Sign",
     falseLabel: "Verify"

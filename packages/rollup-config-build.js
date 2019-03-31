@@ -7,13 +7,13 @@ function name(s) {
 }
 
 let packages = require("../../lerna.json").packages || [];
-//console.log( packages );
 
 packages = packages.map(n => name(n));
-console.log( packages );
+console.log(packages);
 
 export default function(pkg, local = {}) {
   let me = name(pkg.name);
+  let input = local.input || "./dist/build/index.js";
 
   let globals = {
     ...packages.reduce((a, v) => {
@@ -25,7 +25,7 @@ export default function(pkg, local = {}) {
   };
 
   let external = [
-    ...packages.map( n=> '@cryptographix/'+n ),
+    ...packages.map(n => "@cryptographix/" + n),
     ...(local.external || [])
   ];
   if (me != "core") external.push("tslib");
@@ -33,7 +33,7 @@ export default function(pkg, local = {}) {
   return [
     // browser-friendly UMD build
     {
-      input: "./dist/build/index.js",
+      input: input,
       output: {
         name: "cryptographix." + name(pkg.name),
         file: pkg.browser,
@@ -46,12 +46,15 @@ export default function(pkg, local = {}) {
         //typescript(),
         resolve({
           main: true,
-          modules: true,
+          modules: true
         }),
         commonjs(),
-        ...(local.plugins||[]),
+        ...(local.plugins || [])
       ],
-      external: external
+      external: external,
+      watch: {
+        include: "src/**"
+      }
     },
 
     // CommonJS (for Node) and ES module (for bundlers) build.
@@ -61,8 +64,7 @@ export default function(pkg, local = {}) {
     // an array for the `output` option, where we can specify
     // `file` and `format` for each target)
     {
-      input: "./dist/build/index.js",
-      //      input: 'src/index.ts',
+      input: input,
       output: [
         {
           file: pkg.main,
@@ -75,11 +77,11 @@ export default function(pkg, local = {}) {
           sourcemap: true
         }
       ],
-      plugins: [
-        resolve()
-        //typescript(),
-      ],
-      external: external
+      plugins: [resolve()],
+      external: external,
+      watch: {
+        include: "src/**"
+      }
     }
   ];
 }

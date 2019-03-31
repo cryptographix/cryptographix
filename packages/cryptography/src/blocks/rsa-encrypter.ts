@@ -1,39 +1,48 @@
-import { ByteArray } from '@cryptographix/core';
-import { IRSAKey } from '../primitives/keys';
+import { ByteArray } from "@cryptographix/core";
+import { IRSAKey } from "../primitives/keys";
 
-import '../provider/node-forge';
-import { forge } from '../provider/node-forge';
+import "../provider/node-forge";
+import { forge } from "../provider/node-forge";
 
-import { Encoder, BlockSettings, block } from '@cryptographix/core';
+import { Encoder, block } from "@cryptographix/core";
 
-export class RSAEncrypterSettings extends BlockSettings {
-}
+export class RSAEncrypterSettings {}
 
-@block( {
-  name: 'rsa-encrypter',
-  namespace: 'org.cryptographix.cryptography',
-  title: 'RSA Encrypter',
-  category: 'Modern cryptography',
+@block({
+  name: "rsa-encrypter",
+  namespace: "org.cryptographix.cryptography",
+  title: "RSA Encrypter",
+  category: "Modern cryptography",
   settings: RSAEncrypterSettings
 })
 export class RSAEncrypter extends Encoder<RSAEncrypterSettings> {
-
   _key: IRSAKey;
 
-  constructor( key: IRSAKey ) {
+  constructor(key: IRSAKey) {
     super();
 
     this._key = key;
   }
 
-  async decrypt( data: ByteArray ): Promise<ByteArray> {
+  async decrypt(data: ByteArray): Promise<ByteArray> {
     let key = {
-      e: new forge.jsbn.BigInteger( ByteArray.toString( this._key.data.e, 'hex' ), 16 ),
-      n: new forge.jsbn.BigInteger( ByteArray.toString( this._key.data.n, 'hex'), 16 )
+      e: new forge.jsbn.BigInteger(
+        ByteArray.toString(this._key.data.e, "hex"),
+        16
+      ),
+      n: new forge.jsbn.BigInteger(
+        ByteArray.toString(this._key.data.n, "hex"),
+        16
+      )
     };
 
-    let plain = forge.pki.rsa.decrypt( ByteArray.toString(data), key, true, false );
+    let plain = forge.pki.rsa.decrypt(
+      ByteArray.toString(data),
+      key,
+      true,
+      false
+    );
 
-    return Promise.resolve<ByteArray>( ByteArray.fromString( plain ) );
+    return Promise.resolve<ByteArray>(ByteArray.fromString(plain));
   }
 }

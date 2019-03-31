@@ -1,13 +1,13 @@
 import { View } from "../view-core/index";
 
-import { Schema, BlockSettings } from "@cryptographix/core";
+import { Schema, BlockConfiguration } from "@cryptographix/core";
 
 import { PropertyView } from "./property-view";
 
 export class PropertyListView extends View {
-  _bs: BlockSettings;
+  _bs: BlockConfiguration;
 
-  constructor(bs: BlockSettings) {
+  constructor(bs: BlockConfiguration) {
     super();
     this._bs = bs;
 
@@ -20,7 +20,7 @@ export class PropertyListView extends View {
   render() {
     return (
       <div style="border: 1px solid #e3e8ec">
-        {this.renderChildren()}
+        {this.renderChildViews()}
         <div>
           <a class="inspect" onClick={this.dumpProps.bind(this)}>
             Button

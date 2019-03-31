@@ -1,5 +1,5 @@
 import { RootView } from "@cryptographix/dom-view";
-import { BlockSettingsView } from "./views/settings-view";
+import { BlockExplorerView } from "./views/block-explorer-view";
 
 import { ByteArray, H2BA, BA2H } from "@cryptographix/core";
 import * as cryp from "@cryptographix/cryptography";
@@ -57,12 +57,9 @@ enc
   });
 
 export function showSettings($element: HTMLElement) {
-  let $root = new RootView();
-  $root.bindRoot($element);
+  let $root = new RootView($element);
 
-  let $propsView = new BlockSettingsView(/*enc.settings*/);
-
-  $root.addChildView($propsView);
+  $root.addChildView(new BlockExplorerView());
 }
 
 window["showSettings"] = showSettings;
