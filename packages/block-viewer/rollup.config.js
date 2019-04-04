@@ -40,5 +40,6 @@ function myExample() {
 
 export default config(pkg, {
   //input: "./src/index.ts",
+  external: ["window"],
   plugins: [myExample()]
 });

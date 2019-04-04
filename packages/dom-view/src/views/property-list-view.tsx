@@ -33,6 +33,7 @@ export class PropertyListView extends View implements IActionHandler {
   dumpProps() {
     console.log(this._bs);
   }
+
   render() {
     return (
       <div style="border: 1px solid #e3e8ec">

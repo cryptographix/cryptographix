@@ -15,7 +15,7 @@ let cfg = {
   //mode: 'ecb'
 };
 
-enc.settings = cfg;
+enc.config = cfg;
 
 export class BlockSettingsView extends View {
   constructor() {
@@ -25,10 +25,10 @@ export class BlockSettingsView extends View {
   }
 
   createView() {
-    this.addChildView(new PropertyListView(enc.settings));
+    this.addChildView(new PropertyListView(enc.config));
   }
 
   render() {
-    return <div>{this.renderChildViews()}</div>;
+    return <div style="padding: 1px">{this.renderChildViews()}</div>;
   }
 }

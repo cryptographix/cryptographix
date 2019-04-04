@@ -104,6 +104,7 @@ export class PropertyView extends View {
         class={`field ${errClass} ${this.ui.className} ${
           this._first ? " field--first" : ""
         }`}
+        style="padding-left: 1rem; padding-right: 1rem;"
         onFocus={(_evt: Event) => this.focus()}
         onBlur={(_evt: Event) => this.blur()}
       >
