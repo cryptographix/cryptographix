@@ -7,7 +7,7 @@ export class SecretKeyDerivatorSettings {}
   namespace: "org.cryptographix.cryptography",
   title: "Secret Key Derivator",
   category: "Digital Cryptography",
-  settings: SecretKeyDerivatorSettings
+  config: SecretKeyDerivatorSettings
 })
 export class SecretKeyDerivator extends Block<SecretKeyDerivatorSettings> {
   /**

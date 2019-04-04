@@ -5,7 +5,7 @@ let localConfig = {
   external: [
     //"forge",
     //"jsbn",
-    //"crypto",
+    "crypto",
     "node-forge",
     "@cryptographix/core"
   ],

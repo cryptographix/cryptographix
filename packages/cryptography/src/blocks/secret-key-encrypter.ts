@@ -1,4 +1,4 @@
-import { Encoder, InvalidInputError, block } from "@cryptographix/core";
+import { Action, Encoder, InvalidInputError, block } from "@cryptographix/core";
 import {
   booleanProp,
   isPort,
@@ -7,6 +7,10 @@ import {
 } from "@cryptographix/core";
 import { BlockCipher, BlockCipherHelper } from "../primitives/block-cipher";
 import { IBytesSchemaProp } from "@cryptographix/core";
+import {
+  BlockPropertyChanged,
+  ConfigPropertyChanged
+} from "@cryptographix/core";
 
 const paddingAvailable = BlockCipherHelper.isPaddingAvailable();
 
@@ -55,6 +59,7 @@ export class SecretKeyEncrypterSettings {
   @enumProp({
     optional: true,
     options: modeNameMap
+    //ui: { widget: "radio" }
   })
   mode?: string = BlockCipherHelper.getModes()[0].name;
 
@@ -66,14 +71,6 @@ export class SecretKeyEncrypterSettings {
     ui: { hint: "Size must be equal to cipher block size" }
   })
   iv?: Uint8Array;
-
-  @bytesProp({ ui: { widget: "multiline" } })
-  @isPort({ type: "in" })
-  in?: Uint8Array;
-
-  @bytesProp({ ui: { widget: "multiline" } })
-  @isPort({ type: "out" })
-  out?: Uint8Array;
 }
 
 /**
@@ -84,38 +81,63 @@ export class SecretKeyEncrypterSettings {
   namespace: "org.cryptographix.cryptography",
   title: "Secret Key Encrypter",
   category: "Digital Cryptography",
-  settings: SecretKeyEncrypterSettings
+  config: SecretKeyEncrypterSettings
 })
 export class SecretKeyEncrypter extends Encoder<SecretKeyEncrypterSettings> {
   _blockCipher: BlockCipher;
 
+  @bytesProp({ ui: { widget: "multiline" } })
+  @isPort({ type: "in" })
+  in?: Uint8Array;
+
+  @bytesProp({ ui: { widget: "multiline" } })
+  @isPort({ type: "out" })
+  out?: Uint8Array;
+
   /**
-   * Triggered when a setting field has changed.
+   * Action handler
+   * - handles config changes
    */
-  settingChanged(setting: string, value: string): boolean {
+  handleAction(action: Action): Action {
+    let act = action as BlockPropertyChanged | ConfigPropertyChanged;
+
+    switch (act.action) {
+      case "config:property-changed": {
+        this.configChanged(act.key, act.value);
+        break;
+      }
+    }
+
+    return super.handleAction(action);
+  }
+
+  /**
+   * Triggered when a config field has changed.
+   */
+  configChanged(setting: string, value: string) {
     switch (setting) {
       case "algorithm": {
         const { keySize } = BlockCipherHelper.getAlgorithm(value);
 
-        let key = this.getSettingSchema<IBytesSchemaProp>("key");
+        let key = this.getConfigSchema<IBytesSchemaProp>("key");
         key.minSize = keySize;
         key.maxSize = keySize;
         break;
       }
 
       case "mode": {
-        const algorithm = this._settings.algorithm;
+        const { algorithm } = this.config;
         const { blockSize } = BlockCipherHelper.getAlgorithm(algorithm);
         const { hasIV } = BlockCipherHelper.getMode(value);
 
-        let iv = this.getSettingSchema<IBytesSchemaProp>("iv");
+        let iv = this.getConfigSchema<IBytesSchemaProp>("iv");
         iv.minSize = blockSize;
         iv.ignore = !hasIV;
         break;
       }
     }
 
-    return super.settingChanged(setting, value);
+    //    return super.settingChanged(setting, value);
   }
 
   /**
@@ -123,7 +145,7 @@ export class SecretKeyEncrypter extends Encoder<SecretKeyEncrypterSettings> {
    */
   async transform(content: Uint8Array, isEncode: boolean): Promise<Uint8Array> {
     const message = content;
-    const { algorithm, encrypt, mode, key, padding, iv } = this.settings;
+    const { algorithm, encrypt, mode, key, padding, iv } = this.config;
 
     try {
       // Try to encrypt or decrypt

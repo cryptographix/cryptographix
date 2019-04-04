@@ -11,12 +11,12 @@ import {
   BA2H
 } from "@cryptographix/core";
 
-interface Test<S extends BlockConfiguration = {}> {
+interface Test<BC extends BlockConfiguration = {}> {
   name?: string;
   direction?: string;
   content: string | ByteArray;
   expectedResult: string | ByteArray;
-  settings: S;
+  config: BC;
 }
 
 /**
@@ -36,14 +36,14 @@ export default class EncoderTester {
       // handle test in both directions
       EncoderTester.test(EncoderInvokable, {
         name: test.name,
-        settings: test.settings,
+        config: test.config,
         direction: "encode",
         content: test.content,
         expectedResult: test.expectedResult
       });
       EncoderTester.test(EncoderInvokable, {
         name: test.name,
-        settings: test.settings,
+        config: test.config,
         direction: "decode",
         content: test.expectedResult,
         expectedResult: test.content
@@ -79,8 +79,8 @@ export default class EncoderTester {
         const encoder = new EncoderInvokable();
 
         // apply settings, if any
-        if (test.settings) {
-          encoder.settings = test.settings;
+        if (test.config) {
+          encoder.config = test.config;
         }
 
         // trigger encoder encode or decode

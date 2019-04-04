@@ -1,8 +1,9 @@
 export * from "./schema/index";
 
 export * from "./block/block";
-export * from "./block/block-factory";
 export * from "./block/block-config";
+export * from "./block/block-actions";
+export * from "./block/block-factory";
 
 export * from "./dispatcher/action";
 

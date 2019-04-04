@@ -13,7 +13,7 @@ export class RSAEncrypterSettings {}
   namespace: "org.cryptographix.cryptography",
   title: "RSA Encrypter",
   category: "Modern cryptography",
-  settings: RSAEncrypterSettings
+  config: RSAEncrypterSettings
 })
 export class RSAEncrypter extends Encoder<RSAEncrypterSettings> {
   _key: IRSAKey;

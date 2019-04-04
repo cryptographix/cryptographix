@@ -7,7 +7,7 @@ export class SecretKeyGeneratorSettings {}
   namespace: "org.cryptographix.cryptography",
   title: "Secret Key Generator",
   category: "Digital Cryptography",
-  settings: SecretKeyGeneratorSettings
+  config: SecretKeyGeneratorSettings
 })
 export class SecretKeyGenerator extends Block<SecretKeyGeneratorSettings> {
   /**

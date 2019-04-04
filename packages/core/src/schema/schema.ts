@@ -47,9 +47,10 @@ export abstract class Schema {
   /**
    *
    */
-  static getSchemaForObject(target: object) {
+  static getSchemaForObject<TSchema extends ISchema>(target: object): TSchema {
     const cls = target.constructor as IConstructable;
-    let schema = schemaStore.ensure<ISchema>(cls);
+
+    let schema = schemaStore.ensure<TSchema>(cls);
 
     return schema;
   }
@@ -127,14 +128,19 @@ export abstract class Schema {
     return object;
   }
 
-  static getPropertiesForObject(target: object, isIO: boolean = false) {
+  static getPropertiesForObject(
+    target: object,
+    filterFn?: (item: ISchemaPropertyType) => boolean
+  ) {
     let schema = Schema.getSchemaForObject(target);
 
     let props = Object.entries(schema.properties);
 
     props = props
       .filter(([_key, propInfo]) => !propInfo.ignore)
-      .filter(([_key, propInfo]) => (isIO ? propInfo.io : !propInfo.io));
+      .filter(([_key, propInfo]) => {
+        return !filterFn || filterFn(propInfo);
+      });
 
     return new Map(props);
   }

@@ -26,7 +26,7 @@ export class SecretKeyAuthenticatorSettings {
   namespace: "org.cryptographix.cryptography",
   title: "Secret Key Authenticator",
   category: "Digital Cryptography",
-  settings: SecretKeyAuthenticatorSettings
+  config: SecretKeyAuthenticatorSettings
 })
 export class SecretKeyAuthenticator extends Encoder<
   SecretKeyAuthenticatorSettings
