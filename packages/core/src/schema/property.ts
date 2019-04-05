@@ -54,7 +54,13 @@ export interface ISchemaProperty<
 
 export interface ISchemaPropPortInfo {
   //
-  type?: "in" | "out" | ISchema<object>;
+  type?: "trigger" | "data-in" | "data-out" | ISchema<object>;
+
+  //
+  primary?: boolean;
+
+  //
+  reversible?: boolean;
 }
 
 export interface ISchemaPropUI {

@@ -340,13 +340,15 @@ export class DUKPT {
 
     enc.config = {
       algorithm: len == 8 ? "DES" : "DES3",
-      encrypt: true,
+      encrypt: encrypt,
       key: key.data.k,
       mode: "CBC",
       iv
     };
 
-    return enc.transform(message, encrypt);
+    return enc.transform({ in: message }).then(res => {
+      return res["out"];
+    });
   }
 
   static encryptAES(key: ISymKey, data: ByteArray) {

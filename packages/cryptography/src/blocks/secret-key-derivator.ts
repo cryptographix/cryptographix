@@ -1,4 +1,4 @@
-import { Block, block } from "@cryptographix/core";
+import { Transformer, block } from "@cryptographix/core";
 
 export class SecretKeyDerivatorSettings {}
 
@@ -9,11 +9,15 @@ export class SecretKeyDerivatorSettings {}
   category: "Digital Cryptography",
   config: SecretKeyDerivatorSettings
 })
-export class SecretKeyDerivator extends Block<SecretKeyDerivatorSettings> {
+export class SecretKeyDerivator extends Transformer<
+  SecretKeyDerivatorSettings
+> {
   /**
    * Constructor
    */
   constructor() {
     super();
   }
+
+  async trigger() {}
 }

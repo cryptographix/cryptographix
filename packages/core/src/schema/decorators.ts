@@ -119,6 +119,6 @@ export function objectProp<TO extends Object>(
 /**
  *
  */
-export function isPort(a: ISchemaPropPortInfo) {
-  return schemaProp<any>(null, { io: a });
+export function isPort(io: ISchemaPropPortInfo) {
+  return schemaProp<any>(null, { io: io });
 }

@@ -4,7 +4,13 @@ import { IRSAKey } from "../primitives/keys";
 import "../provider/node-forge";
 import { forge } from "../provider/node-forge";
 
-import { Encoder, block } from "@cryptographix/core";
+import {
+  Transformer,
+  block,
+  bytesProp,
+  objectProp,
+  isPort
+} from "@cryptographix/core";
 
 export class RSAEncrypterSettings {}
 
@@ -15,34 +21,50 @@ export class RSAEncrypterSettings {}
   category: "Modern cryptography",
   config: RSAEncrypterSettings
 })
-export class RSAEncrypter extends Encoder<RSAEncrypterSettings> {
-  _key: IRSAKey;
+export class RSAEncrypter extends Transformer<RSAEncrypterSettings> {
+  @bytesProp()
+  @isPort({ type: "data-in", primary: true })
+  plain: ByteArray;
 
-  constructor(key: IRSAKey) {
+  @objectProp(RSAEncrypterSettings, {})
+  @isPort({ type: "data-in" })
+  key: IRSAKey;
+
+  @bytesProp()
+  @isPort({ type: "data-out" })
+  crypto: ByteArray;
+
+  constructor() {
     super();
-
-    this._key = key;
   }
 
-  async decrypt(data: ByteArray): Promise<ByteArray> {
+  async process() {
     let key = {
       e: new forge.jsbn.BigInteger(
-        ByteArray.toString(this._key.data.e, "hex"),
+        ByteArray.toString(this.key.data.e, "hex"),
         16
       ),
       n: new forge.jsbn.BigInteger(
-        ByteArray.toString(this._key.data.n, "hex"),
+        ByteArray.toString(this.key.data.n, "hex"),
         16
       )
     };
 
-    let plain = forge.pki.rsa.decrypt(
-      ByteArray.toString(data),
+    let result: string;
+
+    result = forge.pki.rsa.decrypt(
+      ByteArray.toString(this.crypto),
       key,
       true,
       false
     );
 
-    return Promise.resolve<ByteArray>(ByteArray.fromString(plain));
+    this.plain = ByteArray.fromString(result);
+
+    return Promise.resolve(true);
+  }
+
+  async trigger() {
+    this.process();
   }
 }

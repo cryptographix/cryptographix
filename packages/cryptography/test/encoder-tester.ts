@@ -5,7 +5,7 @@ chai.use(chaiBytes);
 
 import {
   ByteArray,
-  Encoder,
+  Transformer,
   BlockConfiguration,
   H2BA,
   BA2H
@@ -20,28 +20,33 @@ interface Test<BC extends BlockConfiguration = {}> {
 }
 
 /**
- * Utility class for testing Encoder objects.
+ * Utility class for testing Transformer objects.
  */
-export default class EncoderTester {
+export default class TransformerTester {
   /**
-   * Runs tests on encoder invokable.
+   * Runs tests on transformer invokable.
    */
-  static test(EncoderInvokable: { new (): Encoder<any> }, test: Test | Test[]) {
+  static test(
+    TransformerInvokable: { new (): Transformer<any> },
+    test: Test | Test[]
+  ) {
     if (Array.isArray(test)) {
       // handle multiple tests
-      return test.forEach(test => EncoderTester.test(EncoderInvokable, test));
+      return test.forEach(test =>
+        TransformerTester.test(TransformerInvokable, test)
+      );
     }
 
     if (!test.direction || test.direction === "both") {
       // handle test in both directions
-      EncoderTester.test(EncoderInvokable, {
+      TransformerTester.test(TransformerInvokable, {
         name: test.name,
         config: test.config,
         direction: "encode",
         content: test.content,
         expectedResult: test.expectedResult
       });
-      EncoderTester.test(EncoderInvokable, {
+      TransformerTester.test(TransformerInvokable, {
         name: test.name,
         config: test.config,
         direction: "decode",
@@ -75,24 +80,24 @@ export default class EncoderTester {
         `${isEncoding ? "=>" : "<="} ` +
         `"${isEncoding ? expectedResultPreview : contentPreview}"`,
       async () => {
-        // create encoder brick instance
-        const encoder = new EncoderInvokable();
+        // create transformer brick instance
+        const transformer = new TransformerInvokable();
 
         // apply settings, if any
         if (test.config) {
-          encoder.config = test.config;
+          transformer.config = test.config;
         }
 
-        // trigger encoder encode or decode
-        const result = isEncoding
-          ? encoder.encode(content)
-          : encoder.decode(content);
+        debugger;
+
+        // trigger transformer encode or decode
+        const result = transformer.transform({ in: content }, !isEncoding);
 
         return result.then(result => {
           // verify result
-          chai.expect(result).equalBytes(expectedResult);
+          chai.expect(result["out"]).equalBytes(expectedResult);
           // no view should have been created during this process
-          //assert.strictEqual(encoder.hasView(), false)
+          //assert.strictEqual(transformer.hasView(), false)
         });
       }
     );

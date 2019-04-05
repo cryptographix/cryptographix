@@ -1,4 +1,9 @@
-import { Action, Encoder, InvalidInputError, block } from "@cryptographix/core";
+import {
+  Action,
+  Transformer,
+  InvalidInputError,
+  block
+} from "@cryptographix/core";
 import {
   booleanProp,
   isPort,
@@ -83,15 +88,17 @@ export class SecretKeyEncrypterSettings {
   category: "Digital Cryptography",
   config: SecretKeyEncrypterSettings
 })
-export class SecretKeyEncrypter extends Encoder<SecretKeyEncrypterSettings> {
+export class SecretKeyEncrypter extends Transformer<
+  SecretKeyEncrypterSettings
+> {
   _blockCipher: BlockCipher;
 
   @bytesProp({ ui: { widget: "multiline" } })
-  @isPort({ type: "in" })
-  in?: Uint8Array;
+  @isPort({ type: "data-in" })
+  "in"?: Uint8Array;
 
   @bytesProp({ ui: { widget: "multiline" } })
-  @isPort({ type: "out" })
+  @isPort({ type: "data-out" })
   out?: Uint8Array;
 
   /**
@@ -115,11 +122,13 @@ export class SecretKeyEncrypter extends Encoder<SecretKeyEncrypterSettings> {
    * Triggered when a config field has changed.
    */
   configChanged(setting: string, value: string) {
+    let helper = this.helper;
+
     switch (setting) {
       case "algorithm": {
         const { keySize } = BlockCipherHelper.getAlgorithm(value);
 
-        let key = this.getConfigSchema<IBytesSchemaProp>("key");
+        let key = helper.getConfigSchema<IBytesSchemaProp>(this.config, "key");
         key.minSize = keySize;
         key.maxSize = keySize;
         break;
@@ -130,37 +139,35 @@ export class SecretKeyEncrypter extends Encoder<SecretKeyEncrypterSettings> {
         const { blockSize } = BlockCipherHelper.getAlgorithm(algorithm);
         const { hasIV } = BlockCipherHelper.getMode(value);
 
-        let iv = this.getConfigSchema<IBytesSchemaProp>("iv");
+        let iv = helper.getConfigSchema<IBytesSchemaProp>(this.config, "iv");
         iv.minSize = blockSize;
         iv.ignore = !hasIV;
         break;
       }
     }
-
-    //    return super.settingChanged(setting, value);
   }
 
   /**
    * Performs encode or decode on given content.
    */
-  async transform(content: Uint8Array, isEncode: boolean): Promise<Uint8Array> {
-    const message = content;
+  async trigger(reverse: boolean) {
+    const message = this.in;
     const { algorithm, encrypt, mode, key, padding, iv } = this.config;
 
     try {
       // Try to encrypt or decrypt
-      return await BlockCipher.createCipher(
+      this.out = await BlockCipher.createCipher(
         algorithm,
         mode,
         key,
         iv,
         padding,
-        encrypt ? isEncode : !isEncode,
+        reverse ? !encrypt : encrypt,
         message
       );
     } catch (err) {
       // Catch invalid input errors
-      if (!isEncode) {
+      if (!encrypt) {
         throw new InvalidInputError(
           `${algorithm} decryption failed, ` +
             `this may be due to malformed content`

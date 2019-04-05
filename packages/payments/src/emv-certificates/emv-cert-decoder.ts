@@ -62,7 +62,12 @@ export class EMVCertificateDecoder {
         }
       };
 
-      let plain = await new RSAEncrypter(key).decrypt(issuerCert);
+      let rsa = new RSAEncrypter();
+      rsa.key = key;
+
+      let { out } = await rsa.transform({ in: issuerCert });
+
+      let plain = out;
       let plainLen = plain.length;
 
       let modulusLen = plain[13];

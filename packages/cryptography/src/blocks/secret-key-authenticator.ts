@@ -1,4 +1,4 @@
-import { Encoder, block } from "@cryptographix/core";
+import { Transformer, block } from "@cryptographix/core";
 import {
   booleanProp,
   /*numberField, stringField,*/ enumProp,
@@ -28,6 +28,8 @@ export class SecretKeyAuthenticatorSettings {
   category: "Digital Cryptography",
   config: SecretKeyAuthenticatorSettings
 })
-export class SecretKeyAuthenticator extends Encoder<
+export class SecretKeyAuthenticator extends Transformer<
   SecretKeyAuthenticatorSettings
-> {}
+> {
+  async trigger() {}
+}

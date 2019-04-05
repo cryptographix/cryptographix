@@ -1,5 +1,6 @@
 import { IConstructable, Omit, schemaStore } from "../schema/index";
-import { Block, IBlockSchema } from "./block";
+import { Block } from "./block";
+import { IBlockSchema } from "./block-schema";
 import { BlockConfiguration } from "./block-config";
 
 /*export class BlockFactory {
@@ -23,6 +24,8 @@ export function block<TConfig extends BlockConfiguration>(
     let schema = schemaStore.ensure<IBlockSchema<TConfig>>(target, "block");
 
     schema = {
+      namespace: "",
+      category: "default",
       ...schema,
       ...meta
     };

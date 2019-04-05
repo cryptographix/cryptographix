@@ -58,8 +58,10 @@ export abstract class Schema {
   /**
    *
    */
-  static getSchemaForClass<TO>(target: IConstructable<TO>): ISchema<TO> {
-    let schema = schemaStore.ensure<ISchema<TO>>(target);
+  static getSchemaForClass<TO, TSchema extends ISchema<TO>>(
+    target: IConstructable<TO>
+  ): TSchema {
+    let schema = schemaStore.ensure<TSchema>(target);
 
     return schema;
   }
