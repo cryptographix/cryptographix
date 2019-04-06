@@ -4,19 +4,18 @@ import {
   InvalidInputError,
   block
 } from "@cryptographix/core";
-import {
-  booleanProp,
-  isPort,
-  /*numberField, stringField,*/ enumProp,
-  bytesProp
-} from "@cryptographix/core";
-import { BlockCipher, BlockCipherHelper } from "../primitives/block-cipher";
+import { booleanProp, isPort, enumProp, bytesProp } from "@cryptographix/core";
 import { IBytesSchemaProp } from "@cryptographix/core";
 import {
   BlockPropertyChanged,
   ConfigPropertyChanged
 } from "@cryptographix/core";
 
+import { BlockCipher, BlockCipherHelper } from "../primitives/block-cipher";
+
+/**
+ *
+ */
 const paddingAvailable = BlockCipherHelper.isPaddingAvailable();
 
 /**
@@ -68,9 +67,6 @@ export class SecretKeyEncrypterSettings {
   })
   mode?: string = BlockCipherHelper.getModes()[0].name;
 
-  @bytesProp()
-  key: Uint8Array;
-
   @bytesProp({
     optional: true,
     ui: { hint: "Size must be equal to cipher block size" }
@@ -91,14 +87,16 @@ export class SecretKeyEncrypterSettings {
 export class SecretKeyEncrypter extends Transformer<
   SecretKeyEncrypterSettings
 > {
-  _blockCipher: BlockCipher;
-
   @bytesProp({ ui: { widget: "multiline" } })
-  @isPort({ type: "data-in" })
+  @isPort({ type: "data-in", primary: true })
   "in"?: Uint8Array;
 
+  @bytesProp({ minSize: 8, maxSize: 32 })
+  @isPort({ type: "data-in" })
+  key: Uint8Array;
+
   @bytesProp({ ui: { widget: "multiline" } })
-  @isPort({ type: "data-out" })
+  @isPort({ type: "data-out", primary: true })
   out?: Uint8Array;
 
   /**
@@ -128,9 +126,10 @@ export class SecretKeyEncrypter extends Transformer<
       case "algorithm": {
         const { keySize } = BlockCipherHelper.getAlgorithm(value);
 
-        let key = helper.getConfigSchema<IBytesSchemaProp>(this.config, "key");
-        key.minSize = keySize;
-        key.maxSize = keySize;
+        helper.updatePortSchema<IBytesSchemaProp>("key", {
+          minSize: keySize,
+          maxSize: keySize
+        });
         break;
       }
 
@@ -139,9 +138,10 @@ export class SecretKeyEncrypter extends Transformer<
         const { blockSize } = BlockCipherHelper.getAlgorithm(algorithm);
         const { hasIV } = BlockCipherHelper.getMode(value);
 
-        let iv = helper.getConfigSchema<IBytesSchemaProp>(this.config, "iv");
-        iv.minSize = blockSize;
-        iv.ignore = !hasIV;
+        helper.updateConfigPropSchema<IBytesSchemaProp>("iv", {
+          minSize: blockSize,
+          ignore: !hasIV
+        });
         break;
       }
     }
@@ -152,14 +152,14 @@ export class SecretKeyEncrypter extends Transformer<
    */
   async trigger(reverse: boolean) {
     const message = this.in;
-    const { algorithm, encrypt, mode, key, padding, iv } = this.config;
+    const { algorithm, encrypt, mode, padding, iv } = this.config;
 
     try {
       // Try to encrypt or decrypt
       this.out = await BlockCipher.createCipher(
         algorithm,
         mode,
-        key,
+        this.key,
         iv,
         padding,
         reverse ? !encrypt : encrypt,

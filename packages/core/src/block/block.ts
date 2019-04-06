@@ -12,14 +12,14 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
   _view?: IView;
 
   //
-  protected _helper: BlockSchemaHelper<TConfig>;
+  protected _helper: BlockSchemaHelper<TConfig, this>;
 
   //
   protected _config: TConfig;
 
   constructor(initConfig?: Partial<TConfig>) {
     //
-    this._helper = new BlockSchemaHelper<TConfig>(this);
+    this._helper = new BlockSchemaHelper<TConfig, this>(this);
 
     //
     this._config = this._helper.initConfig(initConfig);
@@ -33,7 +33,7 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
     this._config = this._helper.initConfig(config);
   }
 
-  get helper(): BlockSchemaHelper<TConfig> {
+  get helper(): BlockSchemaHelper<TConfig, this> {
     return this._helper;
   }
 

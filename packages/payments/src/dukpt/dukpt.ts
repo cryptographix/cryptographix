@@ -341,13 +341,12 @@ export class DUKPT {
     enc.config = {
       algorithm: len == 8 ? "DES" : "DES3",
       encrypt: encrypt,
-      key: key.data.k,
       mode: "CBC",
       iv
     };
 
-    return enc.transform({ in: message }).then(res => {
-      return res["out"];
+    return enc.transform({ in: message, key: key.data.k }).then(res => {
+      return res.out;
     });
   }
 

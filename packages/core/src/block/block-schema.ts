@@ -1,8 +1,8 @@
 import {
   ISchema,
-  Schema,
   IConstructable,
-  ISchemaProperty
+  ISchemaProperty,
+  Schema
 } from "../schema/index";
 
 import { BlockConfiguration } from "./block-config";
@@ -36,17 +36,25 @@ export interface IBlockSchema<
  * Helper for Block Schema
  */
 export class BlockSchemaHelper<
-  TConfig extends BlockConfiguration = {},
-  TBlock extends Block<TConfig> = Block<TConfig>
+  TConfig extends BlockConfiguration,
+  TBlock extends Block<TConfig>
 > {
-  private _block: TBlock; // Block<TConfig>;
+  private _block: TBlock;
   private _schema: IBlockSchema<TConfig>;
+
+  private _configSchema: ISchema<TConfig>;
 
   constructor(block: TBlock) {
     //
     this._block = block;
+
     //
     this._schema = Schema.getSchemaForObject<IBlockSchema<TConfig>>(block);
+
+    //
+    this._configSchema = Schema.getSchemaForClass<TConfig, ISchema<TConfig>>(
+      this._schema.config
+    );
   }
 
   get schema(): IBlockSchema<TConfig> {
@@ -59,6 +67,7 @@ export class BlockSchemaHelper<
 
   extractBlockProperties(props: string[]): Partial<TBlock> {
     const self = this;
+
     return props
       .filter(this.isSchemaProperty.bind(this))
       .reduce<Partial<TBlock>>((accum, name) => {
@@ -70,22 +79,74 @@ export class BlockSchemaHelper<
 
   updateBlockProperties(obj: Partial<TBlock>, props: string[]): void {
     const self = this;
+
     props.filter(this.isSchemaProperty.bind(this)).forEach(name => {
       self._block[name] = obj[name];
     });
   }
 
-  initConfig(initConfig: Partial<TConfig>): TConfig {
-    return Schema.initObjectFromClass<TConfig>(this._schema.config, initConfig);
+  /**
+   * CONFIG
+   */
+  get config(): TConfig {
+    return this._block.config;
   }
 
-  getConfigSchema<TSchemaProp extends ISchemaProperty>(
-    config: TConfig,
+  initConfig(initConfig: Partial<TConfig>): TConfig {
+    let config = Schema.initObjectFromClass<TConfig>(
+      this._schema.config,
+      initConfig
+    );
+
+    return config;
+  }
+
+  getConfigPropSchema<TSchemaProp extends ISchemaProperty>(
     key: keyof TConfig
   ): TSchemaProp {
-    let configSchema = Schema.getSchemaForObject<ISchema<TConfig>>(config);
+    let schemaProp = this._configSchema.properties[key as string];
 
-    return configSchema.properties[key as string] as TSchemaProp;
+    return schemaProp as TSchemaProp;
+  }
+
+  updateConfigPropSchema<TSchemaProp extends ISchemaProperty>(
+    key: keyof TConfig,
+    updatedProp: Partial<TSchemaProp>
+  ): TSchemaProp {
+    let schemaProp = this._configSchema.properties[key as string];
+
+    schemaProp = {
+      ...schemaProp,
+      ...updatedProp
+    };
+
+    this._configSchema.properties[key as string] = schemaProp;
+
+    return schemaProp as TSchemaProp;
+  }
+
+  getPortSchema<TSchemaProp extends ISchemaProperty>(
+    key: keyof TBlock
+  ): TSchemaProp {
+    let schemaProp = this._schema.properties[key as string];
+
+    return schemaProp as TSchemaProp;
+  }
+
+  updatePortSchema<TSchemaProp extends ISchemaProperty>(
+    key: keyof TBlock,
+    updatedProp: Partial<TSchemaProp>
+  ): TSchemaProp {
+    let schemaProp = this._schema.properties[key as string];
+
+    schemaProp = {
+      ...schemaProp,
+      ...updatedProp
+    };
+
+    this._schema.properties[key as string] = schemaProp;
+
+    return schemaProp as TSchemaProp;
   }
 
   getPortMap(filterFn?: (item: ISchemaProperty) => boolean) {

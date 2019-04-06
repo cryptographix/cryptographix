@@ -14,6 +14,12 @@ import {
 
 export class RSAEncrypterSettings {}
 
+export class RSAKey implements IRSAKey {
+  type;
+  algorithm;
+  data?;
+}
+
 @block({
   name: "rsa-encrypter",
   namespace: "org.cryptographix.cryptography",
@@ -24,15 +30,15 @@ export class RSAEncrypterSettings {}
 export class RSAEncrypter extends Transformer<RSAEncrypterSettings> {
   @bytesProp()
   @isPort({ type: "data-in", primary: true })
-  plain: ByteArray;
+  "in": ByteArray;
 
-  @objectProp(RSAEncrypterSettings, {})
+  @objectProp(RSAKey, {})
   @isPort({ type: "data-in" })
-  key: IRSAKey;
+  key: RSAKey;
 
   @bytesProp()
   @isPort({ type: "data-out" })
-  crypto: ByteArray;
+  out: ByteArray;
 
   constructor() {
     super();
@@ -53,13 +59,13 @@ export class RSAEncrypter extends Transformer<RSAEncrypterSettings> {
     let result: string;
 
     result = forge.pki.rsa.decrypt(
-      ByteArray.toString(this.crypto),
+      ByteArray.toString(this.in),
       key,
       true,
       false
     );
 
-    this.plain = ByteArray.fromString(result);
+    this.out = ByteArray.fromString(result);
 
     return Promise.resolve(true);
   }

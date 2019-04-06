@@ -1,4 +1,5 @@
 import { ISchema } from ".";
+import { ByteArray } from "./byte-array";
 
 /**
  * Base descriptor for a property defined by Schema
@@ -169,6 +170,24 @@ export type ISchemaPropertyType =
   | IEnumSchemaProp
   | IBytesSchemaProp
   | IObjectSchemaProp;
+
+/**
+ *
+ */
+export type SchemaPropertyDataType =
+  | boolean
+  | string
+  | number
+  | ByteArray
+  | Object;
+
+export type FilterSchemaProps<Base> = {
+  [Key in keyof Base]: Base[Key] extends SchemaPropertyDataType
+    ? /*Base[Key] extends Function
+      ? never
+      : */ Base[Key]
+    : never
+};
 
 /**
  *

@@ -91,7 +91,10 @@ export default class TransformerTester {
         debugger;
 
         // trigger transformer encode or decode
-        const result = transformer.transform({ in: content }, !isEncoding);
+        const result = transformer.transform<any, any>(
+          { in: content, key: test.config["key"] },
+          !isEncoding
+        );
 
         return result.then(result => {
           // verify result

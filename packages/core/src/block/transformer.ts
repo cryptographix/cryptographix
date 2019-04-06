@@ -1,7 +1,11 @@
 import { Block } from "./block";
+import { BlockConfiguration } from "./block-config";
+import { FilterSchemaProps } from "../schema/index";
 
 //export abstract class Transformer<TConfig> extends Block<TConfig> {
-export abstract class Transformer<BC> extends Block<BC> {
+export abstract class Transformer<BC extends BlockConfiguration> extends Block<
+  BC
+> {
   _inPortNames: string[];
   _outPortNames: string[];
 
@@ -19,16 +23,17 @@ export abstract class Transformer<BC> extends Block<BC> {
 
   /**
    * Trigger block processing.
+   *
    */
   abstract trigger(_reverse?: boolean): Promise<void>;
 
   /**
    * Trigger block processing with params
    */
-  async transform<TIn = Partial<this>, TOut = Partial<this>>(
-    inData: TIn,
-    reverse?: boolean
-  ): Promise<TOut> {
+  async transform<
+    TIn extends FilterSchemaProps<this> = FilterSchemaProps<this>,
+    TOut extends FilterSchemaProps<this> = FilterSchemaProps<this>
+  >(inData: Partial<TIn>, reverse?: boolean): Promise<Partial<TOut>> {
     this.helper.updateBlockProperties(inData, this._inPortNames);
 
     return this.trigger(reverse).then(() => {
