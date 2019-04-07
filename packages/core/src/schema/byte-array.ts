@@ -1,4 +1,4 @@
-import { Env } from "../platform/environment";
+import { Environment } from "../platform/environment";
 
 export function H2BA(s: string) {
   return ByteArray.fromString(s, "hex");
@@ -33,7 +33,7 @@ export class ByteArray extends Uint8Array {
 
     if (fmt == "hex" && typeof data == "string") data = data.replace(/\s/g, "");
 
-    if (Env.isNode()) return ByteArray.from(Buffer.from(data, fmt));
+    if (Environment.isNode()) return ByteArray.from(Buffer.from(data, fmt));
 
     switch (fmt) {
       case "hex": {
@@ -68,7 +68,7 @@ export class ByteArray extends Uint8Array {
       return str;
     }
 
-    if (Env.isNode()) return Buffer.from(bytes).toString(fmt);
+    if (Environment.isNode()) return Buffer.from(bytes).toString(fmt);
     else {
       let s = "";
       switch (fmt) {
@@ -163,32 +163,4 @@ export class ByteArray extends Uint8Array {
 
     return lenA > lenB ? 1 : 0;
   }
-}
-
-export interface XXBuffer {
-  /**
-   * When passed a reference to the .buffer property of a TypedArray instance,
-   * the newly created Buffer will share the same allocated memory as the TypedArray.
-   * The optional {byteOffset} and {length} arguments specify a memory range
-   * within the {arrayBuffer} that will be shared by the Buffer.
-   *
-   * @param arrayBuffer The .buffer property of any TypedArray or a new ArrayBuffer()
-   */
-  from(
-    arrayBuffer: ArrayBuffer | SharedArrayBuffer,
-    byteOffset?: number,
-    length?: number
-  ): Buffer;
-  /**
-   * Creates a new Buffer using the passed {data}
-   * @param data data to create a new Buffer
-   */
-  from(data: any[]): Buffer;
-  from(data: Uint8Array): Buffer;
-  /**
-   * Creates a new Buffer containing the given JavaScript string {str}.
-   * If provided, the {encoding} parameter identifies the character encoding.
-   * If not provided, {encoding} defaults to 'utf8'.
-   */
-  from(str: string, encoding?: string): Buffer;
 }

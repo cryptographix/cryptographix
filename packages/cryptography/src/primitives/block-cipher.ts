@@ -1,4 +1,4 @@
-import { Env, ByteArray } from "@cryptographix/core";
+import { Environment, ByteArray } from "@cryptographix/core";
 import { XWindow } from "./webcrypto-ie-shim";
 
 import * as nodeCrypto from "crypto";
@@ -9,7 +9,7 @@ export class BlockCipherHelper {
    * Returns whether padding is available in the current environment.
    */
   static isPaddingAvailable(): boolean {
-    return Env.isNode();
+    return Environment.isNode();
   }
 
   /**
@@ -80,7 +80,7 @@ export class BlockCipherHelper {
    * Returns algorithm objects available in the current environment.
    */
   static getAlgorithms() {
-    const isNode = Env.isNode();
+    const isNode = Environment.isNode();
     return BlockCipherHelper.algorithms.filter(
       algorithm =>
         (algorithm.browserAlgorithm && !isNode) ||
@@ -101,7 +101,7 @@ export class BlockCipherHelper {
    * Returns mode objects available in the current environment.
    */
   static getModes() {
-    const isNode = Env.isNode();
+    const isNode = Environment.isNode();
 
     const modes = [
       {
@@ -153,7 +153,7 @@ export class BlockCipher {
       iv = new Uint8Array([]);
     }
 
-    if (Env.isNode()) {
+    if (Environment.isNode()) {
       const cipherName = algorithm.nodeAlgorithm + "-" + mode;
 
       // Node v8.x - convert Uint8Array to Buffer - not needed for v10

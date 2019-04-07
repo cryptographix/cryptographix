@@ -1,7 +1,5 @@
-export const Env = {
+export const Environment = {
   isNode(): boolean {
-    return (typeof process !== 'undefined');
+    return typeof process !== "undefined";
   }
-
-
-}
+};
