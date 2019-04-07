@@ -57,9 +57,8 @@ export class BlockExplorerView extends View implements IActionHandler {
       this.transformer
         .trigger()
         .then(() => {
-          this.output[this.output.key] = this.transformer[
-            this.transformer.helper.outPortKeys[0]
-          ];
+          this.output.value = this.transformer[this.output.key];
+
           this.output.trigger();
         })
         .catch(err => console.log(err));

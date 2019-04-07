@@ -3,10 +3,10 @@ import { Writable } from "../schema/index";
 import { IActionHandler } from "../dispatcher/action";
 import { Block } from "./block";
 
-export abstract class BlockView extends View {
-  readonly block: Block;
+export abstract class BlockView<TBlock extends Block = Block> extends View {
+  readonly block: TBlock;
 
-  constructor(handler: IActionHandler, block: Block) {
+  constructor(handler: IActionHandler, block: TBlock) {
     super(handler);
 
     this.block = block;

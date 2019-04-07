@@ -14,7 +14,7 @@ export class OutputTransformer extends Transformer {
     this.key = key;
 
     this.propInfo = {
-      name: key,
+      name: "value",
       type: "bytes",
       title, //: "Data to Encrypt",
       ui: {
@@ -28,19 +28,19 @@ export class OutputTransformer extends Transformer {
   }
 
   async trigger() {
-    this.view.updateView();
+    this.view.triggerUpdate();
 
     return Promise.resolve();
   }
 }
 
 export class OutputPanel extends BlockView {
-  protected model: OutputTransformer;
+  readonly block: OutputTransformer;
 
   constructor(handler: IActionHandler, model: OutputTransformer) {
     super(handler, model);
 
-    this.model = model;
+    this.block = model;
 
     let propView = new PropertyView(handler, {
       target: model,
@@ -49,6 +49,12 @@ export class OutputPanel extends BlockView {
     });
 
     this.addChildView(propView);
+  }
+
+  updateView() {
+    this.children[0].refresh();
+
+    return true; // rerender
   }
 
   render() {

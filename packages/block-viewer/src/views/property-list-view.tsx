@@ -37,14 +37,9 @@ export class PropertyListView extends View implements IActionHandler {
 
   render() {
     return (
-      <fielset style="border: 1px solid #e3e8ec">
+      <fieldset style="border: 1px solid #e3e8ec">
         {this.renderChildViews()}
-        <div>
-          <a class="inspect" onClick={this.dumpProps.bind(this)}>
-            Button
-          </a>
-        </div>
-      </fielset>
+      </fieldset>
     );
   }
 

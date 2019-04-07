@@ -66,12 +66,8 @@ export class InputTransformer extends Transformer implements IActionHandler {
 }
 
 export class InputPanel extends BlockView {
-  protected model: InputTransformer;
-
   constructor(handler: IActionHandler, model: InputTransformer) {
     super(handler, model);
-
-    this.model = model;
 
     let propView = new PropertyView(handler, {
       target: model,
