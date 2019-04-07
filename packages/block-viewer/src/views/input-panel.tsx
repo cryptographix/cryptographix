@@ -1,10 +1,7 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler, Action } from "@cryptographix/core";
-import {
-  View,
-  PropertyView,
-  PropertyValueChanged
-} from "@cryptographix/dom-view";
+import { View, BlockView } from "@cryptographix/core";
+import { PropertyView, PropertyValueChanged } from "./property-view";
 
 export class InputTransformer extends Transformer implements IActionHandler {
   key: string;
@@ -68,11 +65,11 @@ export class InputTransformer extends Transformer implements IActionHandler {
   }
 }
 
-export class InputPanel extends View {
+export class InputPanel extends BlockView {
   protected model: InputTransformer;
 
   constructor(handler: IActionHandler, model: InputTransformer) {
-    super(handler);
+    super(handler, model);
 
     this.model = model;
 

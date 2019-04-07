@@ -4,7 +4,7 @@ export * from "./block/index";
 
 export * from "./dispatcher/action";
 
-export { IView, IViewable } from "./viewable";
+export * from "./view";
 
 export * from "./platform/environment";
 

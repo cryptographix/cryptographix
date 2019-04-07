@@ -1,5 +1,4 @@
-import { Action, IActionHandler } from "@cryptographix/core";
-import { View } from "../view-core/index";
+import { View, Action, IActionHandler } from "@cryptographix/core";
 
 import {
   ISchemaPropReference,

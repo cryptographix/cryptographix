@@ -1,12 +1,12 @@
 import {
   IConstructable,
+  View,
   H2BA,
   Action,
   IActionHandler,
   Transformer,
   PortDataAction
 } from "@cryptographix/core";
-import { View } from "@cryptographix/dom-view";
 import { InputTransformer, InputPanel } from "./input-panel";
 import { OutputTransformer, OutputPanel } from "./output-panel";
 import { TransformerView } from "./transformer-view";

@@ -1,10 +1,9 @@
-import { View } from "../view-core/index";
-
 import {
   Schema,
   BlockConfiguration,
   AnyAction,
-  IActionHandler
+  IActionHandler,
+  View
 } from "@cryptographix/core";
 
 import { PropertyView, PropertyValueChanged } from "./property-view";

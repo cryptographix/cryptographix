@@ -1,6 +1,7 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler } from "@cryptographix/core";
-import { View, PropertyView } from "@cryptographix/dom-view";
+import { View, BlockView } from "@cryptographix/core";
+import { PropertyView } from "./property-view";
 
 export class OutputTransformer extends Transformer {
   key: string;
@@ -27,17 +28,17 @@ export class OutputTransformer extends Transformer {
   }
 
   async trigger() {
-    this.view.update();
+    this.view.updateView();
 
     return Promise.resolve();
   }
 }
 
-export class OutputPanel extends View {
+export class OutputPanel extends BlockView {
   protected model: OutputTransformer;
 
   constructor(handler: IActionHandler, model: OutputTransformer) {
-    super(handler);
+    super(handler, model);
 
     this.model = model;
 

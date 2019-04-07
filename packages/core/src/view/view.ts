@@ -1,4 +1,5 @@
-import { Writable, IActionHandler } from "@cryptographix/core";
+import { Writable } from "../schema/index";
+import { IActionHandler } from "../dispatcher/action";
 import { createElement } from "./helpers";
 
 export interface View<TParentView extends View<any> = any> {

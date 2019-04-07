@@ -1,4 +1,4 @@
-import { RootView } from "@cryptographix/dom-view";
+import { RootView } from "./views/root-view";
 import { BlockExplorerView } from "./views/block-explorer-view";
 import { SecretKeyEncrypter } from "@cryptographix/cryptography";
 

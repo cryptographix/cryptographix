@@ -1,4 +1,4 @@
-import { View } from "../view-core/index";
+import { View } from "@cryptographix/core";
 
 export class RootView extends View {
   constructor($element: HTMLElement) {

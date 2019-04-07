@@ -1,9 +1,11 @@
 import {
   BlockConfiguration,
   Transformer,
-  IActionHandler
+  IActionHandler,
+  View
 } from "@cryptographix/core";
-import { View, PropertyListView } from "@cryptographix/dom-view";
+
+import { PropertyListView } from "./property-list-view";
 
 export class TransformerView extends View {
   constructor(handler: IActionHandler, transformer: Transformer) {
