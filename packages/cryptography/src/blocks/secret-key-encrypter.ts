@@ -2,6 +2,7 @@ import {
   Action,
   Transformer,
   InvalidInputError,
+  ByteArray,
   block
 } from "@cryptographix/core";
 import { booleanProp, isPort, enumProp, bytesProp } from "@cryptographix/core";
@@ -37,7 +38,7 @@ const modeNameMap = BlockCipherHelper.getModes().reduce((obj, el) => {
 /**
  * Settings
  */
-export class SecretKeyEncrypterSettings {
+export class SecretKeyEncrypterConfig {
   @enumProp({
     title: "Algorithm Name",
     ui: { columns: paddingAvailable ? 8 : 12, hint: "Crypto Algorithm" },
@@ -82,11 +83,9 @@ export class SecretKeyEncrypterSettings {
   namespace: "org.cryptographix.cryptography",
   title: "Secret Key Encrypter",
   category: "Digital Cryptography",
-  config: SecretKeyEncrypterSettings
+  config: SecretKeyEncrypterConfig
 })
-export class SecretKeyEncrypter extends Transformer<
-  SecretKeyEncrypterSettings
-> {
+export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
   @bytesProp({ ui: { widget: "multiline" } })
   @isPort({ type: "data-in", primary: true })
   "in"?: Uint8Array;
@@ -160,7 +159,7 @@ export class SecretKeyEncrypter extends Transformer<
         algorithm,
         mode,
         this.key,
-        iv,
+        iv || ByteArray.alloc(0),
         padding,
         reverse ? !encrypt : encrypt,
         message

@@ -1,3 +1,4 @@
+import { Writable, IActionHandler } from "@cryptographix/core";
 import { createElement } from "./helpers";
 
 export interface View<TParentView extends View<any> = any> {
@@ -34,14 +35,26 @@ export interface View<TParentView extends View<any> = any> {
 export abstract class View<TParentView extends View<any> = any> {
   static createElement = createElement;
 
-  _$element: HTMLElement = null;
-  _parentView: TParentView = null;
-  _childViews: View<any>[] = [];
-  _focus = false;
-  _needsUpdate = false;
+  readonly handler: IActionHandler = null;
+
+  $element: HTMLElement = null;
+  parentView: TParentView = null;
+  readonly childViews: View<any>[] = [];
+  hasFocus = false;
+  needsUpdate = false;
+
+  constructor(handler?: IActionHandler) {
+    this.handler = handler;
+  }
+
+  destroy() {
+    Writable(this).handler = null;
+
+    this.childViews.forEach(this.removeChildView);
+  }
 
   get element() {
-    return this._$element ? this._$element : (this._$element = this.render());
+    return this.$element ? this.$element : (this.$element = this.render());
   }
 
   /**
@@ -51,10 +64,10 @@ export abstract class View<TParentView extends View<any> = any> {
   triggerUpdate() {
     let refresh = true;
 
-    if (!this._needsUpdate) {
-      this._needsUpdate = true;
+    if (!this.needsUpdate) {
+      this.needsUpdate = true;
       window.requestAnimationFrame(() => {
-        this._needsUpdate = false;
+        this.needsUpdate = false;
 
         if (this.updateView) {
           refresh = this.updateView();
@@ -71,12 +84,12 @@ export abstract class View<TParentView extends View<any> = any> {
    * Fluent interface
    */
   refresh() {
-    const $oldElement = this._$element;
+    const $oldElement = this.$element;
 
     // Only rerender if already bound
     if ($oldElement) {
       // force re-render
-      this._$element = null;
+      this.$element = null;
 
       const $el = this.element;
 
@@ -95,29 +108,31 @@ export abstract class View<TParentView extends View<any> = any> {
    */
   addChildView(view: View, nextView?: View) {
     // make sure view is detached
-    if (this._parentView !== null) {
-      this._parentView.removeChildView(this);
+    if (this.parentView !== null) {
+      this.parentView.removeChildView(this);
     }
 
     // Render and insert into DOM
-    if (this._$element) {
+    if (this.$element) {
       let $newChild = view.render();
 
       if (nextView) {
         this.element.insertBefore($newChild, nextView.element);
-      } else this._$element.appendChild($newChild);
+      } else this.$element.appendChild($newChild);
     }
 
-    view._parentView = this;
+    view.parentView = this;
 
-    this._childViews.push(view);
+    this.childViews.push(view);
+
+    return this;
   }
 
   /**
    * Returns child views.
    */
   get children(): View[] {
-    return this._childViews;
+    return this.childViews;
   }
 
   /**
@@ -140,18 +155,20 @@ export abstract class View<TParentView extends View<any> = any> {
    * Fluent interface
    */
   removeChildView(view: View) {
-    const index = this._childViews.indexOf(view);
+    const index = this.childViews.indexOf(view);
 
     if (index !== -1) {
-      const $element = this._$element;
+      const $element = this.$element;
 
-      this._childViews.splice(index, 1);
-      view._parentView = null;
+      this.childViews.splice(index, 1);
+      view.parentView = null;
 
       if ($element.parentNode) {
         // Remove from DOM!
         $element.parentNode.removeChild($element);
       }
+
+      view.destroy();
     }
 
     return this;
@@ -184,29 +201,22 @@ export abstract class View<TParentView extends View<any> = any> {
    * Fluent interface
    */
   private setFocus(focus: boolean) {
-    if (focus !== this._focus) {
-      this._focus = focus;
+    if (focus !== this.hasFocus) {
+      this.hasFocus = focus;
       if (focus) {
         // inform superview
-        if (this._parentView) {
-          //this._parentView.subviewDidFocus(this);
+        if (this.parentView) {
+          //this.parentView.subviewDidFocus(this);
         }
         this.viewFocused && this.viewFocused();
       } else {
         // blur subviews
-        this._childViews.forEach(subview => subview.blur());
+        this.childViews.forEach(subview => subview.blur());
         this.viewBlurred && this.viewBlurred();
       }
     }
 
     return this;
-  }
-
-  /**
-   * Returns true, if view or one of the subviews has focus.
-   */
-  hasFocus() {
-    return this._focus;
   }
 
   /*****************************************************************************

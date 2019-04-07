@@ -1,14 +1,14 @@
 export interface IViewable {
-  _view?: IView;
+  view?: IView;
 
-  bindView?( view: IView ): () => void;
+  bindView?(view: IView): () => void;
   unbindView?(): void;
 }
 
 export interface IView<VE = any> {
   _model: IViewable;
 
-//  new<T extends IView>( model?: IViewable ): T;
+  //  new<T extends IView>( model?: IViewable ): T;
 
   update(): void;
 

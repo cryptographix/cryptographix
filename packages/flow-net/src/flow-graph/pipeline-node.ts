@@ -18,7 +18,7 @@ export class PipelineNode extends FlowNode {
   constructor(nodes: FlowNode[] = []) {
     super();
 
-    this._nodes = nodes;
+    this.nodes = nodes;
 
     nodes.forEach(node => {
       node.parent = this;
@@ -29,7 +29,7 @@ export class PipelineNode extends FlowNode {
    *
    */
   appendNode(node: FlowNode) {
-    this._nodes.push(node);
+    this.nodes.push(node);
   }
 
   /**
@@ -38,26 +38,28 @@ export class PipelineNode extends FlowNode {
   setup() {
     super.setup();
 
-    this._nodes.forEach(node => {
+    this.nodes.forEach(node => {
       let act = new NodeSetupAction(node);
       act.dispatch();
     });
+
+    return this;
   }
 
   /**
    *
    */
-  tearDown(): void {
-    this._nodes.forEach(node => {
+  tearDown() {
+    this.nodes.forEach(node => {
       let act = new NodeTeardownAction(node);
       act.dispatch();
     });
 
-    super.tearDown();
+    return super.tearDown();
   }
 
   protected triggerNode(index: number, data: {}): Promise<boolean> {
-    let node = this._nodes[index];
+    let node = this.nodes[index];
 
     node.setInput(data);
     if (node.canTrigger) {
@@ -67,11 +69,11 @@ export class PipelineNode extends FlowNode {
         if (ok) {
           let output = node.getOutput();
 
-          if (index + 1 < this._nodes.length) {
+          if (index + 1 < this.nodes.length) {
             // chain to next
             return this.triggerNode(index + 1, output);
           } else {
-            this._output = output;
+            this.output = output;
             // last in pipeline
             return ok;
           }
@@ -90,10 +92,10 @@ export class PipelineNode extends FlowNode {
   async trigger(_reverse?: boolean) {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
-    this._result = this.triggerNode(0, this._input);
+    this.result = this.triggerNode(0, this.input);
 
     let me = this;
-    return this._result
+    return this.result
       .then(_ok => {
         return _ok;
       })

@@ -4,16 +4,16 @@ export class RootView extends View {
   constructor($element: HTMLElement) {
     super();
 
-    this._$element = $element;
+    this.$element = $element;
   }
 
   render() {
     // Render children into DOM
     const $childElements = this.renderChildViews();
     Object.entries($childElements).forEach(([_key, $item]) => {
-      this._$element.appendChild($item);
+      this.$element.appendChild($item);
     });
 
-    return this._$element;
+    return this.$element;
   }
 }

@@ -32,23 +32,38 @@
         margin-bottom: 0px;
       }
 
+      .control {
+        font-size: 90%;
+      }
+      input[type="checkbox"] {
+        margin-right: 0.5rem;
+      }
+
+      .input.bytes,
+      .textarea.bytes {
+        font-family: monospace;
+      }
+
       .button,
       .input,
       .textarea,
       .select select,
       .select:not(.is-multiple) {
-        //  height: 2rem;
+        height: 2rem;
       }
       .field:not(:last-child) {
         margin-bottom: 0.25rem;
       }
+
       .label:not(:last-child) {
         margin-bottom: 0rem;
       }
+
       .control .input:not(:focus) {
         border: none;
         box-shadow: inherit;
       }
+
       .field .help {
         margin-top: 0px;
         margin-bottom: 0.25rem;

@@ -24,11 +24,15 @@ export abstract class Action<TID = any> {
     this.__id = id;
   }
 
-  async dispatch(): Promise<AnyAction> {
-    let result = this.__target.handleAction(this);
+  async dispatchTo(target: IActionHandler): Promise<AnyAction> {
+    let result = target.handleAction(this);
 
     if (result instanceof Promise) return result;
     else return Promise.resolve(result);
+  }
+
+  async dispatch(): Promise<AnyAction> {
+    return this.dispatchTo(this.__target);
   }
 }
 

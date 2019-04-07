@@ -1,34 +1,50 @@
-import {
-  ByteArray,
-  IBytesSchemaProp,
-  ISchemaPropertyType
-} from "@cryptographix/core";
-import { View, PropertyView } from "@cryptographix/dom-view";
+import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler } from "@cryptographix/core";
+import { View, PropertyView } from "@cryptographix/dom-view";
 
-export class OutputPanel extends View {
-  protected readonly handler: IActionHandler;
-  protected value: ByteArray;
+export class OutputTransformer extends Transformer {
+  key: string;
+  value: ByteArray;
+  propInfo: IBytesSchemaProp;
 
-  constructor(handler: IActionHandler, initValue?: ByteArray) {
+  constructor(key: string, title: string, initValue?: ByteArray) {
     super();
-    this.handler = handler;
-    this.value = initValue ? initValue : ByteArray.from([]);
 
-    let propInfo: IBytesSchemaProp = {
+    this.key = key;
+
+    this.propInfo = {
+      name: key,
       type: "bytes",
-      title: "Encrypted Data",
+      title, //: "Data to Encrypt",
       ui: {
         widget: "multiline",
-        label: "Output Data",
+        //label: "Input Data",
         lines: 5
       }
     };
 
+    this.value = initValue ? initValue : ByteArray.from([]);
+  }
+
+  async trigger() {
+    this.view.update();
+
+    return Promise.resolve();
+  }
+}
+
+export class OutputPanel extends View {
+  protected model: OutputTransformer;
+
+  constructor(handler: IActionHandler, model: OutputTransformer) {
+    super(handler);
+
+    this.model = model;
+
     let propView = new PropertyView(handler, {
-      target: this,
+      target: model,
       key: "value",
-      propertyType: propInfo as ISchemaPropertyType
+      propertyType: model.propInfo // as ISchemaPropertyType
     });
 
     this.addChildView(propView);

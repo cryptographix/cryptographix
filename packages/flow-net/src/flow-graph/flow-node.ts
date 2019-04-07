@@ -29,11 +29,11 @@ export abstract class FlowNode implements IActionHandler {
   }
 
   get parent(): FlowNode {
-    return this._parentNode;
+    return this.parentNode;
   }
 
   set parent(parentNode: FlowNode) {
-    this._parentNode = parentNode;
+    this.parentNode = parentNode;
   }
 
   /**
@@ -41,39 +41,45 @@ export abstract class FlowNode implements IActionHandler {
    */
 
   get status(): "created" | "idle" | "busy" | "error" {
-    return !!this._result ? "busy" : "idle";
+    return !!this.result ? "busy" : "idle";
   }
 
   /**
    *
    */
-  setup(): void {
-    this._inKeys = ["default"];
-    this._input = {};
+  setup(): this {
+    this.inKeys = ["default"];
+    this.input = {};
 
-    this._outKeys = ["default"];
-    this._output = {};
+    this.outKeys = ["default"];
+    this.output = {};
 
-    this._result = null;
+    this.result = null;
+
+    return this;
   }
 
   /**
    *
    */
-  tearDown(): void {
-    this._input = {};
-    this._output = {};
-    this._result = null;
+  tearDown(): this {
+    this.input = {};
+    this.output = {};
+    this.result = null;
+
+    return this;
   }
 
   /**
    *
    */
-  setInput(data: object): void {
-    this._input = {
-      ...this._input,
+  setInput(data: object): this {
+    this.input = {
+      ...this.input,
       ...data
     };
+
+    return this;
   }
 
   /**
@@ -81,7 +87,7 @@ export abstract class FlowNode implements IActionHandler {
    */
   getOutput(): object {
     return {
-      ...this._output
+      ...this.output
     };
   }
 

@@ -44,15 +44,15 @@ let root = new FG.RootNode(
   })
 );
 
-root.setup();
+(async () => {
+  try {
+    await root
+      .setup()
+      .setInput({ a: 5 })
+      .trigger();
 
-root.setInput({ a: 5 });
-
-root
-  .trigger()
-  .then(() => {
     console.log("Done", root.getOutput());
-  })
-  .catch(err => {
+  } catch (err) {
     console.log(err);
-  });
+  }
+})();

@@ -33,13 +33,13 @@ export class TransformerNode<
   constructor(target: IConstructable<TTransformer>, config?: TConfig) {
     super();
 
-    this._schema = Schema.getSchemaForClass<
+    this.schema = Schema.getSchemaForClass<
       Transformer<TConfig>,
       IBlockSchema<TConfig, TTransformer>
     >(target);
 
-    this._target = this._schema.target;
-    this._config = config;
+    this.target = this.schema.target;
+    this.config = config;
   }
 
   /**
@@ -48,48 +48,52 @@ export class TransformerNode<
   setup() {
     super.setup();
 
-    this._block = new this._target(this._config);
+    this.block = new this.target(this.config);
 
-    this._inKeys = this._block._inPortNames;
-    this._outKeys = this._block._outPortNames;
+    this.inKeys = this.block._inPortNames;
+    this.outKeys = this.block._outPortNames;
+
+    return this;
   }
 
   /**
    *
    */
   tearDown() {
-    this._block = null;
+    this.block = null;
 
-    super.tearDown();
+    return super.tearDown();
   }
 
   /**
    *
    */
   get status() {
-    if (!this._block) return "created";
+    if (!this.block) return "created";
     else return super.status;
   }
 
   /**
    *
    */
-  setInput(data: any): void {
-    let block = this._block;
+  setInput(data: any) {
+    let block = this.block;
 
-    this._inKeys.forEach(key => {
+    this.inKeys.forEach(key => {
       if (data[key]) block[key] = data[key];
     });
+
+    return this;
   }
 
   /**
    *
    */
   getOutput(): object {
-    let block = this._block;
+    let block = this.block;
     let ret = {};
 
-    this._outKeys.forEach(key => {
+    this.outKeys.forEach(key => {
       if (block[key]) ret[key] = block[key];
     });
 
@@ -103,7 +107,7 @@ export class TransformerNode<
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
     const result = new Promise<boolean>((resolve, reject) => {
-      this._block
+      this.block
         .trigger(reverse)
         .then(() => {
           resolve(true);
@@ -113,7 +117,7 @@ export class TransformerNode<
         });
     });
 
-    this._result = result;
+    this.result = result;
 
     return result;
   }
@@ -126,9 +130,9 @@ export class TransformerNode<
     switch (act.action) {
       case "port-data-in":
         {
-          const result = this._block.transform(act.data, true);
+          const result = this.block.transform(act.data, true);
 
-          this._result = result;
+          this.result = result;
         }
         break;
     }

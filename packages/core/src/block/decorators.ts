@@ -7,11 +7,11 @@ import { BlockConfiguration } from "./block-config";
   private _blockRegistry: Map<typeof Block, BlockMeta>;
 
   constructor() {
-    this._blockRegistry = new Map<typeof Block, BlockMeta>();
+    this.blockRegistry = new Map<typeof Block, BlockMeta>();
   }
 
   register(meta: BlockMeta, blockConstructor: BlockConstructor ) {
-    this._blockRegistry.set( blockConstructor, meta );
+    this.blockRegistry.set( blockConstructor, meta );
   }
 }
 

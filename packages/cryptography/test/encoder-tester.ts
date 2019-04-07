@@ -85,7 +85,7 @@ export default class TransformerTester {
 
         // apply settings, if any
         if (test.config) {
-          transformer.config = test.config;
+          transformer.setConfig(test.config);
         }
 
         debugger;

@@ -32,6 +32,12 @@ export interface IBlockSchema<
   config: IConstructable<TConfig>;
 }
 
+export class BlockSchema {
+  static getBlockSchemaForClass(blockCtor: IConstructable): IBlockSchema {
+    return Schema.getSchemaForClass(blockCtor);
+  }
+}
+
 /**
  * Helper for Block Schema
  */
@@ -39,30 +45,26 @@ export class BlockSchemaHelper<
   TConfig extends BlockConfiguration,
   TBlock extends Block<TConfig>
 > {
-  private _block: TBlock;
-  private _schema: IBlockSchema<TConfig>;
+  protected block: TBlock;
+  readonly schema: IBlockSchema<TConfig>;
 
-  private _configSchema: ISchema<TConfig>;
+  readonly configSchema: ISchema<TConfig>;
 
   constructor(block: TBlock) {
     //
-    this._block = block;
+    this.block = block;
 
     //
-    this._schema = Schema.getSchemaForObject<IBlockSchema<TConfig>>(block);
+    this.schema = Schema.getSchemaForObject<IBlockSchema<TConfig>>(block);
 
     //
-    this._configSchema = Schema.getSchemaForClass<TConfig, ISchema<TConfig>>(
-      this._schema.config
+    this.configSchema = Schema.getSchemaForClass<TConfig, ISchema<TConfig>>(
+      this.schema.config || ({} as any)
     );
   }
 
-  get schema(): IBlockSchema<TConfig> {
-    return this._schema;
-  }
-
   isSchemaProperty(prop: string): boolean {
-    return !!this._schema.properties[prop];
+    return !!this.schema.properties[prop];
   }
 
   extractBlockProperties(props: string[]): Partial<TBlock> {
@@ -71,7 +73,7 @@ export class BlockSchemaHelper<
     return props
       .filter(this.isSchemaProperty.bind(this))
       .reduce<Partial<TBlock>>((accum, name) => {
-        accum[name] = self._block[name];
+        accum[name] = self.block[name];
 
         return accum;
       }, {});
@@ -81,7 +83,7 @@ export class BlockSchemaHelper<
     const self = this;
 
     props.filter(this.isSchemaProperty.bind(this)).forEach(name => {
-      self._block[name] = obj[name];
+      self.block[name] = obj[name];
     });
   }
 
@@ -89,12 +91,12 @@ export class BlockSchemaHelper<
    * CONFIG
    */
   get config(): TConfig {
-    return this._block.config;
+    return this.block.config;
   }
 
   initConfig(initConfig: Partial<TConfig>): TConfig {
     let config = Schema.initObjectFromClass<TConfig>(
-      this._schema.config,
+      this.schema.config,
       initConfig
     );
 
@@ -104,7 +106,7 @@ export class BlockSchemaHelper<
   getConfigPropSchema<TSchemaProp extends ISchemaProperty>(
     key: keyof TConfig
   ): TSchemaProp {
-    let schemaProp = this._configSchema.properties[key as string];
+    let schemaProp = this.configSchema.properties[key as string];
 
     return schemaProp as TSchemaProp;
   }
@@ -113,14 +115,14 @@ export class BlockSchemaHelper<
     key: keyof TConfig,
     updatedProp: Partial<TSchemaProp>
   ): TSchemaProp {
-    let schemaProp = this._configSchema.properties[key as string];
+    let schemaProp = this.configSchema.properties[key as string];
 
     schemaProp = {
       ...schemaProp,
       ...updatedProp
     };
 
-    this._configSchema.properties[key as string] = schemaProp;
+    this.configSchema.properties[key as string] = schemaProp;
 
     return schemaProp as TSchemaProp;
   }
@@ -128,7 +130,7 @@ export class BlockSchemaHelper<
   getPortSchema<TSchemaProp extends ISchemaProperty>(
     key: keyof TBlock
   ): TSchemaProp {
-    let schemaProp = this._schema.properties[key as string];
+    let schemaProp = this.schema.properties[key as string];
 
     return schemaProp as TSchemaProp;
   }
@@ -137,20 +139,20 @@ export class BlockSchemaHelper<
     key: keyof TBlock,
     updatedProp: Partial<TSchemaProp>
   ): TSchemaProp {
-    let schemaProp = this._schema.properties[key as string];
+    let schemaProp = this.schema.properties[key as string];
 
     schemaProp = {
       ...schemaProp,
       ...updatedProp
     };
 
-    this._schema.properties[key as string] = schemaProp;
+    this.schema.properties[key as string] = schemaProp;
 
     return schemaProp as TSchemaProp;
   }
 
-  getPortMap(filterFn?: (item: ISchemaProperty) => boolean) {
-    let props = Object.entries(this._schema.properties);
+  filterPorts(filterFn?: (item: ISchemaProperty) => boolean) {
+    let props = Object.entries(this.schema.properties);
 
     return props.filter(([_key, propInfo]) => {
       return !filterFn || filterFn(propInfo);

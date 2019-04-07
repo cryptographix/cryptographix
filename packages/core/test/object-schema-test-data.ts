@@ -13,12 +13,12 @@ import {
 // Simple Class, no properties
 @schema({ serializer: {} })
 export class X {
-  private _priv: string;
+  private priv: string;
   protected prot: string;
   public pub: string;
 
   constructor() {
-    this._priv = "private";
+    this.priv = "private";
     this.prot = "protected";
     this.pub = "public";
   }

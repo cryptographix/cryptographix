@@ -18,14 +18,14 @@ export class DataNode extends FlowNode {
    *
    */
   setup() {
-    super.setup();
+    return super.setup();
   }
 
   /**
    *
    */
   tearDown() {
-    super.tearDown();
+    return super.tearDown();
   }
 
   /**
@@ -41,8 +41,8 @@ export class DataNode extends FlowNode {
   async trigger(_reverse?: boolean) {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
-    this._output = {
-      ...this._input
+    this.output = {
+      ...this.input
     };
 
     return Promise.resolve(true);

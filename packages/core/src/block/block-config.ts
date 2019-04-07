@@ -3,6 +3,6 @@
  *
  * BlockSettings can be serialized
  */
-export abstract class BlockConfiguration {
+export class BlockConfiguration {
   //  static initSettings() {};
 }

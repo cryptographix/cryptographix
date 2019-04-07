@@ -39,11 +39,9 @@ export class PropertyView extends View {
   //
   protected message: string;
 
-  protected handler: IActionHandler;
   constructor(handler: IActionHandler, propRef: ISchemaPropReference) {
-    super();
+    super(handler);
 
-    this.handler = handler;
     this.propRef = propRef;
 
     this.ui = {
@@ -63,6 +61,7 @@ export class PropertyView extends View {
 
   set value(value: any) {
     this.propRef.target[this.propRef.key] = value;
+
     this.notifyValueChanged();
   }
 
@@ -210,7 +209,6 @@ export class PropertyView extends View {
         <div class="control has-icons-right">
           <span class="select" style="width: 100%">
             <select
-              //onclick={this.valueDidChange}
               onChange={this.stringValueChanged.bind(this)}
               class="input"
               placeholder={this.ui.hint}
@@ -235,7 +233,7 @@ export class PropertyView extends View {
     if (this.ui.widget == "multiline") {
       $inner = (
         <textarea
-          class="textarea"
+          class="textarea bytes"
           spellcheck="false"
           onInput={this.byteValueChanged.bind(this)}
           onFocus={(_evt: Event) => this.focus()}
@@ -247,7 +245,7 @@ export class PropertyView extends View {
     } else {
       $inner = (
         <input
-          class="input"
+          class="input bytes"
           type="text"
           spellcheck="false"
           onInput={this.byteValueChanged.bind(this)}
@@ -258,7 +256,8 @@ export class PropertyView extends View {
         />
       );
     }
-    return <div class="control has-icons-right">{$inner}</div>;
+
+    return <div class="control">{$inner}</div>;
   }
 
   renderProp() {
@@ -268,7 +267,7 @@ export class PropertyView extends View {
     switch (propInfo.type) {
       case "number":
         return (
-          <div class="control has-icons-right">
+          <div class="control xxhas-icons-right">
             <input
               class="input"
               type="number"
@@ -276,14 +275,14 @@ export class PropertyView extends View {
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
               placeholder={this.ui.hint}
-              value={value}
+              value={value || 0}
             />
           </div>
         );
 
       case "string":
         return (
-          <div class="control has-icons-right">
+          <div class="control">
             <input
               class="input"
               type="text"
@@ -291,19 +290,19 @@ export class PropertyView extends View {
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
               placeholder={this.ui.hint}
-              value={value}
+              value={value || ""}
             />
           </div>
         );
 
       case "enum":
-        return this.renderEnum(propInfo, value);
+        return this.renderEnum(propInfo, value || "");
 
       case "boolean":
-        return this.renderBoolean(propInfo, value);
+        return this.renderBoolean(propInfo, value || false);
 
       case "bytes":
-        return this.renderBytes(propInfo, value);
+        return this.renderBytes(propInfo, value || ByteArray.alloc(0));
     }
   }
 
@@ -311,7 +310,7 @@ export class PropertyView extends View {
     const $field = this.element;
 
     // Set focus modifier
-    $field.classList.toggle("field--focus", this.hasFocus());
+    $field.classList.toggle("field--focus", this.hasFocus);
 
     // Add invalid modifier
     $field.classList.toggle("field--invalid", !true || !!this.message);

@@ -14,9 +14,9 @@ export class SplitterNode extends FlowNode {
   constructor(nodes: { [index: string]: FlowNode } = null) {
     super();
 
-    this._nodes = new Map<string, FlowNode>(Object.entries(nodes));
+    this.nodes = new Map<string, FlowNode>(Object.entries(nodes));
 
-    this._nodes.forEach(node => {
+    this.nodes.forEach(node => {
       node.parent = this;
     });
   }
@@ -24,10 +24,12 @@ export class SplitterNode extends FlowNode {
   /**
    *
    */
-  addBranch(key: string, node: FlowNode) {
-    this._nodes.set(key, node);
+  addBranch(key: string, node: FlowNode): this {
+    this.nodes.set(key, node);
 
     node.parent = this;
+
+    return this;
   }
 
   /**
@@ -36,22 +38,24 @@ export class SplitterNode extends FlowNode {
   setup() {
     super.setup();
 
-    this._nodes.forEach((node, _key) => {
+    this.nodes.forEach((node, _key) => {
       let act = new NodeSetupAction(node);
       act.dispatch();
     });
+
+    return this;
   }
 
   /**
    *
    */
-  tearDown(): void {
-    this._nodes.forEach((node, _key) => {
+  tearDown() {
+    this.nodes.forEach((node, _key) => {
       let act = new NodeTeardownAction(node);
       act.dispatch();
     });
 
-    super.tearDown();
+    return super.tearDown();
   }
 
   /**
@@ -60,10 +64,10 @@ export class SplitterNode extends FlowNode {
   async trigger(reverse?: boolean) {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
-    let output = (this._output = {});
+    let output = (this.output = {});
 
     let result: Promise<boolean>[] = [];
-    this._nodes.forEach((node, key) => {
+    this.nodes.forEach((node, key) => {
       let trig = node.trigger(reverse).then(ok => {
         if (ok) {
           output[key] = node.getOutput();

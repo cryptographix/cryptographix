@@ -7,7 +7,7 @@ export class RootNode extends FlowNode {
   constructor(root: FlowNode = null) {
     super();
 
-    this._root = root;
+    this.root = root;
     if (root) root.parent = this;
   }
 
@@ -15,14 +15,16 @@ export class RootNode extends FlowNode {
    *
    */
   get root(): FlowNode {
-    return this._root;
+    return this.root;
   }
 
   /**
    *
    */
-  setInput(data: object): void {
+  setInput(data: object) {
     this.root.setInput(data);
+
+    return this;
   }
 
   /**
@@ -36,28 +38,32 @@ export class RootNode extends FlowNode {
    *
    */
   setup() {
-    this._root.setup();
+    this.root.setup();
+
+    return this;
   }
 
   /**
    *
    */
   tearDown() {
-    this._root.tearDown();
+    this.root.tearDown();
+
+    return this;
   }
 
   /**
    *
    */
   get canTrigger() {
-    return super.canTrigger && !!this._root && this._root.canTrigger;
+    return super.canTrigger && !!this.root && this.root.canTrigger;
   }
 
   /**
    *
    */
   trigger(): Promise<boolean> {
-    return this._root.trigger();
+    return this.root.trigger();
   }
 }
 

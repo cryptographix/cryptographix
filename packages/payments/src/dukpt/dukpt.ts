@@ -28,7 +28,7 @@ export class DUKPT {
     this.ksn = ksn.replace(/\s/g, "");
   }
 
-  async _deriveDUKPTSessionKey(
+  async deriveDUKPTSessionKey(
     keyMode: DUKPTMode = "datakey"
   ): Promise<ISymKey> {
     const bdk = this.bdk;
@@ -41,15 +41,15 @@ export class DUKPT {
     const ipek = await DUKPT._createIPEK(bdk, ksn); // Always start with IPEK
 
     if (keyMode === "datakey") {
-      return DUKPT._createDataKey(ipek, ksn);
+      return DUKPT.createDataKey(ipek, ksn);
     }
 
     if (keyMode === "pinkey") {
-      return DUKPT._createPINKey(ipek, ksn);
+      return DUKPT.createPINKey(ipek, ksn);
     }
 
     if (keyMode === "mackey") {
-      return DUKPT._createMACKey(ipek, ksn);
+      return DUKPT.createMACKey(ipek, ksn);
     }
   }
 
@@ -58,10 +58,10 @@ export class DUKPT {
       throw new Error("either IPEK or data params not provided");
     }
 
-    return DUKPT._createDataKey(ipek, ksn);
+    return DUKPT.createDataKey(ipek, ksn);
   }
 
-  static async _createDataKey(ipek: ISymKey, ksn) {
+  static async createDataKey(ipek: ISymKey, ksn) {
     const derivedPEK = await DUKPT._deriveKey(ipek, ksn);
 
     const CBC = 1; // cipher block chaining enabled
@@ -99,14 +99,14 @@ export class DUKPT {
     return buildKey(ipek, ByteArray.concat([left, right]));
   }
 
-  static async _createPINKey(ipek: ISymKey, ksn) {
+  static async createPINKey(ipek: ISymKey, ksn) {
     const derivedPEK = await DUKPT._deriveKey(ipek, ksn); // derive DUKPT basis key
     const variantMask = H2BA("00000000000000FF00000000000000FF"); // PIN variant
 
     return buildKey(ipek, ByteArray.xor(variantMask, derivedPEK.data.k)); // apply mask
   }
 
-  static async _createMACKey(ipek: ISymKey, ksn) {
+  static async createMACKey(ipek: ISymKey, ksn) {
     const derivedPEK = await DUKPT._deriveKey(ipek, ksn); // derive DUKPT basis key
     const variantMask = H2BA("000000000000FF00000000000000FF00"); // MAC variant
 
@@ -144,7 +144,7 @@ export class DUKPT {
 
     const options = Object.assign({}, _defaultOptions, encryptOptions);
 
-    let key = await this._deriveDUKPTSessionKey();
+    let key = await this.deriveDUKPTSessionKey();
 
     if (!key || !data) {
       throw new Error("either session key or data not provided");
@@ -184,7 +184,7 @@ export class DUKPT {
 
     const options = Object.assign({}, _defaultOptions, decryptOptions);
 
-    let key = await this._deriveDUKPTSessionKey();
+    let key = await this.deriveDUKPTSessionKey();
 
     if (!key || !encryptedData) {
       throw new Error("either session key or data not provided");
@@ -335,15 +335,14 @@ export class DUKPT {
     mode: 0 | 1,
     iv: ByteArray
   ) {
-    let enc = new SecretKeyEncrypter();
     let len = key.data.k.length;
 
-    enc.config = {
+    let enc = new SecretKeyEncrypter({
       algorithm: len == 8 ? "DES" : "DES3",
       encrypt: encrypt,
       mode: "CBC",
       iv
-    };
+    });
 
     return enc.transform({ in: message, key: key.data.k }).then(res => {
       return res.out;

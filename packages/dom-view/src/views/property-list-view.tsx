@@ -10,20 +10,22 @@ import {
 import { PropertyView, PropertyValueChanged } from "./property-view";
 
 export class PropertyListView extends View implements IActionHandler {
-  _bs: BlockConfiguration;
+  config: BlockConfiguration;
 
-  constructor(bs: BlockConfiguration) {
-    super();
-    this._bs = bs;
+  constructor(handler: IActionHandler, config: BlockConfiguration) {
+    super(handler);
+    this.config = config;
 
-    this.updatePropertyViews(bs);
+    this.updatePropertyViews(config);
   }
 
   handleAction(action: AnyAction) {
     let act = action as PropertyValueChanged;
     switch (act.action) {
       case "property-value-changed": {
-        console.log("changed: ", act.key, " to ", this._bs[act.key]);
+        console.log("changed: ", act.key, " to ", this.config[act.key]);
+        act.dispatchTo(this.handler);
+        break;
       }
     }
 
@@ -31,19 +33,19 @@ export class PropertyListView extends View implements IActionHandler {
   }
 
   dumpProps() {
-    console.log(this._bs);
+    console.log(this.config);
   }
 
   render() {
     return (
-      <div style="border: 1px solid #e3e8ec">
+      <fielset style="border: 1px solid #e3e8ec">
         {this.renderChildViews()}
         <div>
           <a class="inspect" onClick={this.dumpProps.bind(this)}>
             Button
           </a>
         </div>
-      </div>
+      </fielset>
     );
   }
 
@@ -98,7 +100,7 @@ export class PropertyListView extends View implements IActionHandler {
 
     properties.forEach((propType, key) => {
       const ref = {
-        target: this._bs,
+        target: this.config,
         key,
         propertyType: propType
       };

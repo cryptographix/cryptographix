@@ -1,6 +1,8 @@
 import { ISchema } from "./schema";
 import { IConstructable } from "./helpers";
 
+class NullClass {}
+
 export class SchemaStorage {
   protected items = new Map<object, ISchema>();
 
@@ -42,7 +44,7 @@ export class SchemaStorage {
     // Initialize default schema
     const schema = {
       type: type,
-      target: target,
+      target: target || NullClass, // Just in case ...
       properties: {}
     };
 

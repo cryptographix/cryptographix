@@ -1,47 +1,41 @@
 import { IViewable, IView } from "../viewable";
+import { Writable } from "../schema/index";
 
 import { IActionHandler, Action } from "../dispatcher/action";
 
 import { BlockSchemaHelper } from "./block-schema";
 import { BlockConfiguration } from "./block-config";
-import { BlockPropertyChanged, ConfigPropertyChanged } from "./block-actions";
+//import { ConfigPropertyChanged } from "./block-actions";
 
 export abstract class Block<TConfig extends BlockConfiguration = {}>
   implements IViewable, IActionHandler /*implements IBlock<S>*/ {
   //
-  _view?: IView;
+  view?: IView;
 
   //
-  protected _helper: BlockSchemaHelper<TConfig, this>;
+  readonly helper: BlockSchemaHelper<TConfig, this>;
 
   //
-  protected _config: TConfig;
+  readonly config: TConfig;
 
   constructor(initConfig?: Partial<TConfig>) {
     //
-    this._helper = new BlockSchemaHelper<TConfig, this>(this);
+    this.helper = new BlockSchemaHelper<TConfig, this>(this);
 
     //
-    this._config = this._helper.initConfig(initConfig);
+    this.config = this.helper.initConfig(initConfig);
   }
 
-  get config(): TConfig {
-    return this._config;
-  }
-
-  set config(config: TConfig) {
-    this._config = this._helper.initConfig(config);
-  }
-
-  get helper(): BlockSchemaHelper<TConfig, this> {
-    return this._helper;
+  setConfig(config: TConfig) {
+    Writable(this).config = this.helper.initConfig(config);
   }
 
   /*getConfigValue<RT = any>(key: keyof TConfig): RT {
-    return (this._config[key] as unknown) as RT;
+    return (this.config[key] as unknown) as RT;
   }*/
 
-  handleAction(action: Action): Action {
+  handleAction(_action: Action): Action {
+    /*
     let act = action as BlockPropertyChanged | ConfigPropertyChanged;
 
     switch (act.action) {
@@ -57,6 +51,7 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
         break;
       }
     }
+    */
 
     return null;
   }
