@@ -18,51 +18,64 @@ export class BlockExplorerView extends View implements IActionHandler {
     this.createView(transCtor);
   }
 
-  transformer: Transformer<{}>;
-  output: OutputTransformer;
+  inputs: InputPanel[] = [];
+  transformer: TransformerView;
+  output: OutputPanel;
 
   createView(transCtor: IConstructable<Transformer>) {
-    const transformer = (this.transformer = new transCtor({
+    const transformer = new transCtor({
       iv: H2BA("0123456789ABCDEFFEDCBA9876543210")
-    }));
+    });
 
     let ports = new Map(transformer.helper.filterPorts());
 
     transformer.helper.inPortKeys.forEach(key => {
       const input = new InputTransformer(key, ports.get(key).title || key);
       input.value = H2BA("0123456789ABCDEFFEDCBA9876543210");
-      this.addChildView(new InputPanel(input, input));
+      this.inputs.push(new InputPanel(input, input));
       this.triggerInput(input);
     });
 
-    this.addChildView(new TransformerView(this, transformer));
+    this.transformer = new TransformerView(this, transformer);
 
     transformer.helper.outPortKeys.forEach(key => {
       const output = new OutputTransformer(key, ports.get(key).title || key);
-      this.addChildView(new OutputPanel(output, output));
-      this.output = output;
+      //      this.addChildView();
+      this.output = new OutputPanel(output, output);
     });
   }
 
   render() {
-    return <div id="block-explorer">{this.renderChildViews()}</div>;
+    return (
+      <div id="block-explorer">
+        {this.inputs[0].element}
+        {this.inputs[1].element}
+        {this.transformer.element}
+        {this.output.element}
+      </div>
+    );
   }
 
   triggerInput(input: InputTransformer) {
-    input.trigger().then(() => {
-      this.transformer[input.key] = input.value;
-      console.log("Input", input.key, "triggered");
-      this.triggerInput(input);
+    input
+      .trigger()
+      .then(() => {
+        let transformer = this.transformer.block;
 
-      this.transformer
-        .trigger()
-        .then(() => {
-          this.output.value = this.transformer[this.output.key];
+        transformer[input.key] = input.value;
+        console.log("Input", input.key, "triggered");
+        this.triggerInput(input);
 
-          this.output.trigger();
-        })
-        .catch(err => console.log(err));
-    });
+        return transformer.trigger();
+      })
+      .then(() => {
+        let output = this.output.block;
+
+        output.value = this.transformer.block[output.key];
+
+        return output.trigger();
+      })
+      .catch(err => console.log(err));
   }
 
   triggerTransformer() {
@@ -76,7 +89,7 @@ export class BlockExplorerView extends View implements IActionHandler {
         if (act.id instanceof InputTransformer) {
           console.log("In changed: ", act.key, " to ", this[act.key]);
 
-          this.transformer
+          this.transformer.block
             .trigger()
             .then(() => {
               console.log("Done");

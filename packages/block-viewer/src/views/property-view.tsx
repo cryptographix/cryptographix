@@ -305,10 +305,7 @@ export class PropertyView extends View {
     }
   }
 
-  updateView(fullUpdate?: boolean): boolean {
-    if (fullUpdate) {
-      return true;
-    }
+  updateView(): boolean {
     const $field = this.element;
 
     // Set focus modifier
