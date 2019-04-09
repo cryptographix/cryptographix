@@ -22,6 +22,11 @@ export class TransformerView extends BlockView {
   }
 
   render() {
-    return <div style="padding: 1px">{this.renderChildViews()}</div>;
+    return (
+      <div class="field" style="padding: 1px">
+        <label class="label">{this.block.helper.schema.title}</label>
+        {this.renderChildViews()}
+      </div>
+    );
   }
 }

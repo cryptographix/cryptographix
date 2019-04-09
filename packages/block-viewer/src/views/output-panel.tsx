@@ -40,11 +40,15 @@ export class OutputPanel extends BlockView {
   constructor(handler: IActionHandler, model: OutputTransformer) {
     super(handler, model);
 
-    let propView = new PropertyView(handler, {
-      target: model,
-      key: "value",
-      propertyType: model.propInfo // as ISchemaPropertyType
-    });
+    let propView = new PropertyView(
+      handler,
+      {
+        target: model,
+        key: "value",
+        propertyType: model.propInfo // as ISchemaPropertyType
+      },
+      true
+    );
 
     this.addChildView(propView);
   }

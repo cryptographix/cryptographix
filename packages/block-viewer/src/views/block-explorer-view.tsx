@@ -47,11 +47,45 @@ export class BlockExplorerView extends View implements IActionHandler {
 
   render() {
     return (
-      <div id="block-explorer">
-        {this.inputs[0].element}
-        {this.inputs[1].element}
-        {this.transformer.element}
-        {this.output.element}
+      <div
+        class="tile is-ancestor"
+        style="padding: 0.75rem"
+        id="block-explorer"
+      >
+        <div class="tile xis-parent is-vertical">
+          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+            {this.inputs[0].element}
+          </div>{" "}
+          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+            {this.inputs[1].element}
+          </div>{" "}
+        </div>
+        <div
+          class="tile"
+          style="align-items: center; padding: 0.5rem; max-width: 4rem"
+        >
+          <span class="icon is-large has-text-white">
+            <i class="fa fa-arrow-right fa-3x " />
+          </span>
+        </div>
+        <div class="tile xis-parent" style="align-items: center">
+          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+            {this.transformer.element}
+          </div>
+        </div>
+        <div
+          class="tile"
+          style="align-items: center; padding: 0.5rem; max-width: 4rem"
+        >
+          <span class="icon is-large has-text-white">
+            <i class="fa fa-arrow-right fa-3x " />
+          </span>
+        </div>
+        <div class="tile xis-parent" style="align-items: center">
+          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+            {this.output.element}
+          </div>
+        </div>{" "}
       </div>
     );
   }

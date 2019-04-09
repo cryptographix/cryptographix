@@ -38,7 +38,11 @@ export class PropertyView extends View {
   //
   protected message: string;
 
-  constructor(handler: IActionHandler, propRef: ISchemaPropReference) {
+  constructor(
+    handler: IActionHandler,
+    propRef: ISchemaPropReference,
+    readOnly: boolean = false
+  ) {
     super(handler);
 
     this.propRef = propRef;
@@ -49,6 +53,7 @@ export class PropertyView extends View {
       columns: 12,
       style: "",
       className: "",
+      readOnly,
       label: propRef.propertyType.title || propRef.key,
       ...propRef.propertyType.ui
     };
@@ -102,7 +107,7 @@ export class PropertyView extends View {
         class={`field ${errClass} ${this.ui.className} ${
           this._first ? " field--first" : ""
         }`}
-        style="padding-left: 1rem; padding-right: 1rem;"
+        style="padding-left: 0.5rem; padding-right: 0.5rem;"
         onFocus={(_evt: Event) => this.focus()}
         onBlur={(_evt: Event) => this.blur()}
       >
@@ -205,7 +210,7 @@ export class PropertyView extends View {
       });
 
       return (
-        <div class="control has-icons-right">
+        <div class="control">
           <span class="select" style="width: 100%">
             <select
               onChange={this.stringValueChanged.bind(this)}
@@ -217,9 +222,6 @@ export class PropertyView extends View {
             >
               {$options}
             </select>
-          </span>
-          <span class="icon is-small is-right">
-            <i class="fas fa-check" />
           </span>
         </div>
       );
@@ -254,6 +256,10 @@ export class PropertyView extends View {
           value={BA2H(value)}
         />
       );
+    }
+
+    if (this.ui["readOnly"]) {
+      $inner.setAttribute("readonly", "true");
     }
 
     return <div class="control">{$inner}</div>;

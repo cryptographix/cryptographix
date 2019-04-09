@@ -16,13 +16,16 @@
     <link rel="stylesheet" href="assets/static/css/bulma.css" />
     <link
       rel="stylesheet"
-      href="assets/static/fonts/font-awesome/css/regular.css"
+      href="assets/static/fonts/font-awesome/css/all.css"
     />
     <style>
       .field {
         margin-bottom: 0px;
         border-bottom: 1px solid #e3e8ec;
         position: relative;
+      }
+      .field:last-child {
+        border: none;
       }
       .field label,
       .field p {
@@ -85,19 +88,56 @@
     </style>
   </head>
   <body>
-    <header
-      class="header has-text-centered"
-      style="background-color: #ddd; padding-bottom: 1rem"
-    >
-      <h1 class="title has-text-info">Block Explorer</h1>
-      <p class="subtitle has-text-info">Explore <strong>Blocks</strong>!</p>
-    </header>
-    <section class="section" style="margin-top: 0px; padding-top: 0px; ">
-      <div
-        id="blocks"
-        class="container"
-        style="max-width: 400px; background-color: #eee; padding-left: 1rem; padding-right: 1rem; padding-bottom: 1rem;"
+    <header>
+      <nav
+        class="navbar is-light"
+        role="navigation"
+        aria-label="main navigation"
       >
+        <div class="navbar-brand">
+          <a class="navbar-item" href="https://cryptographix.org/tools">
+            <img
+              src="https://cryptographix.org/static/images/logo/logo-compact-139x30.png"
+              width="112"
+              height="28"
+            />
+          </a>
+
+          <a
+            role="button"
+            class="navbar-burger burger"
+            aria-label="menu"
+            aria-expanded="false"
+            data-target="navbarBasicExample"
+          >
+            <span aria-hidden="true"></span> <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+
+        <div id="navbarBasicExample" class="navbar-menu">
+          <div class="navbar-start">
+            <a class="navbar-item">
+              <h1 class="title has-text-info">Block Explorer</h1>
+            </a>
+          </div>
+
+          <div class="navbar-end">
+            <div class="navbar-item">
+              <div class="buttons">
+                <a class="button is-primary"> <strong>Sign up</strong> </a>
+                <a class="button is-light"> Log in </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <section
+      class="section"
+      style="margin-top: 0px; padding-top: 2rem;     background-color: #2980b9;"
+    >
+      <div id="blocks" style="xbackground-color: #eee; xpadding: 1rem;">
         <!--
           div class="field">
             <label class="label">Name</label>
