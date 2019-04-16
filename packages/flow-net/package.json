@@ -32,7 +32,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@cryptographix/core": "0.1.0",
-    "@cryptographix/dom-view": "0.1.0"
+    "@cryptographix/core": "0.1.0"
   }
 }

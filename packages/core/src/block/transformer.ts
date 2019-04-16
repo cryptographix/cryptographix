@@ -39,8 +39,8 @@ export abstract class Transformer<
 > extends Block<BC> {
   helper: TransformerSchemaHelper<BC, this>;
 
-  constructor(initConfig?: Partial<BC>) {
-    super(initConfig);
+  constructor(initConfig?: Partial<BC>, handler?: IActionHandler) {
+    super(initConfig, handler);
 
     this.helper = new TransformerSchemaHelper<BC, this>(this);
   }

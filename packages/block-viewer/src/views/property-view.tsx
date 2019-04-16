@@ -10,7 +10,7 @@ import {
 import { BA2H, H2BA, ByteArray } from "@cryptographix/core";
 
 export class PropertyValueChanged extends Action<object> {
-  action: "property-value-changed";
+  action: "property:value-changed" = "property:value-changed";
 
   constructor(
     target: IActionHandler,
@@ -19,8 +19,6 @@ export class PropertyValueChanged extends Action<object> {
     public value: any
   ) {
     super(target, id);
-
-    this.action = "property-value-changed";
   }
   //
 }

@@ -1,12 +1,16 @@
 import {
   BlockConfiguration,
   Transformer,
+  Action,
   IActionHandler,
   View,
-  BlockView
+  BlockView,
+  ConfigPropertyChanged
 } from "@cryptographix/core";
 
-import { PropertyListView } from "./property-list-view";
+export { PropertyValueChanged };
+
+import { PropertyListView, PropertyValueChanged } from "./property-list-view";
 
 export class TransformerView extends BlockView {
   block: Transformer;

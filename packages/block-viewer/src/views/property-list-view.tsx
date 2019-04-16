@@ -7,6 +7,7 @@ import {
 } from "@cryptographix/core";
 
 import { PropertyView, PropertyValueChanged } from "./property-view";
+export { PropertyValueChanged };
 
 export class PropertyListView extends View implements IActionHandler {
   config: BlockConfiguration;
@@ -21,7 +22,7 @@ export class PropertyListView extends View implements IActionHandler {
   handleAction(action: AnyAction) {
     let act = action as PropertyValueChanged;
     switch (act.action) {
-      case "property-value-changed": {
+      case "property:value-changed": {
         console.log("changed: ", act.key, " to ", this.config[act.key]);
         act.dispatchTo(this.handler);
         break;

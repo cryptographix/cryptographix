@@ -46,19 +46,19 @@ export function schemaProp<T>(propOptions: ISchemaProperty<T>, extra?: object) {
       target.constructor as IConstructable
     );
     let existingProps = schema.properties[propertyKey] || {};
-    const schemaProp = propOptions ? propOptions : {};
+    const schemaProp = propOptions || {};
     const type = existingProps["type"] || (propOptions && propOptions.type); // || target.constructor,
 
-    let namedItem = {
+    let itemProps = {
       ...existingProps,
       ...schemaProp,
-      ...(extra ? extra : {}),
-      type, // || target.constructor,
+      ...(extra || {}),
+      type,
       name: propertyKey,
       target
     };
 
-    schema.properties[propertyKey] = namedItem;
+    schema.properties[propertyKey] = itemProps;
 
     //    console.log(propertyKey + " => " + JSON.stringify(namedItem) )
     //    console.log("target" + " => " + JSON.stringify(target) )

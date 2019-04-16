@@ -9,14 +9,16 @@ import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
  *  and completes when the last node completes.
  */
 export class PipelineNode extends FlowNode {
-  //
-  _nodes: FlowNode[] = [];
+  $type: "pipeline" = "pipeline";
+
+  // Nodes in pipe
+  readonly nodes: FlowNode[];
 
   /**
    *
    */
-  constructor(nodes: FlowNode[] = []) {
-    super();
+  constructor(nodes: FlowNode[] = [], id: string = "") {
+    super(id);
 
     this.nodes = nodes;
 
@@ -30,6 +32,7 @@ export class PipelineNode extends FlowNode {
    */
   appendNode(node: FlowNode) {
     this.nodes.push(node);
+    node.parent = this;
   }
 
   /**
@@ -73,8 +76,9 @@ export class PipelineNode extends FlowNode {
             // chain to next
             return this.triggerNode(index + 1, output);
           } else {
-            this.output = output;
             // last in pipeline
+            this.output = output;
+
             return ok;
           }
         }
@@ -89,19 +93,11 @@ export class PipelineNode extends FlowNode {
   /**
    *
    */
-  async trigger(_reverse?: boolean) {
+  async trigger() {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
-    this.result = this.triggerNode(0, this.input);
-
-    let me = this;
-    return this.result
-      .then(_ok => {
-        return _ok;
-      })
-      .finally(() => {
-        me._result = null;
-      });
+    // Forward input to first node in pipeline
+    return this.setTriggerResult(this.triggerNode(0, this.input));
   }
 
   /**

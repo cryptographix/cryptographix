@@ -1,6 +1,6 @@
 import { IConstructable } from "./helpers";
 import { ByteArray } from "./byte-array";
-import { /*ISchemaProperty, */ ISchemaPropertyType } from "./property";
+import { ISchemaPropertyType } from "./property";
 import { schemaStore } from "./schema-store";
 
 /**
@@ -77,6 +77,47 @@ export abstract class Schema {
     return Schema.initObjectFromSchema(schema, initObject);
   }
 
+  static initPropertyFromPropertyType<TO = {}>(
+    propInfo: ISchemaPropertyType,
+    obj: TO,
+    key: keyof TO,
+    initValue?: any,
+    useDefaultForType: boolean = true
+  ): void {
+    let value = initValue || obj[key] || propInfo.default;
+
+    if (propInfo.type instanceof Object) {
+      // initialize sub-object
+      value = Schema.initObjectFromSchema(propInfo.type, value);
+    } else if (!value && !propInfo.optional && useDefaultForType) {
+      // no initial or default value .. use default for type
+      switch (propInfo.type) {
+        case "boolean":
+          value = false;
+          break;
+
+        case "integer":
+          value = propInfo.min || 0;
+          break;
+
+        case "string":
+          value = "";
+          break;
+
+        case "enum":
+          const values = Object.keys(propInfo.options);
+          value = (values.length > 0 && values[0]) || "";
+          break;
+
+        case "bytes":
+          value = ByteArray.from([]);
+          break;
+      }
+    }
+
+    if (value) obj[key] = value;
+  }
+
   /**
    *
    */
@@ -84,7 +125,7 @@ export abstract class Schema {
     schema: TSchema,
     initObject: Partial<TO> = {}
   ): TO {
-    let object = new (schema.target as IConstructable<TO>)();
+    let obj = new (schema.target as IConstructable<TO>)();
 
     // Initialize each property from Schema information
     // Precedence:
@@ -93,41 +134,15 @@ export abstract class Schema {
     //   3. "default" value from schema property.default
     //   4. the default for property type
     Object.entries(schema.properties).forEach(([key, propInfo]) => {
-      let value = initObject[key] || object[key] || propInfo.default;
-
-      if (propInfo.type instanceof Object) {
-        // initialize sub-object
-        value = Schema.initObjectFromSchema(propInfo.type, value);
-      } else if (!value && !propInfo.optional) {
-        // no initial or default value .. use default for type
-        switch (propInfo.type) {
-          case "boolean":
-            value = false;
-            break;
-
-          case "integer":
-            value = propInfo.min || 0;
-            break;
-
-          case "string":
-            value = "";
-            break;
-
-          case "enum":
-            const values = Object.keys(propInfo.options);
-            value = (values.length > 0 && values[0]) || "";
-            break;
-
-          case "bytes":
-            value = ByteArray.from([]);
-            break;
-        }
-      }
-
-      if (!propInfo.io && value) object[key] = value;
+      Schema.initPropertyFromPropertyType<TO>(
+        propInfo,
+        obj,
+        key as keyof TO,
+        initObject[key]
+      );
     });
 
-    return object;
+    return obj;
   }
 
   static getPropertiesForObject(

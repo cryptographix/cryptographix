@@ -8,18 +8,22 @@ export class InputTransformer extends Transformer implements IActionHandler {
   value: ByteArray;
   propInfo: IBytesSchemaProp;
 
-  constructor(key: string, title: string, initValue?: ByteArray) {
-    super();
+  constructor(
+    key: string,
+    title: string,
+    initValue?: ByteArray,
+    handler?: IActionHandler
+  ) {
+    super(initValue, handler);
 
     this.key = key;
 
     this.propInfo = {
       name: key,
       type: "bytes",
-      title, //: "Data to Encrypt",
+      title,
       ui: {
         widget: "multiline",
-        //label: "Input Data",
         lines: 5
       }
     };
@@ -52,7 +56,7 @@ export class InputTransformer extends Transformer implements IActionHandler {
   handleAction(action: Action) {
     let act = action as PropertyValueChanged;
     switch (act.action) {
-      case "property-value-changed": {
+      case "property:value-changed": {
         console.log("changed: ", act.key, " to ", this[act.key]);
         if (this.pendingTrigger) {
           this.pendingTrigger.resolve();
@@ -65,7 +69,7 @@ export class InputTransformer extends Transformer implements IActionHandler {
   }
 }
 
-export class InputPanel extends BlockView {
+export class InputPanel extends BlockView<InputTransformer> {
   constructor(handler: IActionHandler, model: InputTransformer) {
     super(handler, model);
 

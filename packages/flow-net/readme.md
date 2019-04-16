@@ -1,6 +1,6 @@
 # Pipeliner
 
-Pipes "data" messages along a network of processing blocks that transform data in some way. Blocks are represented by functions, `B()`, and that may have parameters, `B(cfg)`, where `cfg` is a constant "JSON" parameter object.
+Pipes "data" messages along a network of processing blocks that transform data in some way. Blocks are represented by functions, `B()`, and that may have parameters, `B(cfg)`, where `cfg` is a constant JSON parameter object.
 
 ## Sequences
 
@@ -45,3 +45,35 @@ In "JSON" mode, array syntax is used to indicate a pipeline.
 [ B1(), B2(), B3() ]
 
 Primary ports
+
+## SubFlow types
+
+Parallel
+
+    Sequential:
+      List of nodes  'Pipe'
+      In: Bus = Port[]
+      Out: Bus = Port[]
+
+      wire up In to first Node in sequence
+      wire up last-node to Out
+
+    DataBus -> Port Rendezvous
+      Terminal = Ports
+
+    Node:
+      execCycle = 0
+      On data-in do
+        inArrived |= (1 << portIndex)
+        in[ portID ] = data
+        when ( inArrived & maskArrived ) == maskArrived
+          exec trigger:  busy=true
+          execCycle = runner.cycle
+      On data-out do
+        busy = false
+        propagate data
+
+Licks
+Startup: Send `{}` to root node
+Sets ''
+Lick: For each node whose state = 'IDLE'

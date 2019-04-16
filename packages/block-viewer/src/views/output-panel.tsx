@@ -8,18 +8,22 @@ export class OutputTransformer extends Transformer {
   value: ByteArray;
   propInfo: IBytesSchemaProp;
 
-  constructor(key: string, title: string, initValue?: ByteArray) {
-    super();
+  constructor(
+    key: string,
+    title: string,
+    initValue?: ByteArray,
+    handler?: IActionHandler
+  ) {
+    super(initValue, handler);
 
     this.key = key;
 
     this.propInfo = {
       name: "value",
       type: "bytes",
-      title, //: "Data to Encrypt",
+      title,
       ui: {
         widget: "multiline",
-        //label: "Input Data",
         lines: 5
       }
     };

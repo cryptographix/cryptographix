@@ -4,15 +4,15 @@ import { FlowNode } from "./flow-node";
  *
  */
 export class DataNode extends FlowNode {
-  //
-  _result: Promise<any> = null;
+  $type: "data" = "data";
 
-  /**
-   *
-  constructor(public parentNode: FlowNode) {
-    super(parentNode);
+  value: string;
+
+  constructor(value: string, id: string = "") {
+    super(id);
+
+    this.value = value;
   }
-  */
 
   /**
    *
@@ -38,13 +38,13 @@ export class DataNode extends FlowNode {
   /**
    *
    */
-  async trigger(_reverse?: boolean) {
+  async trigger() {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
     this.output = {
       ...this.input
     };
 
-    return Promise.resolve(true);
+    return this.setTriggerResult(Promise.resolve(true));
   }
 }

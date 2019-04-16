@@ -102,7 +102,7 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
    * Action handler
    * - handles config changes
    */
-  handleAction(action: Action): Action {
+  handleAction(action: Action): Promise<Action> {
     let act = action as BlockPropertyChanged | ConfigPropertyChanged;
 
     switch (act.action) {

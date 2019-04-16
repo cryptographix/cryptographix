@@ -4,15 +4,17 @@ import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 /**
  *
  */
-export class SplitterNode extends FlowNode {
+export class MapperNode extends FlowNode {
+  $type: "mapper" = "mapper";
+
   //
-  _nodes: Map<string, FlowNode>;
+  nodes: Map<string, FlowNode>;
 
   /**
    *
    */
-  constructor(nodes: { [index: string]: FlowNode } = null) {
-    super();
+  constructor(nodes: { [index: string]: FlowNode } = null, id: string = "") {
+    super(id);
 
     this.nodes = new Map<string, FlowNode>(Object.entries(nodes));
 
@@ -61,14 +63,19 @@ export class SplitterNode extends FlowNode {
   /**
    *
    */
-  async trigger(reverse?: boolean) {
+  async trigger() {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
+
+    // Forward input to all branches
+    this.nodes.forEach((node, _key) => {
+      node.setInput(this.input);
+    });
 
     let output = (this.output = {});
 
-    let result: Promise<boolean>[] = [];
+    let results: Promise<boolean>[] = [];
     this.nodes.forEach((node, key) => {
-      let trig = node.trigger(reverse).then(ok => {
+      let trig = node.trigger().then(ok => {
         if (ok) {
           output[key] = node.getOutput();
         }
@@ -76,13 +83,15 @@ export class SplitterNode extends FlowNode {
         return ok;
       });
 
-      result.push(trig);
+      results.push(trig);
     });
 
-    return Promise.all(result).then(oks => {
+    let result = Promise.all(results).then(oks => {
       let allOK = oks.reduce((accum, ok) => accum && ok, true);
 
-      return Promise.resolve(allOK);
+      return Promise.resolve<boolean>(allOK);
     });
+
+    return this.setTriggerResult(result);
   }
 }

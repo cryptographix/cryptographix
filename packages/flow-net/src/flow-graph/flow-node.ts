@@ -3,29 +3,34 @@ import { IActionHandler, Action } from "@cryptographix/core";
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 
 export abstract class FlowNode implements IActionHandler {
-  //
-  protected _parentNode: FlowNode = null;
+  public $type: "flow" | "pipeline" | "mapper" | "transformer" | "data" = null;
 
   //
-  protected _inKeys: string[] = ["default"];
+  readonly id: string = "";
 
   //
-  protected _input: object = {};
+  protected parentNode: FlowNode = null;
 
   //
-  protected _outKeys: string[] = ["default"];
+  public inKeys: string[] = [];
 
   //
-  protected _output: object = {};
+  public input: object = {};
 
   //
-  protected _result: Promise<boolean>;
+  public outKeys: string[] = [];
+
+  //
+  public output: object = {};
+
+  //
+  protected result: Promise<boolean>;
 
   /**
    *
    */
-  constructor() {
-    //
+  constructor(id: string = "") {
+    this.id = id;
   }
 
   get parent(): FlowNode {
@@ -39,8 +44,9 @@ export abstract class FlowNode implements IActionHandler {
   /**
    *
    */
-
   get status(): "created" | "idle" | "busy" | "error" {
+    if (this.result === undefined) return "created";
+
     return !!this.result ? "busy" : "idle";
   }
 
@@ -65,7 +71,7 @@ export abstract class FlowNode implements IActionHandler {
   tearDown(): this {
     this.input = {};
     this.output = {};
-    this.result = null;
+    this.result = undefined;
 
     return this;
   }
@@ -73,7 +79,7 @@ export abstract class FlowNode implements IActionHandler {
   /**
    *
    */
-  setInput(data: object): this {
+  setInput(data: {}): this {
     this.input = {
       ...this.input,
       ...data
@@ -119,6 +125,23 @@ export abstract class FlowNode implements IActionHandler {
    */
   get canTrigger(): boolean {
     return this.status == "idle";
+  }
+
+  protected setTriggerResult(result: Promise<boolean>) {
+    let self = this;
+
+    this.result = result
+      .then<boolean>(ok => {
+        self.result = null;
+
+        return ok; // Promise.resolve<boolean>(ok);
+      })
+      .finally(() => {
+        self.result = null;
+      });
+
+    return this.result;
+    //
   }
 
   /**

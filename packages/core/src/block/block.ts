@@ -13,46 +13,40 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
   view?: View;
 
   //
+  readonly handler?: IActionHandler;
+
+  //
   readonly helper: BlockSchemaHelper<TConfig, this>;
 
   //
   readonly config: TConfig;
 
-  constructor(initConfig?: Partial<TConfig>) {
+  constructor(initConfig?: Partial<TConfig>, handler?: IActionHandler) {
     //
     this.helper = new BlockSchemaHelper<TConfig, this>(this);
 
     //
+    this.helper.initBlockProperties();
+
+    //
     this.config = this.helper.initConfig(initConfig);
+
+    //
+    this.handler = handler;
   }
 
   setConfig(config: TConfig) {
     Writable(this).config = this.helper.initConfig(config);
   }
 
-  /*getConfigValue<RT = any>(key: keyof TConfig): RT {
-    return (this.config[key] as unknown) as RT;
-  }*/
-
-  handleAction(_action: Action): Action {
-    /*
-    let act = action as BlockPropertyChanged | ConfigPropertyChanged;
-
-    switch (act.action) {
-      case "block:property-changed": {
-        console.log("Block property changed. ", act.key, " = ", act.value);
-
-        break;
-      }
-
-      case "config:property-changed": {
-        console.log("Config property changed. ", act.key, " = ", act.value);
-
-        break;
+  handleAction(action: Action): Promise<Action> {
+    if (this.handler) {
+      switch (action.action) {
+        case "config:property-changed":
+          return action.dispatchTo(this.handler);
       }
     }
-    */
 
-    return null;
+    return Promise.resolve<Action>(null);
   }
 }

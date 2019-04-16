@@ -5,9 +5,9 @@ import {
   Schema
 } from "../schema/index";
 
-import { BlockConfiguration } from "./block-config";
-
 import { Block } from "./block";
+import { BlockConfiguration } from "./block-config";
+import { BlockView } from "./block-view";
 
 /**
  * Schema descriptor for a Block
@@ -30,6 +30,8 @@ export interface IBlockSchema<
   category?: string;
 
   config: IConstructable<TConfig>;
+
+  ui?: { view: IConstructable<BlockView> };
 }
 
 export class BlockSchema {
@@ -67,6 +69,28 @@ export class BlockSchemaHelper<
     return !!this.schema.properties[prop];
   }
 
+  /*
+   * Initialize block with default values for properties
+   * Priority:
+   *   1. Already initialized via class property initializer or constructor
+   *   2. Identically named property in block-config
+   *   3. Default value defined in Schema
+   */
+  initBlockProperties(): void {
+    let props = Object.entries(this.schema.properties);
+
+    const block = this.block;
+    props.forEach(([key, propInfo]) => {
+      Schema.initPropertyFromPropertyType(
+        propInfo,
+        block,
+        key as any,
+        block.config,
+        false
+      );
+    });
+  }
+
   extractBlockProperties(props: string[]): Partial<TBlock> {
     const self = this;
 
@@ -101,6 +125,10 @@ export class BlockSchemaHelper<
     );
 
     return config;
+  }
+
+  getConfigValue<RT = any>(key: keyof TConfig): RT {
+    return (this.config[key] as unknown) as RT;
   }
 
   getConfigPropSchema<TSchemaProp extends ISchemaProperty>(
