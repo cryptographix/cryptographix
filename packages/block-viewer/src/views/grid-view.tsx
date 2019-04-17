@@ -4,16 +4,10 @@ import {
   FlowNode,
   PipelineNode,
   MapperNode,
-  TransformerNode,
-  DataNode
-} from "@cryptographix/flow-net";
-
-type FlowNodeUnion =
-  | Flow
-  | PipelineNode
-  | MapperNode
-  | TransformerNode
-  | DataNode;
+  //  TransformerNode,
+  //  DataNode,
+  FlowNodeUnion
+} from "@cryptographix/flow";
 
 export class GridView extends View {
   constructor(public node: Flow, public root: boolean) {
@@ -35,7 +29,7 @@ export class GridView extends View {
 
   renderMap(node: MapperNode) {
     let x = [];
-    Object.entries(node)
+    Array.from(node.nodes)
       .filter(([_key, _node]) => _key != "$type")
       .forEach(([_key, node]) => {
         x.push(
@@ -55,6 +49,8 @@ export class GridView extends View {
   renderNode(node: FlowNode, hasArrow: boolean = false) {
     let typedNode = node as FlowNodeUnion;
     let r: any;
+
+    if (!node) return;
 
     switch (typedNode.$type) {
       case "flow":

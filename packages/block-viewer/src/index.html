@@ -9,6 +9,7 @@
     <script>
       tslib = cryptographix.core.tslib;
     </script>
+    <script src="lib/cryptographix/flow/dist/index.umd.js"></script>
     <script src="lib/cryptographix/cryptography/dist/index.umd.js"></script>
     <script src="lib/cryptographix/payments/dist/index.umd.js"></script>
     <script src="app/index.umd.js"></script>
@@ -84,6 +85,11 @@
         top: 4px;
         left: 0px;
         bottom: 4px;
+      }
+
+      .tile {
+        display: grid;
+        grid-column-template: repeat(auto 4rem);
       }
     </style>
   </head>

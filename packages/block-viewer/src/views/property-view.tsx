@@ -5,6 +5,7 @@ import {
   IBooleanSchemaProp,
   IBytesSchemaProp,
   IEnumSchemaProp,
+  IStringSchemaProp,
   ISchemaPropUI
 } from "@cryptographix/core";
 import { BA2H, H2BA, ByteArray } from "@cryptographix/core";
@@ -139,6 +140,8 @@ export class PropertyView extends View {
     this.clearError();
     let value = (evt.target as HTMLInputElement).value;
     this.value = value;
+
+    throw 110;
   }
 
   byteValueChanged(evt: Event) {
@@ -263,6 +266,45 @@ export class PropertyView extends View {
     return <div class="control">{$inner}</div>;
   }
 
+  renderString(_propInfo: IStringSchemaProp, value: string) {
+    let $inner: HTMLElement;
+
+    if (this.ui.widget == "multiline") {
+      $inner = (
+        <textarea
+          class="textarea text"
+          spellcheck="false"
+          onChange={this.stringValueChanged.bind(this)}
+          onKeyUp={this.stringValueChanged.bind(this)}
+          onFocus={(_evt: Event) => this.focus()}
+          onBlur={(_evt: Event) => this.blur()}
+          placeholder={this.ui.hint}
+          value={value || ""}
+        />
+      );
+    } else {
+      $inner = (
+        <input
+          class="input text"
+          type="text"
+          spellcheck="false"
+          onChange={this.stringValueChanged.bind(this)}
+          onKeyUp={this.stringValueChanged.bind(this)}
+          onFocus={(_evt: Event) => this.focus()}
+          onBlur={(_evt: Event) => this.blur()}
+          placeholder={this.ui.hint}
+          value={value || ""}
+        />
+      );
+    }
+
+    if (this.ui["readOnly"]) {
+      $inner.setAttribute("readonly", "true");
+    }
+
+    return <div class="control">{$inner}</div>;
+  }
+
   renderProp() {
     const value = this.value;
     const propInfo = this.propRef.propertyType;
@@ -284,19 +326,7 @@ export class PropertyView extends View {
         );
 
       case "string":
-        return (
-          <div class="control">
-            <input
-              class="input"
-              type="text"
-              onChange={this.stringValueChanged.bind(this)}
-              onFocus={(_evt: Event) => this.focus()}
-              onBlur={(_evt: Event) => this.blur()}
-              placeholder={this.ui.hint}
-              value={value || ""}
-            />
-          </div>
-        );
+        return this.renderString(propInfo, value || "");
 
       case "enum":
         return this.renderEnum(propInfo, value || "");
