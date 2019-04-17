@@ -5,6 +5,13 @@ import { MapperNode } from "./mapper-node";
 import { FlowParser } from "../parser/flow-parser";
 import { DataNode } from "./data-node";
 
+export type FlowNodeUnion =
+  | Flow
+  | PipelineNode
+  | MapperNode
+  | TransformerNode
+  | DataNode;
+
 export class Flow extends FlowNode {
   $type: "flow" = "flow";
 
