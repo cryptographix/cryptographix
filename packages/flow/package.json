@@ -1,5 +1,5 @@
 {
-  "name": "@cryptographix/flow-net",
+  "name": "@cryptographix/flow",
   "version": "0.1.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

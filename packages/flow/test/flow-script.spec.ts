@@ -1,6 +1,6 @@
 import "mocha";
 //import { expect } from "chai";
-import { FlowParser, Flow } from "@cryptographix/flow-net";
+import { FlowParser, Flow } from "@cryptographix/flow";
 
 let nets = [];
 

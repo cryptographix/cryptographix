@@ -6,7 +6,7 @@ import {
   TransformerNode,
   MapperNode,
   PipelineNode
-} from "../flow-graph/index";
+} from "../nodes/index";
 
 export class ParseError extends Error {
   constructor(pos: { line: number; col: number }, msg: string) {

@@ -7,7 +7,7 @@ import {
   TransformerNode,
   PipelineNode,
   MapperNode
-} from "@cryptographix/flow-net";
+} from "@cryptographix/flow";
 
 class AddAndMultiplyConfig {
   @integerProp()

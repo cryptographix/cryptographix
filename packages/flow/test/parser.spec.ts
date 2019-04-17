@@ -1,6 +1,6 @@
 import "mocha";
 //import { expect } from "chai";
-import { FlowParser, Tokenizer } from "@cryptographix/flow-net";
+import { FlowParser, Tokenizer } from "@cryptographix/flow";
 
 let s: string[] = [];
 
@@ -25,7 +25,7 @@ describe("Tokenizer", () => {
     //debugger;
   });
   s.forEach(ss => {
-    it("Tokenize: " + ss, () => {
+    it("must tokenize: " + ss, () => {
       console.log(tokenize(ss));
     });
   });
@@ -56,7 +56,7 @@ describe("Parse const values", () => {
   });
 });
 
-let pars = [];
+/*let pars = [];
 pars.push("[]");
 pars.push("[ 1 ]");
 pars.push("[ 1, 2, 3 ]");
@@ -74,7 +74,7 @@ describe("Parse arrays", () => {
       console.log("result: ", JSON.stringify(flow.toJSON(), null, 2));
     });
   });
-});
+});*/
 
 let blks = [];
 blks.push("A()");
@@ -83,7 +83,7 @@ blks.push("A() |> B() |> C() |> D() |> E() |> F()");
 blks.push("A({}) |> B({}) |> C({}) |> D({}) |> E({}) |> F({})");
 blks.push("A({a:1, b:2}) |> B()");
 
-describe("Parse sequences of blocks", () => {
+describe("Parse pipelines", () => {
   beforeEach(function() {
     //debugger;
   });

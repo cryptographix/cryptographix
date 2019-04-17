@@ -3,6 +3,7 @@
   "npmClient": "yarn",
   "packages": [
     "packages/core",
+    "packages/flow",
     "packages/cryptography",
     "packages/payments",
     "packages/block-viewer"
