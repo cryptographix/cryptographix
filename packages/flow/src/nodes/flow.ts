@@ -5,7 +5,7 @@ import { MapperNode } from "./mapper-node";
 import { FlowParser } from "../parser/flow-parser";
 import { DataNode } from "./data-node";
 
-export type FlowNodeUnion =
+export type AnyFlowNode =
   | Flow
   | PipelineNode
   | MapperNode
@@ -16,9 +16,9 @@ export class Flow extends FlowNode {
   $type: "flow" = "flow";
 
   //
-  readonly root?: FlowNode;
+  readonly root?: AnyFlowNode;
 
-  constructor(root: FlowNode = null, id?: string) {
+  constructor(root: AnyFlowNode = null, id?: string) {
     super(id);
 
     this.root = root;
@@ -152,8 +152,8 @@ export class Flow extends FlowNode {
   /**
    *
    */
-  static toxJSON(flow: FlowNode): {} {
-    function orphanize<FN extends FlowNode>(n: FN) {
+  static toxJSON(flow: AnyFlowNode): {} {
+    function orphanize(n: AnyFlowNode) {
       let nn = {
         ...n,
         parentNode: undefined,
@@ -168,7 +168,7 @@ export class Flow extends FlowNode {
       if (n instanceof PipelineNode || n instanceof MapperNode) {
         nn.nodes = n instanceof PipelineNode ? [] : {};
 
-        n.nodes.forEach((node: FN, key: any) => {
+        n.nodes.forEach((node: AnyFlowNode, key: any) => {
           console.log(key);
           nn.nodes[key] = orphanize(node);
         });
@@ -181,22 +181,93 @@ export class Flow extends FlowNode {
 
     return orphanize(flow);
   }
+}
+
+export namespace Flow {
+  type Traverser = (
+    node: AnyFlowNode,
+    children: AnyFlowNode[],
+    prev?: AnyFlowNode
+  ) => void;
+  /**
+   *
+   */
+  export function traverseFlow(
+    node: AnyFlowNode,
+    pre?: Traverser,
+    post?: Traverser,
+    prev?: AnyFlowNode
+  ): void {
+    let children = [];
+
+    switch (node.$type) {
+      case "flow":
+        children.push(node.root);
+        break;
+
+      case "pipeline":
+        for (let i = 0; i < node.nodes.length; ++i) {
+          children.push(node.nodes[i]);
+        }
+        break;
+
+      case "mapper":
+        Array.from(node.nodes)
+          .filter(([_key, _node]) => _key.indexOf("$") != 0)
+          .forEach(([_key, node]) => {
+            children.push(node);
+          });
+        break;
+    }
+
+    if (pre) {
+      pre(node, children, prev);
+    }
+
+    if (node.$type == "pipeline") {
+      let piped = prev;
+      children.forEach(child => {
+        if (child) traverseFlow(child, pre, post, piped);
+
+        piped = child;
+      });
+    } else {
+      children.forEach(child => {
+        if (child) traverseFlow(child, pre, post, prev);
+      });
+    }
+
+    if (post) {
+      post(node, children, prev);
+    }
+  }
 
   /**
    *
    */
-  static toFlowString(node: FlowNode): string {
+  export function fromFlowScript(flowScript: string): Flow {
+    const parser = new FlowParser(flowScript);
+
+    let flow = parser.parseFlow();
+
+    return flow;
+  }
+
+  /**
+   *
+   */
+  export function toFlowScript(node: FlowNode): string {
     let res = "";
 
     switch (node.$type) {
       case "flow":
-        res = Flow.toFlowString((node as Flow).root);
+        res = Flow.toFlowScript((node as Flow).root);
         break;
 
       case "pipeline": {
         let nodes: string[] = [];
         (node as PipelineNode).nodes.forEach(step => {
-          nodes.push(Flow.toFlowString(step));
+          nodes.push(Flow.toFlowScript(step));
         });
 
         res = nodes.join(" |> ");
@@ -208,7 +279,7 @@ export class Flow extends FlowNode {
 
         (node as MapperNode).nodes.forEach((value, key) => {
           //nodes[key] = Flow.toFlowString(value);
-          items.push(key + ": " + Flow.toFlowString(value));
+          items.push(key + ": " + Flow.toFlowScript(value));
         });
 
         res = items.length == 0 ? "{}" : "{ " + items.join(", ") + " }";
@@ -238,13 +309,5 @@ export class Flow extends FlowNode {
     }
 
     return res;
-  }
-
-  static fromFlowString(flowString: string): Flow {
-    const parser = new FlowParser(flowString);
-
-    let flow = parser.parseFlow();
-
-    return flow;
   }
 }

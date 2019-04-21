@@ -1,12 +1,18 @@
 import { IActionHandler, Action } from "@cryptographix/core";
+import { IViewModel, View } from "@cryptographix/core";
 
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 
-export abstract class FlowNode implements IActionHandler {
+export abstract class FlowNode implements IActionHandler, IViewModel {
+  view?: View;
+
   public $type: "flow" | "pipeline" | "mapper" | "transformer" | "data" = null;
 
   //
   readonly id: string = "";
+
+  // Additional '$...' attributes
+  public meta: {} = {};
 
   //
   protected parentNode: FlowNode = null;

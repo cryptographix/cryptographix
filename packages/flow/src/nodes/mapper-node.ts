@@ -1,4 +1,5 @@
 import { FlowNode } from "./flow-node";
+import { AnyFlowNode } from "./flow";
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 
 /**
@@ -8,15 +9,31 @@ export class MapperNode extends FlowNode {
   $type: "mapper" = "mapper";
 
   //
-  nodes: Map<string, FlowNode>;
+  nodes: Map<string, AnyFlowNode>;
+
+  //
+  meta: {};
 
   /**
    *
    */
-  constructor(nodes: { [index: string]: FlowNode } = null, id: string = "") {
+  constructor(nodes: { [index: string]: AnyFlowNode } = null, id: string = "") {
     super(id);
 
-    this.nodes = new Map<string, FlowNode>(Object.entries(nodes));
+    let map = Object.entries(nodes);
+
+    let outputs = map.filter(([key, _node]) => key.indexOf("$") != 0);
+
+    // extract metadata from
+    this.meta = map
+      .filter(([key, _node]) => key.indexOf("$") == 0)
+      .reduce((obj: {}, [key, node]) => {
+        obj[key] = node;
+
+        return obj;
+      }, {});
+
+    this.nodes = new Map<string, AnyFlowNode>(outputs);
 
     this.nodes.forEach(node => {
       node.parent = this;
@@ -26,7 +43,7 @@ export class MapperNode extends FlowNode {
   /**
    *
    */
-  addBranch(key: string, node: FlowNode): this {
+  addBranch(key: string, node: AnyFlowNode): this {
     this.nodes.set(key, node);
 
     node.parent = this;

@@ -3,10 +3,10 @@ import { expect } from "chai";
 import { block, Transformer, isPort, integerProp } from "@cryptographix/core";
 import {
   Flow,
-  FlowNode,
   TransformerNode,
   PipelineNode,
-  MapperNode
+  MapperNode,
+  AnyFlowNode
 } from "@cryptographix/flow";
 
 class AddAndMultiplyConfig {
@@ -40,7 +40,7 @@ class AddAndMultiply extends Transformer<AddAndMultiplyConfig> {
 }
 
 function createNode(type: "trans" | "map" | "pipe", id: string, opts?: {}) {
-  let node: FlowNode;
+  let node: AnyFlowNode;
 
   switch (type) {
     case "trans":

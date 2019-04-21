@@ -19,14 +19,24 @@ export function createElement(
   Object.keys(attributes || {}).forEach(name => {
     const value = attributes[name];
 
-    if (!nonStandardAttributes[name]) {
-      // lowercase event attributes
-      const attributeName =
-        name.indexOf("on") === 0 ? name.toLowerCase() : name;
-      $element[attributeName] = value;
-    } else {
-      // set non-standard attribute
-      $element.setAttribute(nonStandardAttributes[name], value);
+    if (value != undefined) {
+      if (!nonStandardAttributes[name]) {
+        // set data- attributes on dataset property
+        if (name.indexOf("data-") === 0) {
+          $element.dataset[name.slice(5)] = value;
+        } else {
+          // set normal attributes on element
+
+          // lowercase event attribute name
+          const attributeName =
+            name.indexOf("on") === 0 ? name.toLowerCase() : name;
+
+          $element[attributeName] = value;
+        }
+      } else {
+        // set non-standard attribute
+        $element.setAttribute(nonStandardAttributes[name], value);
+      }
     }
   });
 

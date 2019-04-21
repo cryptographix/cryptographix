@@ -1,12 +1,11 @@
 import { View } from "@cryptographix/core";
 import {
   Flow,
-  FlowNode,
   PipelineNode,
   MapperNode,
   //  TransformerNode,
   //  DataNode,
-  FlowNodeUnion
+  AnyFlowNode
 } from "@cryptographix/flow";
 
 export class TileView extends View {
@@ -46,23 +45,32 @@ export class TileView extends View {
     );
   }
 
-  renderNode(node: FlowNode, hasArrow: boolean = false) {
-    let typedNode = node as FlowNodeUnion;
+  toggleGroup(evt: Event) {
+    let t: any = evt.target as HTMLElement;
+
+    let prev = t.parentElement.parentElement
+      .previousElementSibling as HTMLElement;
+
+    if (prev.style.display == "none") prev.style.display = "flex";
+    else prev.style.display = "none";
+  }
+
+  renderNode(node: AnyFlowNode, hasArrow: boolean = false) {
     let r: any;
 
     if (!node) return;
 
-    switch (typedNode.$type) {
+    switch (node.$type) {
       case "flow":
-        r = this.renderNode(typedNode.root);
+        r = this.renderNode(node.root);
         break;
 
       case "pipeline":
-        r = this.renderPipe(typedNode);
+        r = this.renderPipe(node);
         break;
 
       case "mapper":
-        r = this.renderMap(typedNode);
+        r = this.renderMap(node);
         break;
 
       case "transformer":
@@ -71,7 +79,7 @@ export class TileView extends View {
             class="tile is-child box"
             style="padding-left: 1rem; max-width: 320px"
           >
-            {typedNode.blockName + "('" + node.id + "')"}
+            {node.blockName + "('" + node.id + "')"}
           </div>
         );
         break;
@@ -89,7 +97,10 @@ export class TileView extends View {
             style="align-items: center; padding-right: 0.5rem; border-left: 3px solid white; margin-left: 1rem"
           >
             <span class="icon is-large has-text-white" style="width: 2.5rem">
-              <i class="fa fa-arrow-right fa-3x " />
+              <i
+                class="fa fa-arrow-right fa-3x"
+                onclick={this.toggleGroup.bind(this)}
+              />
             </span>
           </div>
         </div>

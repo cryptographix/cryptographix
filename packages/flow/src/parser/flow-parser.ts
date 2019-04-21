@@ -1,7 +1,7 @@
 import { Tokenizer, Token, EOF } from "./tokenizer";
 import {
   Flow,
-  FlowNode,
+  AnyFlowNode,
   DataNode,
   TransformerNode,
   MapperNode,
@@ -124,9 +124,21 @@ export class FlowParser {
     return val;
   }
 
-  protected parseIdentifier() {
+  protected parseString(): string {
+    let tok = this.curToken;
+    let val = tok.value;
+
+    if (tok.type == "string") {
+      this.skipToken();
+      return val as string;
+    }
+
+    throw new ParseError(this.tokPos, "Needed a string");
+  }
+
+  protected parseIdentifier(): string {
     if (this.curToken.type == "identifier") {
-      return this.skipToken().value;
+      return this.skipToken().value as string;
     }
 
     throw new ParseError(this.tokPos, "Needed an identifier");
@@ -158,21 +170,38 @@ export class FlowParser {
     return result;
   }
 
-  protected parseMapperNode(): FlowNode {
+  protected parseStringOrObject() {
+    return this.curToken.value == "{" ? this.parseObject() : this.parseString();
+  }
+
+  protected parseMapperNode(): AnyFlowNode {
     let map = {};
+    let id: string;
+    //let flow: string | {};
 
     this.skipToken(); // skip {
 
     if (this.curToken.value != "}") {
       while (!this.isEOF) {
-        const seq = this.parseIdentifier();
+        const key = this.parseIdentifier();
 
         this.ensureToken(":", "missing property terminator :");
 
-        let item = this.parseFlowNode();
+        if (key.indexOf("$") == 0) {
+          if (key == "$id") {
+            id = this.parseString();
+          } /*else if (key == "$flow") {
+            flow = this.parseStringOrObject();
+          } */ else {
+            let item = this.parseStringOrObject();
 
-        map[seq] = item;
+            map[key] = item;
+          }
+        } else {
+          let item = this.parseFlowNode();
 
+          map[key] = item;
+        }
         if (this.curToken.value != ",") break;
 
         this.skipToken();
@@ -181,7 +210,7 @@ export class FlowParser {
 
     this.ensureToken("}", "Object");
 
-    return new MapperNode(map);
+    return new MapperNode(map, id);
   }
 
   /*protected parseArray() {
@@ -209,7 +238,7 @@ export class FlowParser {
     return result;
   }*/
 
-  protected parseBlockNode(): FlowNode {
+  protected parseBlockNode(): TransformerNode {
     let block = this.curToken.value;
     let cfg = undefined;
     let name = undefined;
@@ -251,7 +280,7 @@ export class FlowParser {
    *    MapperNode:       a map of named nodes -> '{ key: node, ... }'
    *    PipelineNode:     a pipe of nodes -> N1 |>
    */
-  protected parseFlowNode(): FlowNode {
+  protected parseFlowNode(): AnyFlowNode {
     let pipe = [];
 
     while (!this.isEOF) {
@@ -288,6 +317,10 @@ export class FlowParser {
 
   parseFlow(): Flow {
     let node = this.parseFlowNode();
+
+    if (!this.isEOF) {
+      throw new ParseError(this.tokPos, "Invalid syntax " + this.curToken);
+    }
 
     return new Flow(node);
   }

@@ -38,7 +38,7 @@ describe("Parse nets to graph to JSON", () => {
   });
   nets.forEach(net => {
     it("Parse: " + net, () => {
-      const graph = Flow.fromFlowString(net);
+      const graph = Flow.fromFlowScript(net);
 
       console.log("result: ", JSON.stringify(Flow.toJSON(graph), null, 2));
     });
@@ -51,9 +51,9 @@ describe("Parse net strings to graph and back again", () => {
   });
   nets.forEach(net => {
     it("Parse: " + net, () => {
-      const graph = Flow.fromFlowString(net);
+      const graph = Flow.fromFlowScript(net);
 
-      console.log("result: ", Flow.toFlowString(graph));
+      console.log("result: ", Flow.toFlowScript(graph));
     });
   });
 });

@@ -142,13 +142,7 @@ export abstract class View<TParentView extends View<any> = any> {
    * Helper for use within render functions, passed as 3rd param to createElement
    */
   protected renderChildViews(): HTMLElement[] {
-    let result = [];
-
-    this.children.forEach(child => {
-      result.push(child.element);
-    });
-
-    return result;
+    return View.renderViews(this.children);
   }
 
   /**
@@ -236,5 +230,17 @@ export abstract class View<TParentView extends View<any> = any> {
    */
   public layoutView(): void {
     this.children.forEach(child => child.layoutView());
+  }
+}
+
+export namespace View {
+  export function renderViews(views: Iterable<View>): HTMLElement[] {
+    let result = [];
+
+    for (let view of views) {
+      result.push(view.element);
+    }
+
+    return result;
   }
 }

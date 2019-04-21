@@ -4,7 +4,7 @@ export function isAlpha(c: string) {
   return /^[A-Z]$/i.test(c);
 }
 
-export function isNumber(c: string) {
+export function isDigit(c: string) {
   return /^[0-9]$/.test(c);
 }
 
@@ -18,6 +18,10 @@ export function isQuoteChar(c: string) {
 
 export function isLineBreak(c: string) {
   return /^[\r\n]$/.test(c);
+}
+
+export function isIdentifierChar(c: string, init: boolean = true) {
+  return /^[A-Z_]$/i.test(c) || c == "$" || (!init && isDigit(c));
 }
 
 export type Token = {
@@ -148,21 +152,21 @@ export class Tokenizer {
 
       let ch = this.peekChar();
 
-      if (isAlpha(ch)) {
+      if (isIdentifierChar(ch, true)) {
         do {
           this.nextChar();
 
           ch = this.peekChar();
-        } while (isAlpha(ch) || isNumber(ch) || ch == "_");
+        } while (isIdentifierChar(ch));
 
         return {
           type: "identifier",
           value: this.getMarkedText()
         };
-      } else if (isNumber(ch) || ch == "+" || ch == "-") {
+      } else if (isDigit(ch) || ch == "+" || ch == "-") {
         do {
           this.nextChar();
-        } while (isNumber(this.peekChar()));
+        } while (isDigit(this.peekChar()));
 
         return {
           type: "number",

@@ -56,6 +56,14 @@ export class PropertyView extends View {
       label: propRef.propertyType.title || propRef.key,
       ...propRef.propertyType.ui
     };
+
+    if (this.value != undefined) {
+      let self = this;
+
+      window.requestAnimationFrame(() => {
+        self.notifyValueChanged();
+      });
+    }
   }
 
   get value() {
@@ -140,8 +148,6 @@ export class PropertyView extends View {
     this.clearError();
     let value = (evt.target as HTMLInputElement).value;
     this.value = value;
-
-    throw 110;
   }
 
   byteValueChanged(evt: Event) {
@@ -233,6 +239,9 @@ export class PropertyView extends View {
     let $inner: HTMLElement;
 
     if (this.ui.widget == "multiline") {
+      let lines = (this.ui as any).lines;
+      let rows = lines != null ? lines || 5 : undefined;
+
       $inner = (
         <textarea
           class="textarea bytes"
@@ -241,6 +250,7 @@ export class PropertyView extends View {
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
+          rows={rows}
           value={BA2H(value)}
         />
       );
@@ -270,6 +280,9 @@ export class PropertyView extends View {
     let $inner: HTMLElement;
 
     if (this.ui.widget == "multiline") {
+      let lines = (this.ui as any).lines;
+      let rows = lines != null ? lines || 5 : undefined;
+
       $inner = (
         <textarea
           class="textarea text"
@@ -279,6 +292,7 @@ export class PropertyView extends View {
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
+          rows={rows}
           value={value || ""}
         />
       );

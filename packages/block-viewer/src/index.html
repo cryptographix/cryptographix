@@ -42,6 +42,11 @@
         margin-right: 0.5rem;
       }
 
+      .input.text,
+      .textarea.text {
+        font-size: 12px;
+      }
+
       .input.bytes,
       .textarea.bytes {
         font-family: monospace;
@@ -52,7 +57,7 @@
       .textarea,
       .select select,
       .select:not(.is-multiple) {
-        height: 2rem;
+        /* height: 2rem; */
       }
       .field:not(:last-child) {
         margin-bottom: 0.25rem;
@@ -87,9 +92,149 @@
         bottom: 4px;
       }
 
-      .tile {
-        display: grid;
-        grid-column-template: repeat(auto 4rem);
+      .tabs {
+      }
+      .tab-content {
+        position: absolute;
+        height: calc(100vh - 52px - 42px);
+        top: 42px;
+        left: 0px;
+        right: 0px;
+      }
+      .tab {
+        display: none;
+      }
+      .tab.is-active {
+        display: inherit;
+      }
+      .tabs ul li a {
+        color: #ff0;
+        border-bottom: 1px solid #dbdbdb;
+      }
+      .tabs ul li.is-active a {
+        color: #fff;
+        font-weight: 700;
+        border-bottom: 1px solid #dbdbdb;
+      }
+
+      #flow-script-panel {
+        position: relative;
+      }
+      #flow-grid {
+        position: absolute;
+        box-sizing: border-box;
+
+        top: 0px;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        overflow: auto;
+
+        padding: 1rem;
+
+        background-color: rgb(238, 238, 255);
+      }
+
+      #flow-grid .grid-inner {
+        position: absolute;
+        box-sizing: border-box;
+
+        background-color: rgb(201, 208, 255);
+      }
+
+      #flow-grid .node {
+        display: block;
+
+        position: absolute;
+        box-sizing: border-box;
+        width: 182px;
+        min-height: 89px;
+        z-index: 100;
+
+        border: 3px solid rgb(123, 127, 165);
+        border-radius: 6px;
+        padding: 1.25rem;
+        padding-left: 1rem;
+
+        background-color: rgb(242, 243, 255);
+        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
+          0 0 0 1px rgba(10, 10, 10, 0.1);
+        color: #4a4a4a;
+      }
+
+      #flow-grid .node:hover {
+        border-color: #f0f;
+      }
+
+      #flow-grid .port {
+        position: absolute;
+        box-sizing: border-box;
+        width: 15px;
+        height: 30px;
+
+        border: 3px solid rgb(0, 0, 0);
+
+        background-color: rgb(196, 195, 196);
+      }
+
+      #flow-grid .port:hover {
+        border-color: #f0f;
+      }
+
+      #flow-grid .in-port {
+        left: -15px;
+        border-radius: 14.5px 0px 0px 14.5px;
+      }
+
+      #flow-grid .out-port {
+        right: -15px;
+
+        border-radius: 0px 14.5px 14.5px 0px;
+      }
+
+      #flow-grid .link {
+        position: absolute;
+        box-sizing: border-box;
+        z-index: 99;
+      }
+
+      .link-seg {
+        position: absolute;
+        background-color: black;
+      }
+
+      #flow-grid .link-seg:hover {
+        background-color: #f0f;
+      }
+
+      #xflow-grid .link:hover .link-seg {
+        background-color: #f0f;
+      }
+
+      #flow-grid .h-link {
+        border-bottom: 3px solid black;
+      }
+
+      #flow-grid .mapper {
+        border: 1px solid #448;
+        border-right: 3px dashed #448;
+        /* z-index: 180; */
+        opacity: 0.3;
+      }
+
+      #flow-grid .mapper:hover {
+        background-color: lightblue;
+        opacity: 0.5;
+      }
+
+      #flow-grid .pipeline {
+        opacity: 0.3;
+      }
+
+      #flow-grid .pipeline:hover {
+        background-color: lightgreen;
+        border: 1px dashed #844;
+        opacity: 0.5;
       }
     </style>
   </head>
@@ -139,103 +284,12 @@
         </div>
       </nav>
     </header>
-    <section
-      class="section"
-      style="margin-top: 0px; padding-top: 2rem;     background-color: #2980b9;"
-    >
-      <div id="blocks" style="xbackground-color: #eee; xpadding: 1rem;">
-        <!--
-          div class="field">
-            <label class="label">Name</label>
-            <div class="control">
-              <input class="input" type="text" placeholder="Text input">
-            </div>
-          </div>
 
-          <div class="field">
-            <label class="label">Username</label>
-            <div class="control has-icons-left has-icons-right">
-              <input class="input is-success" type="text" placeholder="Text input" value="bulma">
-              <span class="icon is-small is-left">
-                <i class="fas fa-user"></i>
-              </span>
-              <span class="icon is-small is-right">
-                <i class="fas fa-check"></i>
-              </span>
-            </div>
-            <p class="help is-success">This username is available</p>
-          </div>
-
-          <div class="field">
-            <label class="label">Email</label>
-            <div class="control has-icons-left has-icons-right">
-              <input class="input is-danger" type="email" placeholder="Email input" value="hello@">
-              <span class="icon is-small is-left">
-                <i class="fas fa-envelope"></i>
-              </span>
-              <span class="icon is-small is-right">
-                <i class="fas fa-exclamation-triangle"></i>
-              </span>
-            </div>
-            <p class="help is-danger">This email is invalid</p>
-          </div>
-
-          <div class="field">
-            <label class="label">Subject</label>
-            <div class="control">
-              <div class="select">
-                <select>
-                  <option>Select dropdown</option>
-                  <option>With options</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="label">Message</label>
-            <div class="control">
-              <textarea class="textarea" placeholder="Textarea"></textarea>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <label class="checkbox">
-                <input type="checkbox">
-                I agree to the <a href="#">terms and conditions</a>
-              </label>
-            </div>
-          </div>
-
-          <div class="field">
-            <div class="control">
-              <label class="radio">
-                <input type="radio" name="question">
-                Yes
-              </label>
-              <label class="radio">
-                <input type="radio" name="question">
-                No
-              </label>
-            </div>
-          </div>
-
-          <div class="field is-grouped">
-            <div class="control">
-              <button class="button is-link">Submit</button>
-            </div>
-            <div class="control">
-              <button class="button is-text">Cancel</button>
-            </div>
-          </div
-        -->
-      </div>
-    </section>
+    <div id="flows" style="background-color: #2980b9;"></div>
   </body>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      showSettings(document.getElementById("blocks"));
+      showSettings(document.getElementById("flows"));
     });
   </script>
 </html>

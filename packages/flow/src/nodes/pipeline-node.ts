@@ -1,5 +1,6 @@
 //import { Action } from "@cryptographix/core";
 import { FlowNode } from "./flow-node";
+import { AnyFlowNode } from "./flow";
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 
 /**
@@ -12,12 +13,12 @@ export class PipelineNode extends FlowNode {
   $type: "pipeline" = "pipeline";
 
   // Nodes in pipe
-  readonly nodes: FlowNode[];
+  readonly nodes: AnyFlowNode[];
 
   /**
    *
    */
-  constructor(nodes: FlowNode[] = [], id: string = "") {
+  constructor(nodes: AnyFlowNode[] = [], id: string = "") {
     super(id);
 
     this.nodes = nodes;
@@ -30,7 +31,7 @@ export class PipelineNode extends FlowNode {
   /**
    *
    */
-  appendNode(node: FlowNode) {
+  appendNode(node: AnyFlowNode) {
     this.nodes.push(node);
     node.parent = this;
   }

@@ -4440,8 +4440,8 @@ fieldset[disabled] .select select:hover {
 }
 
 .icon.is-large {
-  height: 3rem;
-  width: 3rem;
+  /* height: 3rem; */
+  width: 2.5rem;
 }
 
 .image {

@@ -2,16 +2,19 @@ import { IStringSchemaProp } from "@cryptographix/core";
 import { Action, IActionHandler } from "@cryptographix/core";
 import { View } from "@cryptographix/core";
 import { PropertyView, PropertyValueChanged } from "./property-view";
-import { TileView } from "./tile-view";
+//import { TileView } from "./tile-view";
+import { GridView } from "../grid-view/grid-view";
 
 import { Flow } from "@cryptographix/flow";
 
 export class FlowScriptView extends View implements IActionHandler {
   inputView: PropertyView;
-  flowView: TileView;
+  flowView: GridView;
 
-  constructor() {
+  constructor(net: string) {
     super();
+
+    this.script = net;
 
     let inPropInfo: IStringSchemaProp = {
       name: "value",
@@ -19,7 +22,7 @@ export class FlowScriptView extends View implements IActionHandler {
       title: "FlowScript",
       ui: {
         widget: "multiline",
-        lines: 10
+        lines: null
       }
     };
 
@@ -31,7 +34,7 @@ export class FlowScriptView extends View implements IActionHandler {
 
     this.addChildView(this.inputView);
 
-    let outputView = new PropertyView(this, {
+    /*    let outputView = new PropertyView(this, {
       target: this,
       key: "nodes",
       propertyType: {
@@ -45,9 +48,9 @@ export class FlowScriptView extends View implements IActionHandler {
       }
     });
 
-    //    this.addChildView(outputView);
+    //    this.addChildView(outputView);*/
 
-    this.flowView = new TileView(new Flow(), true);
+    this.flowView = new GridView(new Flow());
 
     this.addChildView(this.flowView);
   }
@@ -60,10 +63,9 @@ export class FlowScriptView extends View implements IActionHandler {
 
   scriptChanged() {
     try {
-      let flow = Flow.fromFlowString(this.script);
+      let flow = Flow.fromFlowScript(this.script);
 
-      this.flowView.node = flow;
-      this.flowView.refresh();
+      this.flowView.updateFlow(flow);
 
       //      this.nodes = JSON.stringify(flow.toJSON(), null, 2);
 
@@ -98,16 +100,81 @@ export class FlowScriptView extends View implements IActionHandler {
     return null;
   }
 
+  showTab(evt: Event) {
+    let tab = evt.currentTarget as HTMLElement;
+
+    const TABS = [...(document.querySelectorAll(".tabs li") as any)];
+    const CONTENT = [...(document.querySelectorAll(".tab") as any)];
+    const ACTIVE_CLASS = "is-active";
+
+    let selected = tab.getAttribute("data-tab");
+    updateActiveTab(tab);
+    updateActiveContent(selected);
+
+    function updateActiveTab(selected: HTMLElement) {
+      TABS.forEach(tab => {
+        if (tab && tab.classList.contains(ACTIVE_CLASS)) {
+          tab.classList.remove(ACTIVE_CLASS);
+        }
+      });
+      selected.classList.add(ACTIVE_CLASS);
+    }
+
+    function updateActiveContent(selected: string) {
+      CONTENT.forEach(item => {
+        if (item && item.classList.contains(ACTIVE_CLASS)) {
+          item.classList.remove(ACTIVE_CLASS);
+        }
+        let data = item.getAttribute("data-content");
+        if (data === selected) {
+          item.classList.add(ACTIVE_CLASS);
+        }
+      });
+    }
+  }
+
   render() {
     return (
-      <div class="tile is-ancestor" style="" id="flow-script">
-        <div class="tile xis-parent is-vertical">
-          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
-            {this.children[0].element}
-          </div>{" "}
-          <div class="box" style="background-color: #004">
-            {this.children[1].element}
-          </div>{" "}
+      <div id="flow-script-panel">
+        <div class="tabs">
+          <ul>
+            <li data-tab="1" onClick={this.showTab.bind(this)}>
+              <a>FlowScript</a>
+            </li>
+            <li
+              class="is-active"
+              data-tab="2"
+              onClick={this.showTab.bind(this)}
+            >
+              <a>Flow Diagram</a>
+            </li>
+          </ul>
+        </div>
+        <div class="tab-content">
+          <div class="tab" data-content="1">
+            <div id="flow-script" style="min-height: calc(100vh - 126px)">
+              <div
+                class="box"
+                style="padding: 0.5rem 0.25rem; padding: 0.5rem 0.25rem; "
+              >
+                {this.children[0].element}
+              </div>
+            </div>
+          </div>
+          <div class="tab  is-active" style="" data-content="2">
+            <div
+              style="padding: 1rem; background-color: #eef; overflow: auto"
+              id="flow-grid"
+            >
+              {this.children[1].element}
+            </div>
+          </div>
+          <div class="tab" data-content="3">
+            Videos
+          </div>
+          <div class="tab" data-content="4">
+            Documents
+          </div>
         </div>
       </div>
     );

@@ -33,9 +33,10 @@
   },
   "dependencies": {
     "@cryptographix/core": "0.1.0",
-    "@cryptographix/flow": "0.1.0",
     "@cryptographix/cryptography": "0.1.0",
+    "@cryptographix/flow": "0.1.0",
     "@cryptographix/payments": "0.1.0",
+    "codemirror": "^5.45.0",
     "express": "^4.16.4"
   }
 }
