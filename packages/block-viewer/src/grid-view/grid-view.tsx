@@ -17,13 +17,6 @@ import {
 import { NodeView } from "./node-view";
 import { LinkView /*, IPortRef*/ } from "./link-view";
 
-export const GRIDX = 128;
-export const GRIDY = 56;
-export const BLOCKX = 182;
-export const BLOCKY = 44;
-export const PORT_INIT_Y = 12;
-export const PORT_DELTA_Y = 42;
-
 export class GridView extends View {
   nodes: NodeView[] = [];
   links: LinkView[] = [];
@@ -62,7 +55,7 @@ export class GridView extends View {
         }
       }
 
-      console.log(Flow.toxJSON(node));
+      //console.log(Flow.toxJSON(node));
     });
 
     this.layoutView();
@@ -189,10 +182,10 @@ export class GridView extends View {
           // Blue:                      + 97C8CD
 
           " width: " +
-          (4 + view.layout.w) * GRIDX +
+          (4 + view.layout.w) +
           "px; " +
           "height: " +
-          (1 + 2 * view.layout.h) * GRIDY +
+          (1 + view.layout.h) +
           "px" +
           ""
         }
@@ -213,4 +206,22 @@ export class GridView extends View {
       </div>
     );
   }
+}
+
+export namespace GridView {
+  export const GRIDX = 128;
+  export const GRIDX_BORDER = GRIDX * 0.25;
+  export const GRIDY = 56;
+  export const GRIDY_BORDER = GRIDY * 0.25;
+
+  export const BLOCKX = 182;
+  export const BLOCKY = 44;
+
+  export const PORT_INIT_Y = 12;
+  export const PORT_DELTA_Y = 42;
+
+  export const PORTX = 15;
+  export const PORTY = 29;
+
+  export const PORT_LINK_DELTA_X = 16;
 }

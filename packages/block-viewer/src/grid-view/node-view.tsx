@@ -5,16 +5,9 @@ import {
   //  DataNode,
 } from "@cryptographix/flow";
 
-import { ensureNodeView } from "./helpers";
+import { ensureNodeView, calcBlockHeight, LightenDarkenColor } from "./helpers";
 import { GridView } from "./grid-view";
-import * as GV from "./grid-view";
-
-function calcBlockHeight(ports: number) {
-  return Math.min(GV.BLOCKY + ports * GV.PORT_DELTA_Y, 102);
-}
-
-const PORTX = 15;
-const PORTY = 29;
+import { GridView as GV } from "./grid-view";
 
 export class NodeView extends View<GridView> {
   layout?: {
@@ -22,6 +15,7 @@ export class NodeView extends View<GridView> {
     y: number;
     h: number;
     w: number;
+    z: number;
     color?: string;
   };
 
@@ -33,6 +27,7 @@ export class NodeView extends View<GridView> {
       y: 0,
       h: 0,
       w: 0,
+      z: 0,
       color
     };
   }
@@ -88,6 +83,10 @@ export class NodeView extends View<GridView> {
 
     let view: NodeView = this;
 
+    if (idx > 0) {
+      console.log(portKey, idx);
+    }
+
     if (out && this.node.$type == "mapper") {
       let child = this.node.nodes.get(portKey);
       console.log("  got  " + portKey + ":map = " + child.id);
@@ -107,8 +106,8 @@ export class NodeView extends View<GridView> {
     return {
       x: pos.x + (out ? pos.w : 0),
       y: pos.y + GV.PORT_INIT_Y + idx * GV.PORT_DELTA_Y,
-      w: PORTX,
-      h: PORTY
+      w: GV.PORTX,
+      h: GV.PORTY
     };
   }
 
@@ -117,8 +116,8 @@ export class NodeView extends View<GridView> {
     let ports = Math.max(this.node.inKeys.length, this.node.outKeys.length);
 
     let pos = {
-      x: (0.25 + view.layout.x) * GV.GRIDX,
-      y: (0.25 + view.layout.y) * GV.GRIDY,
+      x: view.layout.x,
+      y: view.layout.y,
       w: GV.BLOCKX,
       h: calcBlockHeight(ports)
     };
@@ -138,7 +137,7 @@ export class NodeView extends View<GridView> {
 
     let pos = this.getBlockPosition();
 
-    console.log("Node", JSON.stringify(pos));
+    console.log("Node: " + node.id, JSON.stringify(pos));
 
     let r = (
       <div
@@ -186,10 +185,10 @@ export class NodeView extends View<GridView> {
 
   renderGroup() {
     let style = `position: absolute;
-      left: ${this.layout.x * GV.GRIDX * 2}px;
-      top: ${this.layout.y * GV.GRIDY * 2}px;
-      width: ${this.layout.w * GV.GRIDX * 2}px;
-      height: ${this.layout.h * GV.GRIDY * 2}px;
+      left: ${this.layout.x}px;
+      top: ${this.layout.y}px;
+      width: ${this.layout.w}px;
+      height: ${this.layout.h}px;
       background-color: ${this.layout.color};
       `;
 
@@ -240,31 +239,4 @@ export class NodeView extends View<GridView> {
       ? this.renderTransformerNode()
       : this.renderGroup();
   }
-}
-
-function LightenDarkenColor(col, amt) {
-  var usePound = false;
-  if (col[0] == "#") {
-    col = col.slice(1);
-    usePound = true;
-  }
-
-  var num = parseInt(col, 16);
-
-  var r = (num >> 16) * amt;
-
-  if (r > 255) r = 255;
-  else if (r < 0) r = 0;
-
-  var b = ((num >> 8) & 0x00ff) * amt;
-
-  if (b > 255) b = 255;
-  else if (b < 0) b = 0;
-
-  var g = (num & 0x0000ff) * amt;
-
-  if (g > 255) g = 255;
-  else if (g < 0) g = 0;
-
-  return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
 }

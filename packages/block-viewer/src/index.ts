@@ -31,8 +31,8 @@ let net3 = `
     $id: 'MAP1',
     $color: '#F3DEEB',
 
-    data: HEX('A'),
     key: HEX('B')
+    data: HEX('A')
   } |> DERIVE('C'),
 
   key: HEX('D')
@@ -48,8 +48,8 @@ let netx = `{
     key: {
       $id: 'Derive AC Master Key',
 
-      key: HEX('IMK'),
-      data: HEX('PAN')
+      data: HEX('PAN'),
+      key: HEX('IMK')
     } |> DERIVE('MKac'),
 
     data: HEX('ATC')
@@ -66,7 +66,7 @@ export function showSettings($element: HTMLElement) {
 
   //$root.addChildView(new BlockExplorerView(SecretKeyEncrypter));
   //  $root.addChildView(new TileView(tree, true));
-  $root.addChildView(new FlowScriptView(net3));
+  $root.addChildView(new FlowScriptView(netx));
 }
 
 declare global {

@@ -2,6 +2,8 @@ import { View } from "@cryptographix/core";
 import { AnyFlowNode } from "@cryptographix/flow";
 import { ensureNodeView } from "./helpers";
 
+import { GridView as GV } from "./grid-view";
+
 export interface IPortRef {
   node: AnyFlowNode;
   portKey: string;
@@ -80,40 +82,39 @@ export class LinkView extends View {
     pos.width -= border * 2;
     //if (pos.width < 3) pos.width = 3;
 
+    let isHoriz = false;
+    // Draw an "inverted S" shape from 3 elements - horiz, vert, horiz
+    //    let ports = target.inKeys.length;
+    let off = target.inKeys.indexOf(this.target.portKey);
+
+    // X pos of vertical.
+    let vertX = pos.width - (2 + off - 1) * GV.PORT_LINK_DELTA_X;
+
     //
     // HEIGHT
     // y1 = top of port, so add h/2
     // y2 =
-    if (sourcePos.y <= targetPos.y) {
+    if (sourcePos.y == targetPos.y) {
+      isHoriz = true;
+      vertX = pos.width;
+
       pos.top = sourcePos.y + sourcePos.h / 2; // middle of port
-      pos.height = targetPos.y - pos.top - targetPos.h / 2;
+      pos.height = 1 + 3;
+    } else if (sourcePos.y < targetPos.y) {
+      pos.top = 1 + sourcePos.y + sourcePos.h / 2; // middle of port
+      pos.height = 1 + 3 + targetPos.y + targetPos.h / 2 - pos.top;
 
       toTopRight = false;
     } else {
-      pos.top = targetPos.y + targetPos.h / 2; // middle of port
-      pos.height = sourcePos.y - pos.top - sourcePos.h / 2;
-    }
-
-    // Draw an "inverted S" shape from 3 elements - horiz, vert, horiz
-    let ports = target.inKeys.length;
-    let off = target.inKeys.indexOf(this.target.portKey);
-
-    // X pos of vertical.
-    let vertX = pos.width - 16 - (ports - off - 1) * 16;
-
-    let isHoriz = pos.height < 10;
-    if (isHoriz) {
-      pos.height = 2 * (border + 1);
-      vertX = pos.width;
-    } else {
-      pos.height -= border + 1;
+      pos.top = 1 + targetPos.y + targetPos.h / 2; // middle of port
+      pos.height = 2 + 3 + sourcePos.y - sourcePos.h - pos.top;
     }
 
     let style = `
       left: ${pos.left - border}px;
       width: ${pos.width - border}px;
-      top: ${pos.top + border / 2}px;
-      height: ${pos.height - border - 1}px;
+      top: ${pos.top + 0.5}px;
+      height: ${pos.height}px;
       background-color: unset;
       `;
 
@@ -123,7 +124,10 @@ export class LinkView extends View {
       <div
         class="link-seg"
         style={
-          "bottom: 0px; left: 0px; width: " + vertX + "px; height: 3" + "px; "
+          (toTopRight ? "bottom" : "top") +
+          ": 0px; left: 0px; width: " +
+          vertX +
+          "px; height: 3px"
         }
         onClick={this.onLinkClick.bind(this)}
       />
@@ -138,7 +142,7 @@ export class LinkView extends View {
             vertX +
             "px; width: 3" +
             "px; height: " +
-            (pos.height - border - 1) +
+            pos.height +
             "px; "
           }
           onClick={this.onLinkClick.bind(this)}
@@ -148,12 +152,12 @@ export class LinkView extends View {
         <div
           class="link-seg"
           style={
-            "top: 0px; left: " +
+            (!toTopRight ? "bottom" : "top") +
+            ": 0px; left: " +
             vertX +
             "px; width: " +
             (pos.width - vertX) +
-            "px; height: 3" +
-            "px; "
+            "px; height: 3px"
           }
           onClick={this.onLinkClick.bind(this)}
         />
