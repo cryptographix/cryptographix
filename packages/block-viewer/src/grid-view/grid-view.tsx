@@ -220,8 +220,7 @@ export namespace GridView {
   export const PORT_INIT_Y = 12;
   export const PORT_DELTA_Y = 42;
 
-  export const PORTX = 15;
-  export const PORTY = 29;
+  export const PORT_R = 15;
 
-  export const PORT_LINK_DELTA_X = 16;
+  export const PORT_LINK_DELTA_X = 15;
 }

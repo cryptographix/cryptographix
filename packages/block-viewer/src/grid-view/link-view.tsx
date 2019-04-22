@@ -71,10 +71,10 @@ export class LinkView extends View {
     let pos: any = {};
 
     if (sourcePos.x <= targetPos.x) {
-      pos.left = sourcePos.x + sourcePos.w;
+      pos.left = sourcePos.x;
       pos.width = targetPos.x - pos.left;
     } else {
-      pos.left = targetPos.x + targetPos.w;
+      pos.left = targetPos.x;
       pos.width = sourcePos.x - pos.left;
     }
 
@@ -91,35 +91,36 @@ export class LinkView extends View {
     // X pos of vertical.
     let vertX = pos.width - (2 + off - 1) * GV.PORT_LINK_DELTA_X;
 
+    pos.height = 3;
+
     //
     // HEIGHT
     // y1 = top of port, so add h/2
     // y2 =
     if (sourcePos.y == targetPos.y) {
+      pos.top = 1 + sourcePos.y; // middle of port
       isHoriz = true;
       vertX = pos.width;
-
-      pos.top = sourcePos.y + sourcePos.h / 2; // middle of port
-      pos.height = 1 + 3;
     } else if (sourcePos.y < targetPos.y) {
-      pos.top = 1 + sourcePos.y + sourcePos.h / 2; // middle of port
-      pos.height = 1 + 3 + targetPos.y + targetPos.h / 2 - pos.top;
+      pos.top = 1 + sourcePos.y; // middle of port
+      pos.height += 3 + targetPos.y - pos.top; // - sourcePos.r * 2;
     } else {
-      pos.top = 1 + targetPos.y + targetPos.h / 2; // middle of port
-      pos.height = 2 + 3 + sourcePos.y - sourcePos.h - pos.top;
+      pos.top = 1 + targetPos.y; // middle of port
+      pos.height = 1 + 3 + 3 + sourcePos.y - pos.top - sourcePos.r * 3;
       toTopRight = true;
     }
 
     let style = `
       left: ${pos.left - border}px;
       width: ${pos.width - border}px;
-      top: ${pos.top + 0.5}px;
+      top: ${pos.top}px;
       height: ${pos.height}px;
       background-color: unset;
       `;
 
     let segs = [];
 
+    // Horizontal segment
     segs.push(
       <div
         class="link-seg"
@@ -148,6 +149,7 @@ export class LinkView extends View {
           onClick={this.onLinkClick.bind(this)}
         />
       );
+
       segs.push(
         <div
           class="link-seg"
@@ -166,24 +168,6 @@ export class LinkView extends View {
 
     return (
       <div class="link" style={style}>
-        <label
-          class="label"
-          style={
-            (toTopRight ? "bottom" : "top") +
-            ":-1rem; position: absolute; left: 1px; font-size: 11px;color: blue;"
-          }
-        >
-          {this.source.portKey}
-        </label>
-        <label
-          class="label"
-          style={
-            (!toTopRight ? "bottom" : "top") +
-            ":-1rem; position: absolute; right: 1px; font-size: 11px; color: blue;"
-          }
-        >
-          {this.target.portKey}
-        </label>
         {segs}
       </div>
     );

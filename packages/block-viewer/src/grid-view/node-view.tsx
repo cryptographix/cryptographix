@@ -38,7 +38,16 @@ export class NodeView extends View<GridView> {
     this.node.inKeys.reduce<number>((y, _key) => {
       //      console.log("Port", this.getPortPosition(_inp));
       ports.push(
-        <a class="port in-port" style={"top: " + y + "px; left:  -15px; "} />
+        <a class="port in-port" style={"top: " + y + "px; left:  -15px; "}>
+          <label
+            class="label"
+            style={
+              "top:3px; position: absolute; left: 15px; font-size: 11px;color: blue;"
+            }
+          >
+            {_key}
+          </label>
+        </a>
       );
 
       return y + GV.PORT_DELTA_Y;
@@ -47,7 +56,16 @@ export class NodeView extends View<GridView> {
     this.node.outKeys.reduce<number>((y, _key) => {
       //      console.log("Port", this.getPortPosition(_out));
       ports.push(
-        <a class="port out-port" style={"top: " + y + "px; right: -15px; "} />
+        <a class="port out-port" style={"top: " + y + "px; right: -15px; "}>
+          <label
+            class="label"
+            style={
+              "top:3px; position: absolute; right: 15px; font-size: 11px;color: blue;"
+            }
+          >
+            {_key}
+          </label>
+        </a>
       );
 
       return y + GV.PORT_DELTA_Y;
@@ -103,35 +121,48 @@ export class NodeView extends View<GridView> {
 
     pos = view.getBlockPosition();
 
-    return {
-      x: pos.x + (out ? pos.w : 0),
-      y: pos.y + GV.PORT_INIT_Y + idx * GV.PORT_DELTA_Y,
-      w: GV.PORTX,
-      h: GV.PORTY
+    // Adjust position to centre of curve
+    let ret = {
+      x: pos.x + (out ? pos.w + GV.PORT_R : 0),
+      y: pos.y + GV.PORT_INIT_Y + idx * GV.PORT_DELTA_Y + GV.PORT_R,
+      r: GV.PORT_R
     };
+
+    console.log(
+      "Node",
+      this.node.id,
+      "port",
+      portKey,
+      "= (",
+      pos.x,
+      ",",
+      pos.y,
+      ") => (",
+      ret.x,
+      ",",
+      ret.y,
+      ")"
+    );
+
+    return ret;
   }
 
-  getBlockPosition(leaf: boolean = false) {
+  getBlockPosition() {
     let view = ensureNodeView(this.node);
     let ports = Math.max(this.node.inKeys.length, this.node.outKeys.length);
 
-    let pos = {
+    return {
       x: view.layout.x,
       y: view.layout.y,
       w: GV.BLOCKX,
       h: calcBlockHeight(ports)
     };
-
-    return {
-      ...pos,
-      xw: pos.x + pos.w,
-      yh: pos.y + pos.h
-    };
   }
 
-  onNodeClick(evt: Event) {
+  onNodeClick(_evt: Event) {
     alert("Clicked" + this.node.id);
   }
+
   renderTransformerNode() {
     let node = this.node as TransformerNode;
 
