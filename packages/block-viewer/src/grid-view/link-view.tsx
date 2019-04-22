@@ -69,7 +69,6 @@ export class LinkView extends View {
     const border = 3;
 
     let pos: any = {};
-    let toTopRight = true;
 
     if (sourcePos.x <= targetPos.x) {
       pos.left = sourcePos.x + sourcePos.w;
@@ -83,6 +82,8 @@ export class LinkView extends View {
     //if (pos.width < 3) pos.width = 3;
 
     let isHoriz = false;
+    let toTopRight = false;
+
     // Draw an "inverted S" shape from 3 elements - horiz, vert, horiz
     //    let ports = target.inKeys.length;
     let off = target.inKeys.indexOf(this.target.portKey);
@@ -103,11 +104,10 @@ export class LinkView extends View {
     } else if (sourcePos.y < targetPos.y) {
       pos.top = 1 + sourcePos.y + sourcePos.h / 2; // middle of port
       pos.height = 1 + 3 + targetPos.y + targetPos.h / 2 - pos.top;
-
-      toTopRight = false;
     } else {
       pos.top = 1 + targetPos.y + targetPos.h / 2; // middle of port
       pos.height = 2 + 3 + sourcePos.y - sourcePos.h - pos.top;
+      toTopRight = true;
     }
 
     let style = `
@@ -166,6 +166,24 @@ export class LinkView extends View {
 
     return (
       <div class="link" style={style}>
+        <label
+          class="label"
+          style={
+            (toTopRight ? "bottom" : "top") +
+            ":-1rem; position: absolute; left: 1px; font-size: 11px;color: blue;"
+          }
+        >
+          {this.source.portKey}
+        </label>
+        <label
+          class="label"
+          style={
+            (!toTopRight ? "bottom" : "top") +
+            ":-1rem; position: absolute; right: 1px; font-size: 11px; color: blue;"
+          }
+        >
+          {this.target.portKey}
+        </label>
         {segs}
       </div>
     );
