@@ -29,22 +29,26 @@ export interface View<TParentView extends View<any> = any> {
   viewBlurred?(): void;
 }
 
+export interface ViewParams {
+  handler?: IActionHandler;
+}
+
 /**
  * Represents a rectangular area on the screen
  * and manages the content in that area.
  */
-export abstract class View<TParentView extends View<any> = any> {
+export abstract class View {
   static createElement = createElement;
 
   readonly handler: IActionHandler = null;
 
   $element: HTMLElement = null;
-  parentView: TParentView = null;
+  parentView: View = null;
   readonly childViews: View<any>[] = [];
   hasFocus = false;
   needsUpdate = false;
 
-  constructor(handler?: IActionHandler) {
+  constructor({ handler }: ViewParams = {}) {
     this.handler = handler;
   }
 
@@ -234,6 +238,9 @@ export abstract class View<TParentView extends View<any> = any> {
 }
 
 export namespace View {
+  /**
+   * Render multiple views
+   */
   export function renderViews(views: Iterable<View>): HTMLElement[] {
     let result = [];
 
@@ -242,5 +249,21 @@ export namespace View {
     }
 
     return result;
+  }
+
+  /**
+   * Mount a View onto a DOM node
+   */
+  export function mount($rootElement: HTMLElement, rootView: View) {
+    let $root = rootView.element;
+
+    if ($root.tagName.toUpperCase() != "FRAGMENT")
+      $rootElement.appendChild($root);
+    else {
+      let children = Array.from($root.children);
+      children.forEach($item => {
+        $rootElement.appendChild($item);
+      });
+    }
   }
 }

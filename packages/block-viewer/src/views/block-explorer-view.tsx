@@ -3,7 +3,6 @@ import {
   View,
   H2BA,
   Action,
-  IActionHandler,
   Transformer,
   ConfigPropertyChanged
 } from "@cryptographix/core";
@@ -12,7 +11,7 @@ import { OutputTransformer, OutputPanel } from "./output-panel";
 import { TransformerView } from "./transformer-view";
 import { PropertyValueChanged } from "./property-view";
 
-export class BlockExplorerView extends View implements IActionHandler {
+export class BlockExplorerView extends View {
   constructor(transCtor: IConstructable<Transformer>) {
     super(); //
 
@@ -42,12 +41,15 @@ export class BlockExplorerView extends View implements IActionHandler {
       );
       input.value = H2BA("0123456789ABCDEFFEDCBA9876543210");
 
-      this.inputs.push(new InputPanel(input, input));
+      this.inputs.push(new InputPanel({ handler: input, block: input }));
 
       this.triggerInput(input);
     });
 
-    this.transformer = new TransformerView(this, transformer);
+    this.transformer = new TransformerView({
+      handler: this,
+      block: transformer
+    });
 
     transformer.helper.outPortKeys.forEach(key => {
       const output = new OutputTransformer(
@@ -57,7 +59,7 @@ export class BlockExplorerView extends View implements IActionHandler {
         this
       );
 
-      this.output = new OutputPanel(output, output);
+      this.output = new OutputPanel({ handler: output, block: output });
     });
 
     this.inputs.forEach(input => this.triggerInput(input.block));

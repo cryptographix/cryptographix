@@ -12,8 +12,10 @@ export { PropertyValueChanged };
 export class PropertyListView extends View implements IActionHandler {
   config: BlockConfiguration;
 
-  constructor(handler: IActionHandler, config: BlockConfiguration) {
-    super(handler);
+  constructor(params: { handler: IActionHandler; config: BlockConfiguration }) {
+    super(params);
+
+    const { config } = params;
     this.config = config;
 
     this.updatePropertyViews(config);
@@ -99,7 +101,7 @@ export class PropertyListView extends View implements IActionHandler {
         key,
         propertyType: propType
       };
-      let newView = new PropertyView(this, ref);
+      let newView = new PropertyView({ handler: this, propRef: ref });
 
       this.updatePropertyView(obj, newView);
     });

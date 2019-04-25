@@ -1,6 +1,6 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler } from "@cryptographix/core";
-import { View, BlockView } from "@cryptographix/core";
+import { View, BlockView, BlockViewParams } from "@cryptographix/core";
 import { PropertyView } from "./property-view";
 
 export class OutputTransformer extends Transformer {
@@ -38,32 +38,26 @@ export class OutputTransformer extends Transformer {
   }
 }
 
-export class OutputPanel extends BlockView {
-  readonly block: OutputTransformer;
+export class OutputPanel extends BlockView<OutputTransformer> {
+  block: OutputTransformer;
 
-  constructor(handler: IActionHandler, model: OutputTransformer) {
-    super(handler, model);
-
-    let propView = new PropertyView(
-      handler,
-      {
-        target: model,
-        key: "value",
-        propertyType: model.propInfo // as ISchemaPropertyType
-      },
-      true
-    );
-
-    this.addChildView(propView);
+  constructor(params: BlockViewParams<OutputTransformer>) {
+    super(params);
   }
 
   updateView() {
-    this.children[0].refresh();
-
     return true; // rerender
   }
 
   render() {
-    return <div>{this.renderChildViews()}</div>;
+    const propRef = {
+      target: this.block,
+      key: "value",
+      propertyType: this.block.propInfo
+    };
+
+    return (
+      <PropertyView handler={this.handler} propRef={propRef} readOnly={true} />
+    );
   }
 }

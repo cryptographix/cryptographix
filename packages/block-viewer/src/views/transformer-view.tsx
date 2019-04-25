@@ -1,35 +1,29 @@
 import {
-  BlockConfiguration,
+  //BlockConfiguration,
   Transformer,
-  Action,
+  //Action,
   IActionHandler,
   View,
-  BlockView,
-  ConfigPropertyChanged
+  BlockView
+  //ConfigPropertyChanged
 } from "@cryptographix/core";
 
 export { PropertyValueChanged };
 
 import { PropertyListView, PropertyValueChanged } from "./property-list-view";
 
-export class TransformerView extends BlockView {
-  block: Transformer;
+export class TransformerView extends BlockView<Transformer> {
+  //block: Transformer;
 
-  constructor(handler: IActionHandler, transformer: Transformer) {
-    super(handler, transformer);
-
-    this.createView(transformer.config);
-  }
-
-  createView(config: BlockConfiguration) {
-    this.addChildView(new PropertyListView(this.handler, config));
+  constructor(params: { handler: IActionHandler; block: Transformer }) {
+    super(params);
   }
 
   render() {
     return (
       <div class="field" style="padding: 1px">
         <label class="label">{this.block.helper.schema.title}</label>
-        {this.renderChildViews()}
+        <PropertyListView handler={this.handler} config={this.block.config} />
       </div>
     );
   }

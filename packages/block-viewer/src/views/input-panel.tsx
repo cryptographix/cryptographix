@@ -1,6 +1,6 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler, Action } from "@cryptographix/core";
-import { View, BlockView } from "@cryptographix/core";
+import { View, BlockView, BlockViewParams } from "@cryptographix/core";
 import { PropertyView, PropertyValueChanged } from "./property-view";
 
 export class InputTransformer extends Transformer implements IActionHandler {
@@ -70,19 +70,19 @@ export class InputTransformer extends Transformer implements IActionHandler {
 }
 
 export class InputPanel extends BlockView<InputTransformer> {
-  constructor(handler: IActionHandler, model: InputTransformer) {
-    super(handler, model);
+  block: InputTransformer;
 
-    let propView = new PropertyView(handler, {
-      target: model,
-      key: "value",
-      propertyType: model.propInfo // as ISchemaPropertyType
-    });
-
-    this.addChildView(propView);
+  constructor(params: BlockViewParams<InputTransformer>) {
+    super(params);
   }
 
   render() {
-    return <div>{this.renderChildViews()}</div>;
+    const propRef = {
+      target: this.block,
+      key: "value",
+      propertyType: this.block.propInfo
+    };
+
+    return <PropertyView handler={this.handler} propRef={propRef} />;
   }
 }

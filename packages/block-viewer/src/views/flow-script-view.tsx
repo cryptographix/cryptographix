@@ -26,10 +26,13 @@ export class FlowScriptView extends View implements IActionHandler {
       }
     };
 
-    this.inputView = new PropertyView(this, {
-      target: this,
-      key: "script",
-      propertyType: inPropInfo
+    this.inputView = new PropertyView({
+      handler: this,
+      propRef: {
+        target: this,
+        key: "script",
+        propertyType: inPropInfo
+      }
     });
 
     this.addChildView(this.inputView);
@@ -133,7 +136,7 @@ export class FlowScriptView extends View implements IActionHandler {
     }
   }
 
-  render() {
+  renderFlowPanel() {
     return (
       <div id="flow-script-panel">
         <div class="tabs">
@@ -178,5 +181,9 @@ export class FlowScriptView extends View implements IActionHandler {
         </div>
       </div>
     );
+  }
+
+  render() {
+    return this.renderFlowPanel();
   }
 }

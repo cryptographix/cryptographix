@@ -1,11 +1,5 @@
-import { RootView } from "./views/root-view";
-//import { BlockExplorerView } from "./views/block-explorer-view";
-//import { SecretKeyEncrypter } from "@cryptographix/cryptography";
-//import { Flow } from "@cryptographix/flow";
-
-//import { GridView } from "./views/grid-view";
-//import { TileView } from "./views/tile-view"
-import { FlowScriptView } from "./views/flow-script-view";
+import { View } from "@cryptographix/core";
+import { BlockExplorerApp } from "./app/block-explorer-app";
 
 let net1 = `{
   $id: 'Derive AC Master Key',
@@ -59,22 +53,12 @@ let netx = `{
 } |> MAC('AC')
 `;
 
-//let tree = Flow.fromFlowString(net);
-
-export function showSettings($element: HTMLElement) {
-  let $root = new RootView($element);
-
-  //$root.addChildView(new BlockExplorerView(SecretKeyEncrypter));
-  //  $root.addChildView(new TileView(tree, true));
-  $root.addChildView(new FlowScriptView(netx));
-}
-
 declare global {
   interface Window {
-    showSettings: any;
+    mountApp: any;
   }
 }
 
-//var window = window || {};
-
-window.showSettings = showSettings;
+window.mountApp = ($root: HTMLElement) => {
+  View.mount($root, new BlockExplorerApp());
+};

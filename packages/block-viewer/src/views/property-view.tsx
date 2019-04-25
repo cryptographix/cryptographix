@@ -37,12 +37,14 @@ export class PropertyView extends View {
   //
   protected message: string;
 
-  constructor(
-    handler: IActionHandler,
-    propRef: ISchemaPropReference,
-    readOnly: boolean = false
-  ) {
-    super(handler);
+  constructor(params: {
+    handler: IActionHandler;
+    propRef: ISchemaPropReference;
+    readOnly?: boolean;
+  }) {
+    super(params);
+
+    const { propRef, readOnly } = params;
 
     this.propRef = propRef;
 
@@ -52,7 +54,7 @@ export class PropertyView extends View {
       columns: 12,
       style: "",
       className: "",
-      readOnly,
+      readOnly: readOnly || false,
       label: propRef.propertyType.title || propRef.key,
       ...propRef.propertyType.ui
     };
