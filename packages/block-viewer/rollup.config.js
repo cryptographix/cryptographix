@@ -39,7 +39,18 @@ function myExample() {
 }
 
 export default config(pkg, {
-  //input: "./src/index.ts",
+  input: "./src/index.ts",
   external: ["window"],
-  plugins: [myExample()]
+  plugins: [
+    myExample(),
+    typescript({
+      tsconfigOverride: {
+        compilerOptions: {
+          declaration: false,
+          composite: false,
+          declarationMap: undefined
+        }
+      }
+    })
+  ]
 });

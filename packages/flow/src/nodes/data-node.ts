@@ -41,10 +41,19 @@ export class DataNode extends FlowNode {
   async trigger() {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
-    this.output = {
+    this._output = {
       ...this.input
     };
 
     return this.setTriggerResult(Promise.resolve(true));
+  }
+
+  private _output = {};
+
+  /**
+   *
+   */
+  get output() {
+    return this._output;
   }
 }

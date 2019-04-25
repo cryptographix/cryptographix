@@ -109,14 +109,14 @@ describe("AddAndMultiply parallel flows", () => {
   });
 
   it("... and must output correct properties from MappedNode", async () => {
-    let output = root.getOutput();
+    let output = root.output;
 
     expect(output).to.have.property("par1");
     expect(output).to.have.property("par2");
   });
 
   it("... and output correct property values for input=5", async () => {
-    let output = root.getOutput();
+    let output = root.output;
 
     expect(output)
       .to.have.property("par1")
@@ -130,7 +130,7 @@ describe("AddAndMultiply parallel flows", () => {
   it("... and output correct property values for input=555", async () => {
     await root.setInput({ a: 555 }).trigger();
 
-    let output = root.getOutput();
+    let output = root.output;
 
     expect(output)
       .to.have.property("par1")

@@ -38,7 +38,7 @@ export class PropertyView extends View {
   protected message: string;
 
   constructor(params: {
-    handler: IActionHandler;
+    handler?: IActionHandler;
     propRef: ISchemaPropReference;
     readOnly?: boolean;
   }) {
@@ -88,7 +88,7 @@ export class PropertyView extends View {
       this.value
     );
 
-    act.dispatch();
+    if (this.handler) act.dispatch();
   }
 
   get key() {

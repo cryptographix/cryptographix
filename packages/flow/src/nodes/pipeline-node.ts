@@ -71,14 +71,14 @@ export class PipelineNode extends FlowNode {
 
       res.then(ok => {
         if (ok) {
-          let output = node.getOutput();
+          let output = node.output;
 
           if (index + 1 < this.nodes.length) {
             // chain to next
             return this.triggerNode(index + 1, output);
           } else {
             // last in pipeline
-            this.output = output;
+            //this.output = output;
 
             return ok;
           }
@@ -89,6 +89,29 @@ export class PipelineNode extends FlowNode {
 
       return res;
     }
+  }
+
+  /**
+   *
+   */
+  get output() {
+    let out = {};
+    let index = this.nodes.length - 1;
+
+    if (index > 0)
+      // shallow copy -> immutable
+      out = {
+        ...this.nodes[index].output
+      };
+
+    return out;
+  }
+
+  /**
+   *
+   */
+  get canTrigger() {
+    return super.canTrigger && this.nodes.length > 0;
   }
 
   /**

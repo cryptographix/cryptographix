@@ -12,7 +12,7 @@ import { FlowNode } from "./flow-node";
  *
  */
 export class TransformerNode<
-  TConfig extends BlockConfiguration = {},
+  TConfig extends BlockConfiguration = object,
   TTransformer extends Transformer<TConfig> = Transformer<TConfig>
 > extends FlowNode {
   $type: "transformer" = "transformer";
@@ -58,7 +58,7 @@ export class TransformerNode<
       this.blockName = this.schema.name;
     }
 
-    this.id = id;
+    this.id = id || this.blockName;
     this.config = config;
   }
 
@@ -80,7 +80,7 @@ export class TransformerNode<
     // Create new transformer object.
     // Block super constructor will initialize all block properties
     // where defaults are defined in Schema definitions.
-    this.block = new this.target(this.config);
+    this.block = new this.target(this.config, null);
 
     this.inKeys = this.block.helper.inPortKeys;
     this.outKeys = this.block.helper.outPortKeys;
@@ -124,6 +124,15 @@ export class TransformerNode<
   /**
    *
    */
+  get transformer() {
+    if (!this.block) this.setup();
+
+    return this.block;
+  }
+
+  /**
+   *
+   */
   setInput(data: any) {
     let block = this.block;
 
@@ -141,7 +150,7 @@ export class TransformerNode<
   /**
    *
    */
-  getOutput(): object {
+  get output(): object {
     let block = this.block;
     let ret = {};
 

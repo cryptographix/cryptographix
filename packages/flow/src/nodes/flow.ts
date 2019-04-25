@@ -1,3 +1,9 @@
+import {
+  IConstructable,
+  Transformer,
+  BlockConfiguration
+} from "@cryptographix/core";
+
 import { FlowNode } from "./flow-node";
 import { TransformerNode } from "./transformer-node";
 import { PipelineNode } from "./pipeline-node";
@@ -37,8 +43,8 @@ export class Flow extends FlowNode {
   /**
    *
    */
-  getOutput(): object {
-    return this.root.getOutput();
+  get output(): object {
+    return this.root.output;
   }
 
   /**
@@ -48,6 +54,9 @@ export class Flow extends FlowNode {
     super.setup();
 
     this.root.setup();
+
+    this.inKeys.push(...this.root.inKeys);
+    this.outKeys.push(...this.root.outKeys);
 
     return this;
   }
@@ -77,109 +86,6 @@ export class Flow extends FlowNode {
 
   toJSON(): {} {
     return Flow.toJSON(this);
-  }
-
-  static toJSON(node: FlowNode): any {
-    let res: any;
-
-    function objToString(obj: object): string {
-      let s = [];
-
-      Object.entries(obj).forEach(([key, value]) => {
-        s.push("'" + key + "': '" + value + "'");
-      });
-      return "{" + s.join(",") + "}";
-    }
-
-    switch (node.$type) {
-      case "flow":
-        res = {
-          $flow: true,
-          root: Flow.toJSON((node as Flow).root)
-        };
-        break;
-
-      case "pipeline": {
-        let nodes: any[] = [];
-        (node as PipelineNode).nodes.forEach(step => {
-          nodes.push(Flow.toJSON(step));
-        });
-
-        res = nodes.length == 1 ? nodes[0] : nodes;
-        break;
-      }
-
-      case "mapper": {
-        let items = {};
-
-        (node as MapperNode).nodes.forEach((value, key) => {
-          items[key] = Flow.toJSON(value);
-        });
-
-        res = items;
-        break;
-      }
-
-      case "data": {
-        res = (node as DataNode).value;
-        break;
-      }
-
-      case "transformer": {
-        let trans = node as TransformerNode;
-        let hasLabel = !!trans.id;
-        let hasConfig = trans.config && Object.keys(trans.config).length > 0;
-
-        res =
-          trans.blockName +
-          "(" +
-          (hasLabel ? "'" + trans.id + "'" : "") +
-          (hasLabel && hasConfig ? ", " : "") +
-          (hasConfig ? objToString(trans.config) : "") +
-          (hasLabel && hasConfig ? " " : "") +
-          ")";
-      }
-    }
-
-    return res;
-  }
-
-  /*  _() {
-    return { key: { key: { key: HEX("IMK"), data: HEX("PAN") } |> DERIVE("Derive MKac", {"algorithm":"DES2"} ), data: HEX("ATC") } |> DERIVE("Derive SKac"), data: HEX("BUFFER") } |> MAC();
-  }*/
-
-  //
-  /**
-   *
-   */
-  static toxJSON(flow: AnyFlowNode): {} {
-    function orphanize(n: AnyFlowNode) {
-      let nn = {
-        ...n,
-        parentNode: undefined,
-        nodes: undefined,
-        input: Object.keys(n.input).length ? n.input : undefined,
-        output: Object.keys(n.output).length ? n.output : undefined,
-        root: undefined,
-        inKeys: n.inKeys && n.inKeys.length > 0 ? n.inKeys : undefined,
-        outKeys: n.outKeys && n.outKeys.length > 0 ? n.outKeys : undefined
-      };
-
-      if (n instanceof PipelineNode || n instanceof MapperNode) {
-        nn.nodes = n instanceof PipelineNode ? [] : {};
-
-        n.nodes.forEach((node: AnyFlowNode, key: any) => {
-          console.log(key);
-          nn.nodes[key] = orphanize(node);
-        });
-      } else if (n instanceof Flow) {
-        nn.root = orphanize(n.root);
-      }
-
-      return nn;
-    }
-
-    return orphanize(flow);
   }
 }
 
@@ -256,6 +162,24 @@ export namespace Flow {
   /**
    *
    */
+  export function fromTransformer<
+    TConfig extends BlockConfiguration = object,
+    TTransformer extends Transformer<TConfig> = Transformer<TConfig>
+  >(
+    transCtor: IConstructable<TTransformer>,
+    id?: string,
+    config?: TConfig
+  ): Flow {
+    let trans = new TransformerNode<TConfig>(transCtor, id, config);
+
+    let flow = new Flow(trans, trans.id);
+
+    return flow;
+  }
+
+  /**
+   *
+   */
   export function toFlowScript(node: FlowNode): string {
     let res = "";
 
@@ -309,5 +233,106 @@ export namespace Flow {
     }
 
     return res;
+  }
+
+  /**
+   *
+   */
+  export function toJSON(node: FlowNode): any {
+    let res: any;
+
+    function objToString(obj: object): string {
+      let s = [];
+
+      Object.entries(obj).forEach(([key, value]) => {
+        s.push("'" + key + "': '" + value + "'");
+      });
+      return "{" + s.join(",") + "}";
+    }
+
+    switch (node.$type) {
+      case "flow":
+        res = {
+          $flow: true,
+          root: Flow.toJSON((node as Flow).root)
+        };
+        break;
+
+      case "pipeline": {
+        let nodes: any[] = [];
+        (node as PipelineNode).nodes.forEach(step => {
+          nodes.push(Flow.toJSON(step));
+        });
+
+        res = nodes.length == 1 ? nodes[0] : nodes;
+        break;
+      }
+
+      case "mapper": {
+        let items = {};
+
+        (node as MapperNode).nodes.forEach((value, key) => {
+          items[key] = Flow.toJSON(value);
+        });
+
+        res = items;
+        break;
+      }
+
+      case "data": {
+        res = (node as DataNode).value;
+        break;
+      }
+
+      case "transformer": {
+        let trans = node as TransformerNode;
+        let hasLabel = !!trans.id;
+        let hasConfig = trans.config && Object.keys(trans.config).length > 0;
+
+        res =
+          trans.blockName +
+          "(" +
+          (hasLabel ? "'" + trans.id + "'" : "") +
+          (hasLabel && hasConfig ? ", " : "") +
+          (hasConfig ? objToString(trans.config) : "") +
+          (hasLabel && hasConfig ? " " : "") +
+          ")";
+      }
+    }
+
+    return res;
+  }
+
+  /**
+   *
+   */
+  export function toxJSON(flow: AnyFlowNode): {} {
+    function orphanize(n: AnyFlowNode) {
+      let nn = {
+        ...n,
+        parentNode: undefined,
+        nodes: undefined,
+        input: Object.keys(n.input).length ? n.input : undefined,
+        output: Object.keys(n.output).length ? n.output : undefined,
+        root: undefined,
+        inKeys: n.inKeys && n.inKeys.length > 0 ? n.inKeys : undefined,
+        outKeys: n.outKeys && n.outKeys.length > 0 ? n.outKeys : undefined
+      };
+
+      if (n instanceof PipelineNode || n instanceof MapperNode) {
+        nn.nodes = n instanceof PipelineNode ? [] : {};
+
+        n.nodes.forEach((node: AnyFlowNode, key: any) => {
+          console.log(key);
+          nn.nodes[key] = orphanize(node);
+        });
+      } else if (n instanceof Flow) {
+        nn.root = orphanize(n.root);
+      }
+
+      return nn;
+    }
+
+    return orphanize(flow);
   }
 }

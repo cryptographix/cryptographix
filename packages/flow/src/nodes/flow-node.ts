@@ -27,7 +27,7 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
   public outKeys: string[] = [];
 
   //
-  public output: object = {};
+  public abstract get output(): object;
 
   //
   protected result: Promise<boolean>;
@@ -60,11 +60,10 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
    *
    */
   setup(): this {
-    this.inKeys = ["default"];
+    this.inKeys = [];
     this.input = {};
 
-    this.outKeys = ["default"];
-    this.output = {};
+    this.outKeys = [];
 
     this.result = null;
 
@@ -76,7 +75,6 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
    */
   tearDown(): this {
     this.input = {};
-    this.output = {};
     this.result = undefined;
 
     return this;
@@ -92,15 +90,6 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
     };
 
     return this;
-  }
-
-  /**
-   *
-   */
-  getOutput(): object {
-    return {
-      ...this.output
-    };
   }
 
   /**

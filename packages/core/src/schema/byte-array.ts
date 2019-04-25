@@ -163,4 +163,8 @@ export class ByteArray extends Uint8Array {
 
     return lenA > lenB ? 1 : 0;
   }
+
+  static from(value: [] | Buffer) {
+    return new ByteArray(value);
+  }
 }

@@ -1,29 +1,36 @@
 import {
   //BlockConfiguration,
-  Transformer,
+  //Transformer,
   //Action,
   IActionHandler,
-  View,
-  BlockView
+  View
+  //  BlockView
   //ConfigPropertyChanged
 } from "@cryptographix/core";
+
+import { TransformerNode } from "@cryptographix/flow";
 
 export { PropertyValueChanged };
 
 import { PropertyListView, PropertyValueChanged } from "./property-list-view";
 
-export class TransformerView extends BlockView<Transformer> {
-  //block: Transformer;
+export class TransformerView extends View {
+  node: TransformerNode;
 
-  constructor(params: { handler: IActionHandler; block: Transformer }) {
+  constructor(params: { handler: IActionHandler; node: TransformerNode }) {
     super(params);
+
+    this.node = params.node;
   }
 
   render() {
     return (
       <div class="field" style="padding: 1px">
-        <label class="label">{this.block.helper.schema.title}</label>
-        <PropertyListView handler={this.handler} config={this.block.config} />
+        <label class="label">{this.node.schema.title}</label>
+        <PropertyListView
+          handler={this.handler}
+          config={this.node.transformer.config}
+        />
       </div>
     );
   }

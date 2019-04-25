@@ -2,6 +2,7 @@ import {
   ISchema,
   IConstructable,
   ISchemaProperty,
+  ISchemaPropertyType,
   Schema
 } from "../schema/index";
 
@@ -52,6 +53,9 @@ export class BlockSchemaHelper<
 
   readonly configSchema: ISchema<TConfig>;
 
+  //
+  propertyCache: { [key: string]: ISchemaPropertyType } = {};
+
   constructor(block: TBlock) {
     //
     this.block = block;
@@ -63,6 +67,12 @@ export class BlockSchemaHelper<
     this.configSchema = Schema.getSchemaForClass<TConfig, ISchema<TConfig>>(
       this.schema.config || ({} as any)
     );
+
+    // Local copy of merged properties
+    this.propertyCache = {
+      ...this.configSchema.properties,
+      ...this.schema.properties
+    };
   }
 
   isSchemaProperty(prop: string): boolean {
@@ -132,57 +142,55 @@ export class BlockSchemaHelper<
   }
 
   getConfigPropSchema<TSchemaProp extends ISchemaProperty>(
-    key: keyof TConfig
+    key: string
   ): TSchemaProp {
-    let schemaProp = this.configSchema.properties[key as string];
+    let schemaProp = this.propertyCache[key as string];
 
     return schemaProp as TSchemaProp;
   }
 
   updateConfigPropSchema<TSchemaProp extends ISchemaProperty>(
-    key: keyof TConfig,
+    key: string,
     updatedProp: Partial<TSchemaProp>
   ): TSchemaProp {
-    let schemaProp = this.configSchema.properties[key as string];
+    let schemaProp = this.propertyCache[key];
 
     schemaProp = {
       ...schemaProp,
       ...updatedProp
     };
 
-    this.configSchema.properties[key as string] = schemaProp;
+    // Save to cache
+    this.propertyCache[key as string] = schemaProp;
 
     return schemaProp as TSchemaProp;
   }
 
-  getPortSchema<TSchemaProp extends ISchemaProperty>(
-    key: keyof TBlock
-  ): TSchemaProp {
-    let schemaProp = this.schema.properties[key as string];
+  getPortSchema<TSchemaProp extends ISchemaProperty>(key: string): TSchemaProp {
+    let schemaProp = this.propertyCache[key];
 
     return schemaProp as TSchemaProp;
   }
 
   updatePortSchema<TSchemaProp extends ISchemaProperty>(
-    key: keyof TBlock,
+    key: string,
     updatedProp: Partial<TSchemaProp>
   ): TSchemaProp {
-    let schemaProp = this.schema.properties[key as string];
+    let schemaProp = this.propertyCache[key];
 
     schemaProp = {
       ...schemaProp,
       ...updatedProp
     };
 
-    this.schema.properties[key as string] = schemaProp;
+    // Save to cache
+    this.propertyCache[key] = schemaProp;
 
     return schemaProp as TSchemaProp;
   }
 
   filterPorts(filterFn?: (item: ISchemaProperty) => boolean) {
-    let props = Object.entries(this.schema.properties);
-
-    return props.filter(([_key, propInfo]) => {
+    return Object.entries(this.propertyCache).filter(([_key, propInfo]) => {
       return !filterFn || filterFn(propInfo);
     });
   }

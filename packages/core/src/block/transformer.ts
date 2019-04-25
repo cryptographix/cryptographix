@@ -35,7 +35,7 @@ export class TransformerSchemaHelper<
 }
 
 export abstract class Transformer<
-  BC extends BlockConfiguration = {}
+  BC extends BlockConfiguration = object
 > extends Block<BC> {
   helper: TransformerSchemaHelper<BC, this>;
 

@@ -6,63 +6,59 @@ import {
   Transformer,
   ConfigPropertyChanged
 } from "@cryptographix/core";
+
+import { Flow, TransformerNode } from "@cryptographix/flow";
+
 import { InputTransformer, InputPanel } from "./input-panel";
 import { OutputTransformer, OutputPanel } from "./output-panel";
 import { TransformerView } from "./transformer-view";
 import { PropertyValueChanged } from "./property-view";
 
 export class BlockExplorerView extends View {
-  constructor(transCtor: IConstructable<Transformer>) {
+  constructor(params: { transCtor: IConstructable<Transformer> }) {
     super(); //
 
-    this.createView(transCtor);
+    this.createView(params.transCtor);
   }
 
-  inputs: InputPanel[] = [];
-  transformer: TransformerView;
-  output: OutputPanel;
+  inputs = new Map<string, TransformerNode<{}, InputTransformer>>();
+  transformer: TransformerNode;
+  outputs = new Map<string, TransformerNode<{}, OutputTransformer>>();
 
   createView(transCtor: IConstructable<Transformer>) {
-    const transformer = new transCtor(
-      {
-        iv: H2BA("0123456789ABCDEFFEDCBA9876543210")
-      },
-      this
+    let flow = Flow.fromTransformer<{}>(transCtor, transCtor.name, {
+      iv: H2BA("0123456789ABCDEFFEDCBA9876543210")
+    });
+
+    // instantiate
+    flow.setup();
+
+    flow.inKeys.forEach(key => {
+      this.inputs.set(
+        key,
+        new TransformerNode<{}, InputTransformer>(InputTransformer, null, {
+          key,
+          title: /*ports[key].title || */ key,
+          initValue: H2BA("0123456789ABCDEFFEDCBA9876543210")
+        })
+      );
+    });
+
+    this.transformer = flow.root as TransformerNode;
+
+    flow.outKeys.forEach(key => {
+      this.outputs.set(
+        key,
+        new TransformerNode<{}, OutputTransformer>(OutputTransformer, null, {
+          key,
+          title: /*ports[key].title || */ key
+        })
+      );
+    });
+
+    flow.inKeys.forEach(key =>
+      this.triggerInput(key, this.inputs.get(key).transformer)
     );
-
-    let ports = new Map(transformer.helper.filterPorts());
-
-    transformer.helper.inPortKeys.forEach(key => {
-      const input = new InputTransformer(
-        key,
-        ports.get(key).title || key,
-        null,
-        this
-      );
-      input.value = H2BA("0123456789ABCDEFFEDCBA9876543210");
-
-      this.inputs.push(new InputPanel({ handler: input, block: input }));
-
-      this.triggerInput(input);
-    });
-
-    this.transformer = new TransformerView({
-      handler: this,
-      block: transformer
-    });
-
-    transformer.helper.outPortKeys.forEach(key => {
-      const output = new OutputTransformer(
-        key,
-        ports.get(key).title || key,
-        null,
-        this
-      );
-
-      this.output = new OutputPanel({ handler: output, block: output });
-    });
-
-    this.inputs.forEach(input => this.triggerInput(input.block));
   }
 
   render() {
@@ -72,13 +68,14 @@ export class BlockExplorerView extends View {
         style="padding: 0.75rem"
         id="block-explorer"
       >
-        <div class="tile xis-parent is-vertical">
-          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
-            {this.inputs[0].element}
-          </div>{" "}
-          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
-            {this.inputs[1].element}
-          </div>{" "}
+        <div class="tile is-vertical">
+          {Array.from(this.inputs, ([key, input]) => {
+            return (
+              <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+                <InputPanel key={key} input={input.transformer} />
+              </div>
+            );
+          })}
         </div>
         <div
           class="tile"
@@ -88,9 +85,10 @@ export class BlockExplorerView extends View {
             <i class="fa fa-arrow-right fa-3x " />
           </span>
         </div>
-        <div class="tile xis-parent" style="align-items: center">
+        <div class="tile" style="align-items: center">
           <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
-            {this.transformer.element}
+            <TransformerView handler={this} node={this.transformer} />
+            {}
           </div>
         </div>
         <div
@@ -101,36 +99,42 @@ export class BlockExplorerView extends View {
             <i class="fa fa-arrow-right fa-3x " />
           </span>
         </div>
-        <div class="tile xis-parent" style="align-items: center">
-          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
-            {this.output.element}
-          </div>
-        </div>{" "}
+        <div class="tile is-vertical">
+          {Array.from(this.outputs, ([key, output]) => {
+            return (
+              <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+                <OutputPanel key={key} output={output.transformer} />
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
 
   async triggerTransformer() {
-    let transformer = this.transformer.block;
+    let transformer = this.transformer;
 
-    return transformer.trigger().then(() => {
-      let output = this.output.block;
+    if (transformer.canTrigger) {
+      return transformer.trigger().then(() => {
+        let output = this.outputs.get("out");
 
-      output.value = this.transformer.block[output.key];
+        output.setInput(this.transformer.output);
 
-      return output.trigger();
-    });
+        return output.trigger();
+      });
+    }
   }
 
-  async triggerInput(input: InputTransformer) {
+  async triggerInput(key: string, input: InputTransformer) {
     input
       .trigger()
       .then(() => {
-        let transformer = this.transformer.block;
+        let transformer = this.transformer;
 
-        transformer[input.key] = input.value;
-        console.log("Input", input.key, "triggered");
-        this.triggerInput(input);
+        transformer.setInput({ [key]: input[key] });
+        console.log("Input", key, "triggered");
+        this.triggerInput(key, input);
 
         return this.triggerTransformer();
       })

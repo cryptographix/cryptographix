@@ -1,34 +1,39 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
-import { IActionHandler } from "@cryptographix/core";
-import { View, BlockView, BlockViewParams } from "@cryptographix/core";
+//import { IActionHandler } from "@cryptographix/core";
+import { View, BlockView } from "@cryptographix/core";
 import { PropertyView } from "./property-view";
 
 export class OutputTransformer extends Transformer {
-  key: string;
-  value: ByteArray;
-  propInfo: IBytesSchemaProp;
+  _key: string;
 
-  constructor(
-    key: string,
-    title: string,
-    initValue?: ByteArray,
-    handler?: IActionHandler
-  ) {
-    super(initValue, handler);
+  constructor(initConfig: {
+    key: string;
+    title: string;
+    initValue?: ByteArray;
+  }) {
+    super(initConfig.initValue);
 
-    this.key = key;
+    const key = (this._key = initConfig.key);
 
-    this.propInfo = {
-      name: "value",
+    const propInfo = {
+      name: key,
       type: "bytes",
-      title,
+      title: initConfig.title,
       ui: {
         widget: "multiline",
         lines: 5
+      },
+      io: {
+        type: "data-in"
       }
     };
 
-    this.value = initValue ? initValue : ByteArray.from([]);
+    this[key] = initConfig.initValue
+      ? initConfig.initValue
+      : ByteArray.from([]);
+
+    this.helper.updatePortSchema(key, propInfo);
+    this.helper.inPortKeys.push(key);
   }
 
   async trigger() {
@@ -41,23 +46,48 @@ export class OutputTransformer extends Transformer {
 export class OutputPanel extends BlockView<OutputTransformer> {
   block: OutputTransformer;
 
-  constructor(params: BlockViewParams<OutputTransformer>) {
-    super(params);
+  constructor(params: { key: string; output: OutputTransformer }) {
+    let { key, output } = params;
+
+    super({ block: output });
+
+    const propRef = {
+      target: output,
+      key: key,
+      propertyType: output.helper.getPortSchema<IBytesSchemaProp>(key)
+    };
+
+    //    this.addChildView( new PropertyView( {handler={this.handler} propRef={propRef} readOnly={true} />
+    this.addChildView(
+      new PropertyView({
+        handler: this.handler,
+        propRef: propRef,
+        readOnly: true
+      })
+    );
   }
 
   updateView() {
-    return true; // rerender
+    this.children[0].refresh();
+    return false;
   }
 
   render() {
-    const propRef = {
-      target: this.block,
-      key: "value",
-      propertyType: this.block.propInfo
-    };
-
-    return (
-      <PropertyView handler={this.handler} propRef={propRef} readOnly={true} />
-    );
+    return <fragment>{this.renderChildViews()}</fragment>;
   }
 }
+
+/*export function OutputPanel(params: {
+  key: string;
+  output: OutputTransformer;
+}) {
+  let { key, output } = params;
+
+  const propRef = {
+    target: output,
+    key: key,
+    propertyType: output.helper.getPortSchema<IBytesSchemaProp>(key)
+  };
+
+  return <PropertyView handler={output} propRef={propRef} readOnly={true} />;
+}*/

@@ -77,6 +77,15 @@ export class MapperNode extends FlowNode {
     return super.tearDown();
   }
 
+  protected readyOutputs: {} = {};
+
+  /**
+   *
+   */
+  get output() {
+    return this.readyOutputs;
+  }
+
   /**
    *
    */
@@ -88,13 +97,13 @@ export class MapperNode extends FlowNode {
       node.setInput(this.input);
     });
 
-    let output = (this.output = {});
+    let output = (this.readyOutputs = {});
 
     let results: Promise<boolean>[] = [];
     this.nodes.forEach((node, key) => {
       let trig = node.trigger().then(ok => {
         if (ok) {
-          output[key] = node.getOutput();
+          output[key] = node.output;
         }
 
         return ok;

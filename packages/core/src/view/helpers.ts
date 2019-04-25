@@ -1,9 +1,10 @@
 import { IConstructable, View } from "../index";
+
 /**
  * Creates element with given tag, attributes and children.
  */
 export function createElement(
-  type: string | IConstructable<View>,
+  type: string | IConstructable<View> | Function,
   attributes?: object,
   ...children: (HTMLElement | string | object)[]
 ): HTMLElement {
@@ -16,12 +17,21 @@ export function createElement(
 
   let $element: HTMLElement;
   if (typeof type != "string") {
-    if (attributes["children"] === undefined)
+    if (attributes && attributes["children"] === undefined)
       attributes = { ...attributes, children: children };
 
-    let view = new type(attributes);
+    let $view: HTMLElement | string;
 
-    let $view = view.render();
+    if (type.prototype.render) {
+      let view = new (type as IConstructable<View>)(attributes || {});
+      type = (type as IConstructable<View>).name;
+
+      $view = view.element;
+    } else {
+      $view = (type as Function)(attributes || {});
+      type = (type as Function).name;
+    }
+    console.log(type);
     if (typeof $view === "string")
       $element = (document.createTextNode($view) as any) as HTMLElement;
     else $element = $view;

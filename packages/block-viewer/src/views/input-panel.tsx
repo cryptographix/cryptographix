@@ -1,37 +1,41 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler, Action } from "@cryptographix/core";
-import { View, BlockView, BlockViewParams } from "@cryptographix/core";
+import { View /*BlockView,  BlockViewParams */ } from "@cryptographix/core";
 import { PropertyView, PropertyValueChanged } from "./property-view";
 
 export class InputTransformer extends Transformer implements IActionHandler {
-  key: string;
-  value: ByteArray;
-  propInfo: IBytesSchemaProp;
+  public _key: string;
 
-  constructor(
-    key: string,
-    title: string,
-    initValue?: ByteArray,
-    handler?: IActionHandler
-  ) {
-    super(initValue, handler);
+  constructor(initConfig: {
+    key: string;
+    title: string;
+    initValue?: ByteArray;
+  }) {
+    super(initConfig.initValue);
 
-    this.key = key;
+    const key = (this._key = initConfig.key);
 
-    this.propInfo = {
+    let propInfo = {
       name: key,
       type: "bytes",
-      title,
+      title: initConfig.title,
       ui: {
         widget: "multiline",
         lines: 5
+      },
+      io: {
+        type: "data-out"
       }
     };
 
-    this.value = initValue ? initValue : ByteArray.from([]);
+    this[key] = initConfig.initValue
+      ? initConfig.initValue
+      : ByteArray.from([]);
+
+    this.helper.updatePortSchema(key, propInfo);
   }
 
-  firstTime = true;
+  private _firstTime = true;
 
   pendingTrigger: {
     resolve: any;
@@ -40,8 +44,8 @@ export class InputTransformer extends Transformer implements IActionHandler {
 
   async trigger() {
     let result = new Promise<void>((resolve, reject) => {
-      if (this.firstTime) {
-        this.firstTime = false;
+      if (this._firstTime) {
+        this._firstTime = false;
         resolve();
       } else
         this.pendingTrigger = {
@@ -69,7 +73,7 @@ export class InputTransformer extends Transformer implements IActionHandler {
   }
 }
 
-export class InputPanel extends BlockView<InputTransformer> {
+/*export class InputPanel extends BlockView<InputTransformer> {
   block: InputTransformer;
 
   constructor(params: BlockViewParams<InputTransformer>) {
@@ -85,4 +89,16 @@ export class InputPanel extends BlockView<InputTransformer> {
 
     return <PropertyView handler={this.handler} propRef={propRef} />;
   }
+}*/
+
+export function InputPanel(params: { key: string; input: InputTransformer }) {
+  let { key, input } = params;
+
+  const propRef = {
+    target: input,
+    key: key,
+    propertyType: input.helper.getPortSchema<IBytesSchemaProp>(key)
+  };
+
+  return <PropertyView handler={input} propRef={propRef} />;
 }
