@@ -11,9 +11,11 @@ s.push("{a:1,b:2,c:3,d:4}");
 s.push("'literal'");
 s.push('"literal"');
 
-function tokenize(s) {
+function tokenize(s: string) {
   let tokens = [];
-  let tokenizer = new Tokenizer(s);
+  let tokenizer = new Tokenizer();
+
+  tokenizer.startParse(s);
 
   while (!tokenizer.isEOF) tokens.push(tokenizer.nextToken());
 
@@ -44,7 +46,7 @@ values.push('{ id1: { id1_1: "s1.1" }, id2: "s2"}');
 
 describe("Parse const values", () => {
   beforeEach(function() {
-    debugger;
+    //debugger;
   });
   values.forEach(pp => {
     it("Parse: " + pp, () => {

@@ -1,4 +1,6 @@
-import config from '../rollup-config-build';
-import pkg from './package.json';
+import config from "../rollup-config-build";
+import pkg from "./package.json";
 
-export default config( pkg );
+export default config(pkg, {
+  input: "./src/index.ts"
+});

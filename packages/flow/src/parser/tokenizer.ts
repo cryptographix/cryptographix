@@ -20,7 +20,7 @@ export function isLineBreak(c: string) {
   return /^[\r\n]$/.test(c);
 }
 
-export function isIdentifierChar(c: string, init: boolean = true) {
+export function isIdentifierChar(c: string, init: boolean = false) {
   return /^[A-Z_]$/i.test(c) || c == "$" || (!init && isDigit(c));
 }
 

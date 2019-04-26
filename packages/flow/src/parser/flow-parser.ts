@@ -185,23 +185,29 @@ export class FlowParser {
       while (!this.isEOF) {
         const key = this.parseIdentifier();
 
-        this.ensureToken(":", "missing property terminator :");
+        if (this.curToken.value != ":") {
+          // Allow ES6 style initializers, { key }
+          if ("},".indexOf("" + this.curToken.value) >= 0) {
+            map[key] = null;
+          }
+        } else {
+          this.ensureToken(":", "missing property terminator :");
 
-        if (key.indexOf("$") == 0) {
-          if (key == "$id") {
-            id = this.parseString();
-          } /*else if (key == "$flow") {
-            flow = this.parseStringOrObject();
-          } */ else {
-            let item = this.parseStringOrObject();
+          if (key.indexOf("$") == 0) {
+            if (key == "$id") {
+              id = this.parseString();
+            } else {
+              let item = this.parseStringOrObject();
+
+              map[key] = item;
+            }
+          } else {
+            let item = this.parseFlowNode();
 
             map[key] = item;
           }
-        } else {
-          let item = this.parseFlowNode();
-
-          map[key] = item;
         }
+
         if (this.curToken.value != ",") break;
 
         this.skipToken();

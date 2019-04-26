@@ -36,13 +36,20 @@ export class LinkView extends View {
     );
   }
 
-  onLinkClick(evt: Event) {
+  onLinkClick(_evt: Event) {
     alert("Clicked (" + this.source.node.id + "," + this.target.node.id + ")");
   }
 
   render() {
     let source = this.source.node;
     let target = this.target.node;
+
+    if (
+      ensureNodeView(source).layout.hidden > 0 ||
+      ensureNodeView(source).layout.hidden > 0
+    ) {
+      return null;
+    }
 
     let sourcePos = ensureNodeView(source).getPortPosition(this.source.portKey);
     let targetPos = ensureNodeView(target).getPortPosition(this.target.portKey);
@@ -110,26 +117,29 @@ export class LinkView extends View {
       toTopRight = true;
     }
 
-    let style = `
+    /*let style = `
       left: ${pos.left - border}px;
       width: ${pos.width - border}px;
       top: ${pos.top}px;
       height: ${pos.height}px;
       background-color: unset;
-      `;
+      `;*/
 
+    let lnk = {
+      top: pos.top,
+      left: pos.left - border
+    };
     let segs = [];
 
     // Horizontal segment
     segs.push(
       <div
         class="link-seg"
-        style={
-          (toTopRight ? "bottom" : "top") +
-          ": 0px; left: 0px; width: " +
-          vertX +
-          "px; height: 3px"
-        }
+        style={`
+top:${lnk.top + (toTopRight ? pos.height - 3 : 0)}px;
+left: ${lnk.left}px;
+width: ${vertX}px;
+height: 3px;`}
         onClick={this.onLinkClick.bind(this)}
       />
     );
@@ -138,14 +148,11 @@ export class LinkView extends View {
       segs.push(
         <div
           class="link-seg"
-          style={
-            "top: 0px; left: " +
-            vertX +
-            "px; width: 3" +
-            "px; height: " +
-            pos.height +
-            "px; "
-          }
+          style={`
+top: ${lnk.top}px;
+left: ${lnk.left + vertX}px;
+width: 3px;
+height: ${pos.height}px;`}
           onClick={this.onLinkClick.bind(this)}
         />
       );
@@ -153,23 +160,18 @@ export class LinkView extends View {
       segs.push(
         <div
           class="link-seg"
-          style={
-            (!toTopRight ? "bottom" : "top") +
-            ": 0px; left: " +
-            vertX +
-            "px; width: " +
-            (pos.width - vertX) +
-            "px; height: 3px"
-          }
+          style={`
+top:${lnk.top + (!toTopRight ? pos.height - 3 : 0)}px;
+left: ${lnk.left + vertX}px;
+width: ${pos.width - vertX}px;
+height: 3px;`}
           onClick={this.onLinkClick.bind(this)}
         />
       );
     }
 
-    return (
-      <div class="link" style={style}>
-        {segs}
-      </div>
-    );
+    return <fragment>{segs}</fragment>;
+    /*<div class="link" style={style}>
+  </div>*/
   }
 }

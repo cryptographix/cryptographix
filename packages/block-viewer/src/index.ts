@@ -57,8 +57,10 @@ declare global {
   interface Window {
     mountApp: any;
   }
+
+  //var window: Window;
 }
 
-window.mountApp = ($root: HTMLElement) => {
+window["mountApp"] = ($root: HTMLElement) => {
   View.mount($root, new BlockExplorerApp());
 };

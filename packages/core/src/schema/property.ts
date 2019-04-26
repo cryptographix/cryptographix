@@ -160,16 +160,22 @@ export interface IObjectSchemaProp<TO extends Object = {}>
   type: ISchema<TO>;
 }
 
-/**
- *
- */
-export type ISchemaPropertyType =
+/*type RecursiveSchema<A extends Object> = {
+  1: never;
+  0: ISchema<A>;
+}[A extends [] ? 1 : 0];*/
+
+export type AlmostAnySchemaProperty =
   | IBooleanSchemaProp
   | IStringSchemaProp
   | IIntegerSchemaProp
   | IEnumSchemaProp
-  | IBytesSchemaProp
-  | IObjectSchemaProp;
+  | IBytesSchemaProp;
+
+/**
+ *
+ */
+export type AnySchemaProperty = AlmostAnySchemaProperty | IObjectSchemaProp;
 
 /**
  *
@@ -195,5 +201,5 @@ export type FilterSchemaProps<Base> = {
 export interface ISchemaPropReference {
   target: object;
   key: string;
-  propertyType: ISchemaPropertyType;
+  propertyType: AnySchemaProperty;
 }

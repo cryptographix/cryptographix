@@ -1,3 +1,4 @@
+import { ISchemaProperty } from "@cryptographix/core";
 import { FlowNode } from "./flow-node";
 import { AnyFlowNode } from "./flow";
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
@@ -77,6 +78,15 @@ export class MapperNode extends FlowNode {
     return super.tearDown();
   }
 
+  /**
+   *
+   */
+  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
+    key: string
+  ): TSchemaProperty {
+    return this.nodes[0].getPortSchema(key);
+  }
+
   protected readyOutputs: {} = {};
 
   /**
@@ -103,7 +113,7 @@ export class MapperNode extends FlowNode {
     this.nodes.forEach((node, key) => {
       let trig = node.trigger().then(ok => {
         if (ok) {
-          output[key] = node.output;
+          output[key] = node.output[key];
         }
 
         return ok;

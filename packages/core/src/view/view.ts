@@ -16,7 +16,7 @@ export interface View<TParentView extends View<any> = any> {
   /**
    * Handle viewport updates
    */
-  layoutView(): void;
+  layoutView(): this;
 
   /**
    * Triggered when view receives focus.
@@ -64,7 +64,7 @@ export abstract class View {
 
   /**
    * Updates this view at next frame.
-   * Fluent interface
+   * @fluent
    */
   triggerUpdate() {
     let refresh = true;
@@ -86,7 +86,7 @@ export abstract class View {
 
   /**
    * Rerenders the view.
-   * Fluent interface
+   * @fluent
    */
   refresh() {
     const $oldElement = this.$element;
@@ -100,7 +100,8 @@ export abstract class View {
 
       // replace root node in dom
       if ($oldElement && $oldElement.parentNode) {
-        $oldElement.parentNode.replaceChild($el, $oldElement);
+        if ($el) $oldElement.parentNode.replaceChild($el, $oldElement);
+        else $oldElement.parentNode.removeChild($oldElement);
       }
     }
 
@@ -112,6 +113,8 @@ export abstract class View {
    * Fluent interface
    */
   addChildView(view: View, nextView?: View) {
+    if (!view) return this;
+
     // make sure view is detached
     if (this.parentView !== null) {
       this.parentView.removeChildView(this);
@@ -121,9 +124,11 @@ export abstract class View {
     if (this.$element) {
       let $newChild = view.render();
 
-      if (nextView) {
-        this.element.insertBefore($newChild, nextView.element);
-      } else this.$element.appendChild($newChild);
+      if ($newChild) {
+        if (nextView) {
+          this.element.insertBefore($newChild, nextView.element);
+        } else this.$element.appendChild($newChild);
+      }
     }
 
     view.parentView = this;
@@ -181,7 +186,7 @@ export abstract class View {
 
   /**
    * Focus this view.
-   * Fluent interface
+   * @fluent
    */
   focus() {
     return this.setFocus(true);
@@ -189,7 +194,7 @@ export abstract class View {
 
   /**
    * Release this view's focus.
-   * Fluent interface
+   * @fluent
    */
   blur() {
     return this.setFocus(false);
@@ -197,7 +202,7 @@ export abstract class View {
 
   /**
    * Sets focus.
-   * Fluent interface
+   * @fluent
    */
   private setFocus(focus: boolean) {
     if (focus !== this.hasFocus) {
@@ -231,9 +236,12 @@ export abstract class View {
 
   /**
    * Handle viewport updates
+   * @fluent
    */
-  public layoutView(): void {
+  public layoutView(): this {
     this.children.forEach(child => child.layoutView());
+
+    return this;
   }
 }
 

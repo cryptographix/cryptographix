@@ -1,6 +1,6 @@
 import { IConstructable } from "./helpers";
 import { ByteArray } from "./byte-array";
-import { ISchemaPropertyType } from "./property";
+import { AnySchemaProperty } from "./property";
 import { schemaStore } from "./schema-store";
 
 /**
@@ -23,7 +23,7 @@ export interface ISchema<TO = Object> {
   namespace?: string;
 
   //
-  properties: { [key: string]: ISchemaPropertyType };
+  properties: { [key: string]: AnySchemaProperty };
 }
 
 /*function defaultValueForType<Type, PropType extends ISchemaProperty<Type>>( propInfo: PropType ) {
@@ -78,7 +78,7 @@ export abstract class Schema {
   }
 
   static initPropertyFromPropertyType<TO = {}>(
-    propInfo: ISchemaPropertyType,
+    propInfo: AnySchemaProperty,
     obj: TO,
     key: keyof TO,
     initValue?: any,
@@ -147,7 +147,7 @@ export abstract class Schema {
 
   static getPropertiesForObject(
     target: object,
-    filterFn?: (item: ISchemaPropertyType) => boolean
+    filterFn?: (item: AnySchemaProperty) => boolean
   ) {
     let schema = Schema.getSchemaForObject(target);
 

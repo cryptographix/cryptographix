@@ -1,6 +1,6 @@
 import resolve from "rollup-plugin-node-resolve";
 import commonjs from "rollup-plugin-commonjs";
-//import typescript from 'rollup-plugin-typescript';
+import typescript from "rollup-plugin-typescript2";
 
 function name(s) {
   return s.slice(1 + s.indexOf("/"));
@@ -9,7 +9,7 @@ function name(s) {
 let packages = require("../../lerna.json").packages || [];
 
 packages = packages.map(n => name(n));
-console.log(packages);
+//console.log(packages);
 
 export default function(pkg, local = {}) {
   let me = name(pkg.name);
@@ -43,7 +43,7 @@ export default function(pkg, local = {}) {
         sourcemap: true
       },
       plugins: [
-        //typescript(),
+        typescript(local.tsconfigOverride),
         resolve({
           main: true,
           modules: true
@@ -56,5 +56,31 @@ export default function(pkg, local = {}) {
         include: "src/**"
       }
     }
+    // CommonJS (for Node) and ES module (for bundlers) build.
+    // (We could have three entries in the configuration array
+    // instead of two, but it's quicker to generate multiple
+    // builds from a single configuration where possible, using
+    // an array for the `output` option, where we can specify
+    // `file` and `format` for each target)
+    /*{
+      input: input,
+      output: [
+        {
+          file: pkg.main,
+          format: "cjs",
+          sourcemap: true
+        } //,
+        //{
+        //  file: pkg.module,
+        //  format: "es",
+        //  sourcemap: true
+        //}
+      ],
+      plugins: [typescript(), resolve(), ...(local.plugins || [])],
+      external: external,
+      watch: {
+        include: "src/**"
+      }
+    }*/
   ];
 }

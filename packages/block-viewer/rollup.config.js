@@ -42,15 +42,16 @@ export default config(pkg, {
   input: "./src/index.ts",
   external: ["window"],
   plugins: [
-    myExample(),
-    typescript({
-      tsconfigOverride: {
-        compilerOptions: {
-          declaration: false,
-          composite: false,
-          declarationMap: undefined
-        }
-      }
-    })
-  ]
+    myExample()
+    /*typescript({
+
+    })*/
+  ],
+  tsconfigOverride: {
+    compilerOptions: {
+      declaration: false,
+      composite: false,
+      declarationMap: undefined
+    }
+  }
 });

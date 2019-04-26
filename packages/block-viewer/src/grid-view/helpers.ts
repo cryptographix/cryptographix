@@ -55,6 +55,9 @@ export function calculateNodeSizes(node: AnyFlowNode, children: AnyFlowNode[]) {
         layout.h = Math.max(layout.h, view.layout.h);
         layout.z = Math.max(view.layout.z + 1, layout.z);
       });
+
+      //layout.w += 2 * GV.GRIDX_BORDER;
+      layout.h += 2 * GV.GRIDY_BORDER;
       break;
 
     case "mapper":
@@ -65,6 +68,9 @@ export function calculateNodeSizes(node: AnyFlowNode, children: AnyFlowNode[]) {
         layout.h += view.layout.h;
         layout.z = Math.max(view.layout.z + 1, layout.z);
       });
+
+      layout.w -= 2 * GV.GRIDX_BORDER;
+      layout.h -= 2 * GV.GRIDY_BORDER;
       break;
 
     default:
@@ -88,8 +94,8 @@ export function calculateNodePositions(
     case "flow": {
       let root = ensureNodeView(node.root);
 
-      root.layout.x = layout.x; //+ GV.GRIDX_BORDER;
-      root.layout.y = layout.y; //+ GV.GRIDY_BORDER;
+      root.layout.x = layout.x + GV.GRIDX_BORDER;
+      root.layout.y = layout.y + GV.GRIDY_BORDER;
       break;
     }
 
@@ -97,10 +103,10 @@ export function calculateNodePositions(
       children.forEach(child => {
         let view = ensureNodeView(child);
 
-        view.layout.x = layout.x; // + GV.GRIDX_BORDER;
+        view.layout.x = layout.x + GV.GRIDX_BORDER;
         layout.x += view.layout.w;
 
-        view.layout.y = layout.y; //+ GV.GRIDY_BORDER;
+        view.layout.y = layout.y + GV.GRIDY_BORDER;
       });
       break;
 
@@ -109,7 +115,6 @@ export function calculateNodePositions(
         let view = ensureNodeView(child);
 
         view.layout.x = layout.x; //+ GV.GRIDX_BORDER;
-
         view.layout.y = layout.y; //+ GV.GRIDY_BORDER;
         layout.y += view.layout.h;
       });

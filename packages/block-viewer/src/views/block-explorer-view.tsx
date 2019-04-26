@@ -3,16 +3,21 @@ import {
   View,
   H2BA,
   Action,
-  Transformer,
-  ConfigPropertyChanged
+  Transformer
+  //ConfigPropertyChanged
 } from "@cryptographix/core";
 
-import { Flow, TransformerNode } from "@cryptographix/flow";
+import {
+  Flow,
+  TransformerNode,
+  MapperNode,
+  PipelineNode
+} from "@cryptographix/flow";
 
 import { InputTransformer, InputPanel } from "./input-panel";
 import { OutputTransformer, OutputPanel } from "./output-panel";
 import { TransformerView } from "./transformer-view";
-import { PropertyValueChanged } from "./property-view";
+//import { PropertyValueChanged } from "./property-view";
 
 export class BlockExplorerView extends View {
   constructor(params: { transCtor: IConstructable<Transformer> }) {
@@ -33,32 +38,57 @@ export class BlockExplorerView extends View {
     // instantiate
     flow.setup();
 
-    flow.inKeys.forEach(key => {
-      this.inputs.set(
-        key,
-        new TransformerNode<{}, InputTransformer>(InputTransformer, null, {
-          key,
-          title: /*ports[key].title || */ key,
-          initValue: H2BA("0123456789ABCDEFFEDCBA9876543210")
-        })
-      );
-    });
-
     this.transformer = flow.root as TransformerNode;
 
-    flow.outKeys.forEach(key => {
-      this.outputs.set(
-        key,
-        new TransformerNode<{}, OutputTransformer>(OutputTransformer, null, {
+    let block = this.transformer.transformer;
+
+    let inputMapper = new MapperNode({});
+    flow.inKeys.forEach(key => {
+      let schema = block.helper.getPortSchema(key);
+
+      let input = new TransformerNode<{}, InputTransformer>(
+        InputTransformer,
+        null,
+        {
           key,
-          title: /*ports[key].title || */ key
-        })
+          title: schema.title || key,
+          initValue: H2BA("0123456789ABCDEFFEDCBA9876543210")
+        }
       );
+
+      inputMapper.addBranch(key, input);
+      this.inputs.set(key, input);
     });
 
-    flow.inKeys.forEach(key =>
-      this.triggerInput(key, this.inputs.get(key).transformer)
-    );
+    let pipeNode = new PipelineNode();
+    pipeNode.appendNode(inputMapper);
+    pipeNode.appendNode(flow.root);
+
+    let outputMapper = new MapperNode({});
+    flow.outKeys.forEach(key => {
+      let schema = block.helper.getPortSchema(key);
+
+      let output = new TransformerNode<{}, OutputTransformer>(
+        OutputTransformer,
+        null,
+        {
+          key,
+          title: schema.title || key
+        }
+      );
+      outputMapper.addBranch(key, output);
+
+      this.outputs.set(key, output);
+    });
+
+    pipeNode.appendNode(outputMapper);
+
+    pipeNode.setup();
+    pipeNode.trigger();
+
+    //flow.inKeys.forEach(key =>
+    //  this.triggerInput(key, this.inputs.get(key).transformer)
+    //);
   }
 
   render() {
@@ -112,7 +142,7 @@ export class BlockExplorerView extends View {
     );
   }
 
-  async triggerTransformer() {
+  /*async triggerTransformer() {
     let transformer = this.transformer;
 
     if (transformer.canTrigger) {
@@ -139,12 +169,12 @@ export class BlockExplorerView extends View {
         return this.triggerTransformer();
       })
       .catch(err => console.log(err));
-  }
+  }*/
 
-  handleAction(action: Action) {
-    let act = action as ConfigPropertyChanged | PropertyValueChanged;
+  handleAction(_action: Action) {
+    /*let act = action as ConfigPropertyChanged | PropertyValueChanged;
     switch (act.action) {
-      /*      case "port:data": {
+            case "port:data": {
         if (act.id instanceof InputTransformer) {
           console.log("In changed: ", act.key, " to ", this[act.key]);
 
@@ -155,11 +185,11 @@ export class BlockExplorerView extends View {
             })
             .catch(err => console.log(err));
         }
-      }*/
+      }
       case "config:property-changed":
       case "property:value-changed":
         this.triggerTransformer().catch(err => console.log(err));
-    }
+    }*/
 
     return null;
   }

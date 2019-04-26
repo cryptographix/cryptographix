@@ -1,3 +1,4 @@
+import { ISchemaProperty } from "@cryptographix/core";
 import { FlowNode } from "./flow-node";
 
 /**
@@ -26,6 +27,15 @@ export class DataNode extends FlowNode {
    */
   tearDown() {
     return super.tearDown();
+  }
+
+  /**
+   *
+   */
+  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
+    key: string
+  ): TSchemaProperty {
+    return null && key;
   }
 
   /**

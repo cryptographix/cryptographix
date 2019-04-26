@@ -1,5 +1,5 @@
-import { IActionHandler, Action } from "@cryptographix/core";
-import { IViewModel, View } from "@cryptographix/core";
+import { View, IViewModel, IActionHandler, Action } from "@cryptographix/core";
+import { ISchemaProperty } from "@cryptographix/core";
 
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 
@@ -79,6 +79,10 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
 
     return this;
   }
+
+  abstract getPortSchema<
+    TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>
+  >(key: string): TSchemaProperty;
 
   /**
    *

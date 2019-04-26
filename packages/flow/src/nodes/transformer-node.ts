@@ -3,7 +3,8 @@ import {
   Schema,
   Transformer,
   IBlockSchema,
-  BlockConfiguration
+  BlockConfiguration,
+  ISchemaProperty
 } from "@cryptographix/core";
 
 import { FlowNode } from "./flow-node";
@@ -88,9 +89,7 @@ export class TransformerNode<
     this.inMask = this.trigMask = 0;
 
     this.inKeys.forEach((key, index) => {
-      let propSchema = this.block.helper.getPortSchema(
-        key as keyof TTransformer
-      );
+      let propSchema = this.block.helper.getPortSchema(key);
 
       if (!propSchema.optional) this.trigMask |= 1 << index;
 
@@ -111,6 +110,15 @@ export class TransformerNode<
     this.block = null;
 
     return super.tearDown();
+  }
+
+  /**
+   *
+   */
+  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
+    key: string
+  ): TSchemaProperty {
+    return this.block.helper.getPortSchema(key) as TSchemaProperty;
   }
 
   /**

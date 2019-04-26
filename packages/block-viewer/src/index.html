@@ -146,27 +146,33 @@
       }
 
       #flow-grid .node {
-        display: block;
-
+        display: inline-block;
+        flex-grow: 0;
+        flex-shrink: 1;
         position: absolute;
         box-sizing: border-box;
         width: 182px;
-        min-height: 89px;
+        min-height: 5rem;
         z-index: 100;
-
         border: 3px solid rgb(123, 127, 165);
-        border-radius: 6px;
-        padding: 1.25rem;
+        border-radius: 0.25rem;
+        /* padding: 1.25rem; */
         padding-left: 1rem;
-
         background-color: rgb(242, 243, 255);
-        box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
-          0 0 0 1px rgba(10, 10, 10, 0.1);
-        color: #4a4a4a;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        color: rgb(49, 49, 49);
+        text-align: left;
       }
 
       #flow-grid .node:hover {
         border-color: #f0f;
+      }
+
+      .pipeline .sc-htpNat {
+        position: absolute;
+        bottom: 0px;
+        right: 0px;
+        z-index: 250;
       }
 
       #flow-grid .port {
@@ -238,6 +244,135 @@
         background-color: lightgreen;
         border: 1px dashed #844;
         opacity: 0.5;
+      }
+
+      .kkuncR {
+        -webkit-appearance: none;
+        display: inline-flex;
+        height: 1rem;
+        width: 1rem;
+        -webkit-box-pack: center;
+        justify-content: center;
+        -webkit-box-align: center;
+        align-items: center;
+        cursor: pointer;
+        background: transparent;
+        border-width: initial;
+        border-style: none;
+        border-color: initial;
+        border-image: initial;
+        padding: 0px;
+      }
+      .kkuncR::before {
+        --dot-size: 3px;
+        content: "";
+        display: block;
+        height: var(--dot-size);
+        width: var(--dot-size);
+        flex-shrink: 0;
+        box-shadow: calc(-1 * (var(--dot-size) + 1px)) 0 grey,
+          calc(var(--dot-size) + 1px) 0 grey;
+        border-radius: 50%;
+      }
+      .kkuncR:not(:hover) {
+        opacity: 0.5;
+      }
+
+      .kGUNdt {
+        --color-shadow: rgba(0, 0, 0, 0.05);
+        --color-node-border: #dedede;
+        display: inline-block;
+        text-align: left;
+        -webkit-box-flex: 0;
+        flex-grow: 0;
+        flex-shrink: 1;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        color: rgb(49, 49, 49);
+        min-height: 1rem;
+        border-radius: 0.25rem;
+        margin: 1rem;
+        background: white;
+      }
+      .kGUNdt::before {
+        content: attr(data-key);
+        color: transparent;
+        visibility: hidden;
+        height: 1px;
+        display: block;
+      }
+      .dGgGss:empty {
+        display: none;
+      }
+      .dGgGss {
+        padding: 0px;
+        margin: 0.5rem 0px;
+        list-style: none;
+      }
+      .bhBNQH {
+        display: flex;
+        flex-direction: column;
+        -webkit-box-pack: end;
+        justify-content: flex-end;
+        align-items: flex-end;
+        list-style: none;
+        margin: 0px;
+      }
+      .khegNK {
+        padding-top: 0.5rem;
+        display: flex;
+        padding-bottom: 1rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        min-height: 1rem;
+      }
+
+      .eDrxtj:disabled {
+        cursor: not-allowed;
+        --color-event: #c7c5c5;
+      }
+      .eDrxtj {
+        --color-event: rgba(87, 176, 234, 1);
+        -webkit-appearance: none;
+        background-color: #c7c5c5;
+        color: white;
+        font-size: 0.75em;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+        display: inline-flex;
+        flex-direction: row;
+        -webkit-box-pack: justify;
+        justify-content: space-between;
+        -webkit-box-align: center;
+        align-items: center;
+        margin-right: -0.5rem;
+        margin-left: 0.5rem;
+        text-shadow: rgba(0, 0, 0, 0.4) 0px 1px 1px;
+        border-width: initial;
+        border-style: none;
+        border-color: initial;
+        border-image: initial;
+        padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+        border-radius: 2rem;
+        overflow: hidden;
+      }
+      .cYYCTJ {
+        display: inline-block;
+        height: 0.5rem;
+        width: 0.5rem;
+        background-color: white;
+        margin-left: 0.5rem;
+        border-radius: 50%;
+      }
+      .hERUcc {
+        position: absolute;
+        z-index: 1;
+        bottom: calc(100% + var(--border-width, 0));
+        left: calc(-1 * var(--border-width));
+        display: flex;
+        flex-direction: row;
+        padding: 0.25rem 0px;
       }
     </style>
   </head>

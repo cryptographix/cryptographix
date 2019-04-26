@@ -70,7 +70,7 @@ export function createElement(
         else if ($child instanceof HTMLElement) $element.appendChild($child);
         else {
           Object.entries($child).forEach(([_key, $item]) => {
-            $element.appendChild($item);
+            if ($item) $element.appendChild($item);
           });
         }
       }

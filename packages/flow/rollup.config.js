@@ -5,4 +5,6 @@ const { join } = require("path");
 const staticDir = join(__dirname, "../");
 const cgx = "@cryptographix";
 
-export default config(pkg, {});
+export default config(pkg, {
+  input: "./src/index.ts"
+});

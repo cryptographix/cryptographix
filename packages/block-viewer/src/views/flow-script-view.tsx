@@ -1,20 +1,20 @@
+import { View, Action, IActionHandler } from "@cryptographix/core";
 import { IStringSchemaProp } from "@cryptographix/core";
-import { Action, IActionHandler } from "@cryptographix/core";
-import { View } from "@cryptographix/core";
+
+import { Flow } from "@cryptographix/flow";
+
 import { PropertyView, PropertyValueChanged } from "./property-view";
 //import { TileView } from "./tile-view";
 import { GridView } from "../grid-view/grid-view";
-
-import { Flow } from "@cryptographix/flow";
 
 export class FlowScriptView extends View implements IActionHandler {
   inputView: PropertyView;
   flowView: GridView;
 
-  constructor(net: string) {
+  constructor(params: { flowScript?: string }) {
     super();
 
-    this.script = net;
+    this.script = params.flowScript || "";
 
     let inPropInfo: IStringSchemaProp = {
       name: "value",

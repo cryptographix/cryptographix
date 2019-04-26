@@ -14,12 +14,11 @@ import {
   ensureNodeView
 } from "./helpers";
 
-import { NodeView } from "./node-view";
-import { LinkView /*, IPortRef*/ } from "./link-view";
+//import { NodeView } from "./node-view";
+import { LinkView } from "./link-view";
 
 export class GridView extends View {
-  nodes: NodeView[] = [];
-  links: LinkView[] = [];
+  childs: View[] = [];
 
   constructor(private flow: Flow) {
     super();
@@ -58,9 +57,7 @@ export class GridView extends View {
       //console.log(Flow.toxJSON(node));
     });
 
-    this.layoutView();
-
-    this.triggerUpdate();
+    this.layoutView().triggerUpdate();
   }
 
   ind: number = 0;
@@ -92,8 +89,9 @@ export class GridView extends View {
     // Top-down calculate positions
     Flow.traverseFlow(this.flow, calculateNodePositions);
 
-    this.nodes = [];
-    this.links = [];
+    //this.children.forEach(this.removeChildView);
+
+    this.childs = [];
 
     this.ind = 0;
 
@@ -101,7 +99,7 @@ export class GridView extends View {
     Flow.traverseFlow(this.flow, null, node => {
       let view = ensureNodeView(node);
       if (node.$type != "transformer") {
-        this.nodes.push(view);
+        this.childs.push(view);
         if (node.meta["$color"]) view.layout.color = node.meta["$color"]; // this.colors[this.ind++];
       }
     });
@@ -110,7 +108,7 @@ export class GridView extends View {
     Flow.traverseFlow(this.flow, node => {
       let view = ensureNodeView(node);
       if (node.$type == "transformer") {
-        this.nodes.push(view);
+        this.childs.push(view);
       }
     });
 
@@ -130,29 +128,26 @@ export class GridView extends View {
 
               for (let key of child.inKeys) {
                 if (outKeys.indexOf(key) >= 0) {
-                  this.links.push(
-                    new LinkView(
-                      { node: prev, portKey: key },
-                      { node: child, portKey: key }
-                    )
+                  const view = new LinkView(
+                    { node: prev, portKey: key },
+                    { node: child, portKey: key }
                   );
-                  inKeys.splice(inKeys.indexOf(key), 1);
 
-                  outKeys.splice(outKeys.indexOf(key), 1);
+                  this.childs.push(view);
                 }
+                inKeys.splice(inKeys.indexOf(key), 1);
+
+                outKeys.splice(outKeys.indexOf(key), 1);
               }
 
               for (let key of inKeys) {
                 if (outKeys.length > 0) {
-                  this.links.push(
-                    new LinkView(
-                      { node: prev, portKey: outKeys.pop() },
-                      { node: child, portKey: key }
-                    )
+                  const view = new LinkView(
+                    { node: prev, portKey: outKeys.pop() },
+                    { node: child, portKey: key }
                   );
-                  // inKeys.splice(0, 1);
 
-                  //                  outKeys.splice(outKeys.indexOf(key), 1);
+                  this.childs.push(view);
                 }
               }
             }
@@ -162,6 +157,23 @@ export class GridView extends View {
       }
       return {};
     });
+
+    this.childs.forEach(child => {
+      child.parentView = this;
+    });
+
+    return this;
+    //  return super.layoutView();
+  }
+
+  updateView() {
+    // Top-down calculate positions
+    /*    Flow.traverseFlow(this.flow, calculateNodePositions);
+
+    this.nodes.forEach($node => {
+      $node.refresh(); //
+    });*/
+    return true;
   }
 
   render() {
@@ -197,8 +209,7 @@ export class GridView extends View {
           document.getElementById("mousey").innerHTML = `${x}, ${y}`;
         }}
       >
-        {View.renderViews(this.nodes)}
-        {View.renderViews(this.links)}
+        {View.renderViews(this.childs)}
         <div
           id="mousey"
           style="position: absolute; width:200px; height: 2rem; right: 0px; bottom: 0px; border: 1px solid #080;"
@@ -210,9 +221,9 @@ export class GridView extends View {
 
 export namespace GridView {
   export const GRIDX = 128;
-  export const GRIDX_BORDER = GRIDX * 0.25;
+  export const GRIDX_BORDER = GRIDX * 0.05;
   export const GRIDY = 56;
-  export const GRIDY_BORDER = GRIDY * 0.25;
+  export const GRIDY_BORDER = GRIDY * 0.1;
 
   export const BLOCKX = 182;
   export const BLOCKY = 44;

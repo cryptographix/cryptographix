@@ -2,7 +2,7 @@ import {
   ISchema,
   IConstructable,
   ISchemaProperty,
-  ISchemaPropertyType,
+  AnySchemaProperty,
   Schema
 } from "../schema/index";
 
@@ -54,7 +54,7 @@ export class BlockSchemaHelper<
   readonly configSchema: ISchema<TConfig>;
 
   //
-  propertyCache: { [key: string]: ISchemaPropertyType } = {};
+  propertyCache: { [key: string]: AnySchemaProperty } = {};
 
   constructor(block: TBlock) {
     //
@@ -166,7 +166,9 @@ export class BlockSchemaHelper<
     return schemaProp as TSchemaProp;
   }
 
-  getPortSchema<TSchemaProp extends ISchemaProperty>(key: string): TSchemaProp {
+  getPortSchema<TSchemaProp extends ISchemaProperty = AnySchemaProperty>(
+    key: string
+  ): TSchemaProp {
     let schemaProp = this.propertyCache[key];
 
     return schemaProp as TSchemaProp;

@@ -2,6 +2,8 @@ import config from "../rollup-config-build";
 import pkg from "./package.json";
 
 let localConfig = {
+  input: "./src/index.ts",
+
   external: [
     //"forge",
     //"jsbn",

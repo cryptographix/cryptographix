@@ -1,7 +1,8 @@
 import {
   IConstructable,
   Transformer,
-  BlockConfiguration
+  BlockConfiguration,
+  ISchemaProperty
 } from "@cryptographix/core";
 
 import { FlowNode } from "./flow-node";
@@ -70,6 +71,14 @@ export class Flow extends FlowNode {
     return super.tearDown();
   }
 
+  /**
+   *
+   */
+  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
+    key: string
+  ): TSchemaProperty {
+    return this.root.getPortSchema(key);
+  }
   /**
    *
    */
