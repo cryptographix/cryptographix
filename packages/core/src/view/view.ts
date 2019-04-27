@@ -1,8 +1,8 @@
 import { Writable } from "../schema/index";
 import { IActionHandler } from "../dispatcher/action";
-import { createElement } from "./helpers";
+import * as Helpers from "./helpers";
 
-export interface View<TParentView extends View<any> = any> {
+export interface View {
   /**
    * Renders the view.
    */
@@ -29,26 +29,28 @@ export interface View<TParentView extends View<any> = any> {
   viewBlurred?(): void;
 }
 
-export interface ViewParams {
+export interface ViewParams<T = any> {
   handler?: IActionHandler;
+  children?: View.ViewNode[];
+  ref?: (instance: T) => void;
 }
 
 /**
  * Represents a rectangular area on the screen
  * and manages the content in that area.
  */
-export abstract class View {
-  static createElement = createElement;
-
+export abstract class View<TViewParams extends ViewParams = ViewParams> {
   readonly handler: IActionHandler = null;
 
-  $element: HTMLElement = null;
+  $element: View.ViewNode = null;
   parentView: View = null;
   readonly childViews: View<any>[] = [];
   hasFocus = false;
   needsUpdate = false;
 
-  constructor({ handler }: ViewParams = {}) {
+  constructor(params?: TViewParams) {
+    const { handler = undefined } = params || {};
+
     this.handler = handler;
   }
 
@@ -120,14 +122,17 @@ export abstract class View {
       this.parentView.removeChildView(this);
     }
 
-    // Render and insert into DOM
-    if (this.$element) {
+    const $element = this.$element;
+
+    // Render child and insert into DOM
+    // .. only insert if we're already rendered
+    if ($element) {
       let $newChild = view.render();
 
       if ($newChild) {
-        if (nextView) {
-          this.element.insertBefore($newChild, nextView.element);
-        } else this.$element.appendChild($newChild);
+        if (nextView && nextView.element) {
+          $element.insertBefore($newChild, nextView.element);
+        } else $element.appendChild($newChild);
       }
     }
 
@@ -150,7 +155,7 @@ export abstract class View {
    *
    * Helper for use within render functions, passed as 3rd param to createElement
    */
-  protected renderChildViews(): HTMLElement[] {
+  protected renderChildViews(): View.ViewNode[] {
     return View.renderViews(this.children);
   }
 
@@ -167,7 +172,7 @@ export abstract class View {
       this.childViews.splice(index, 1);
       view.parentView = null;
 
-      if ($element.parentNode) {
+      if ($element && $element.parentNode) {
         // Remove from DOM!
         $element.parentNode.removeChild($element);
       }
@@ -232,7 +237,7 @@ export abstract class View {
   /**
    * Renders the view.
    */
-  public abstract render(): HTMLElement;
+  public abstract render(): View.ViewNode;
 
   /**
    * Handle viewport updates
@@ -246,6 +251,18 @@ export abstract class View {
 }
 
 export namespace View {
+  export type ViewNode = HTMLElement | SVGElement | DocumentFragment;
+  export type ChildNode =
+    | HTMLElement
+    | SVGElement
+    | DocumentFragment
+    | string
+    | boolean
+    | undefined;
+
+  export const Fragment = Helpers.Fragment;
+  export const createElement = Helpers.createElement;
+
   /**
    * Render multiple views
    */
@@ -259,19 +276,53 @@ export namespace View {
     return result;
   }
 
+  export function addChildren($element: ViewNode, children: ChildNode[]) {
+    //View.appendChildNode
+    children.forEach($child => {
+      if ($child instanceof Element) {
+        // example:
+        $element.appendChild($child);
+      } else if (typeof $child === "string") {
+        $element.appendChild(document.createTextNode($child));
+      } else if (Array.isArray($child)) {
+        // example: <div>{items}</div>
+        addChildren($element, $child);
+      } else if ($child === false) {
+        // allow conditional display using && operator
+      }
+    });
+  }
+
+  export function appendChildNode(
+    $element: ViewNode,
+    $child: ChildNode | ChildNode[]
+  ) {
+    if ($child instanceof Element || $child instanceof DocumentFragment) {
+      $element.appendChild($child);
+    } else if (typeof $child == "string") {
+      $element.appendChild(document.createTextNode($child));
+    } else if (Array.isArray($child)) {
+      // example: <div>{items}</div>
+      Array.from($child).forEach($item => {
+        appendChildNode($element, $item);
+      });
+    } else if ($child === false) {
+      // allow conditional display using && operator
+    }
+  }
+
   /**
    * Mount a View onto a DOM node
    */
   export function mount($rootElement: HTMLElement, rootView: View) {
     let $root = rootView.element;
 
-    if ($root.tagName.toUpperCase() != "FRAGMENT")
-      $rootElement.appendChild($root);
-    else {
-      let children = Array.from($root.children);
-      children.forEach($item => {
-        $rootElement.appendChild($item);
-      });
-    }
+    // Cleanup
+    $rootElement.innerHTML = "";
+
+    // Gotta have something to mount!
+    if (!$root) return;
+
+    appendChildNode($rootElement, $root);
   }
 }
