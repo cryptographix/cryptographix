@@ -91,7 +91,7 @@ export abstract class View<TViewParams extends ViewParams = ViewParams> {
    * @fluent
    */
   refresh() {
-    const $oldElement = this.$element;
+    const $oldElement = this.$element as Element;
 
     // Only rerender if already bound
     if ($oldElement) {
@@ -100,10 +100,16 @@ export abstract class View<TViewParams extends ViewParams = ViewParams> {
 
       const $el = this.element;
 
-      // replace root node in dom
-      if ($oldElement && $oldElement.parentNode) {
-        if ($el) $oldElement.parentNode.replaceChild($el, $oldElement);
-        else $oldElement.parentNode.removeChild($oldElement);
+      if (!this.parentView && !$oldElement.parentNode) {
+        // Root view .. remount
+        View.mount($oldElement as HTMLElement, this);
+      } else {
+        if ($oldElement && $oldElement.parentNode) {
+          let $parentNode = $oldElement.parentNode;
+
+          if ($el) $parentNode.replaceChild($el, $oldElement);
+          else $parentNode.removeChild($oldElement);
+        }
       }
     }
 
@@ -237,7 +243,7 @@ export abstract class View<TViewParams extends ViewParams = ViewParams> {
   /**
    * Renders the view.
    */
-  public abstract render(): View.ViewNode;
+  protected abstract render(): View.ViewNode;
 
   /**
    * Handle viewport updates
@@ -256,6 +262,7 @@ export namespace View {
     | HTMLElement
     | SVGElement
     | DocumentFragment
+    | View
     | string
     | boolean
     | undefined;
@@ -276,7 +283,7 @@ export namespace View {
     return result;
   }
 
-  export function addChildren($element: ViewNode, children: ChildNode[]) {
+  /*export function addChildren($element: ViewNode, children: ChildNode[]) {
     //View.appendChildNode
     children.forEach($child => {
       if ($child instanceof Element) {
@@ -291,13 +298,18 @@ export namespace View {
         // allow conditional display using && operator
       }
     });
-  }
+  }*/
 
   export function appendChildNode(
     $element: ViewNode,
     $child: ChildNode | ChildNode[]
   ) {
-    if ($child instanceof Element || $child instanceof DocumentFragment) {
+    if ($child instanceof View) {
+      $element.appendChild($child.element);
+    } else if (
+      $child instanceof Element ||
+      $child instanceof DocumentFragment
+    ) {
       $element.appendChild($child);
     } else if (typeof $child == "string") {
       $element.appendChild(document.createTextNode($child));
@@ -314,15 +326,23 @@ export namespace View {
   /**
    * Mount a View onto a DOM node
    */
-  export function mount($rootElement: HTMLElement, rootView: View) {
+  export function mount(
+    $rootElement: HTMLElement | SVGElement,
+    rootView: View
+  ) {
     let $root = rootView.element;
 
     // Cleanup
-    $rootElement.innerHTML = "";
+    while ($rootElement.lastChild) {
+      $rootElement.removeChild($rootElement.lastChild);
+    }
 
     // Gotta have something to mount!
     if (!$root) return;
 
     appendChildNode($rootElement, $root);
+    if ($root instanceof DocumentFragment) {
+      rootView.$element = $rootElement;
+    }
   }
 }

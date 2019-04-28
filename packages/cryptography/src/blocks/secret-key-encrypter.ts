@@ -49,7 +49,8 @@ export class SecretKeyEncrypterConfig {
   @booleanProp({
     title: "Direction",
     trueLabel: "Encrypt",
-    falseLabel: "Decrypt"
+    falseLabel: "Decrypt",
+    ui: { widget: "radio" }
   })
   encrypt: boolean = true;
 
@@ -62,6 +63,7 @@ export class SecretKeyEncrypterConfig {
   padding?: boolean;
 
   @enumProp({
+    title: "Block Mode",
     optional: true,
     options: modeNameMap
     //ui: { widget: "radio" }
@@ -69,6 +71,7 @@ export class SecretKeyEncrypterConfig {
   mode?: string = BlockCipherHelper.getModes()[0].name;
 
   @bytesProp({
+    title: "Initial Vector",
     optional: true,
     ui: { hint: "Size must be equal to cipher block size" }
   })
@@ -83,18 +86,29 @@ export class SecretKeyEncrypterConfig {
   namespace: "org.cryptographix.cryptography",
   title: "Secret Key Encrypter",
   category: "Digital Cryptography",
+  markdown: {
+    prompt:
+      "Use the SecretKeyEncrypter Block to encrypt or decrypt data using modern block-ciphers such as AES",
+    about: ""
+  },
   config: SecretKeyEncrypterConfig
 })
 export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
-  @bytesProp({ ui: { widget: "multiline" } })
+  @bytesProp({
+    title: "Data to Encrypt/Decrypt",
+    ui: { widget: "multiline" }
+  })
   @isPort({ type: "data-in", primary: true })
   "in"?: Uint8Array;
 
-  @bytesProp({ minSize: 8, maxSize: 32 })
+  @bytesProp({ title: "Secret Key", minSize: 8, maxSize: 32 })
   @isPort({ type: "data-in" })
   key: Uint8Array;
 
-  @bytesProp({ ui: { widget: "multiline" } })
+  @bytesProp({
+    title: "Encrypted / Decrypted Data",
+    ui: { widget: "multiline" }
+  })
   @isPort({ type: "data-out", primary: true })
   out?: Uint8Array;
 

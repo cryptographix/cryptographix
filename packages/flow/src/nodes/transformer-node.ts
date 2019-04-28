@@ -28,7 +28,7 @@ export class TransformerNode<
   readonly id: string;
 
   //
-  readonly config: TConfig;
+  readonly initConfig: TConfig;
 
   //
   readonly schema: IBlockSchema<TConfig, TTransformer>;
@@ -60,7 +60,7 @@ export class TransformerNode<
     }
 
     this.id = id || this.blockName;
-    this.config = config;
+    this.initConfig = config;
   }
 
   protected initTarget(target: IConstructable<TTransformer>) {
@@ -81,7 +81,7 @@ export class TransformerNode<
     // Create new transformer object.
     // Block super constructor will initialize all block properties
     // where defaults are defined in Schema definitions.
-    this.block = new this.target(this.config, null);
+    this.block = new this.target(this.initConfig, null);
 
     this.inKeys = this.block.helper.inPortKeys;
     this.outKeys = this.block.helper.outPortKeys;

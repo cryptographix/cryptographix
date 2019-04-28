@@ -1,4 +1,4 @@
-import { Environment, ByteArray } from "@cryptographix/core";
+import { Environment } from "@cryptographix/core";
 import { XWindow } from "./webcrypto-ie-shim";
 
 import * as nodeCrypto from "crypto";
@@ -108,7 +108,7 @@ export class BlockCipherHelper {
         name: "ecb",
         label: "ECB (Electronic Code Book)",
         hasIV: false,
-        browserMode: false,
+        browserMode: true,
         nodeMode: true
       },
       {

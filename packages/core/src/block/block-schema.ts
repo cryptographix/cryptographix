@@ -22,13 +22,23 @@ export interface IBlockSchema<
 > extends ISchema<TBlock> {
   type: "block";
 
-  name: string;
-
-  namespace?: string;
-
   title: string;
 
   category?: string;
+
+  markdown?: {
+    // "Tell user what to do to use as a tool"
+    prompt?: string;
+
+    // Short ""
+    hint?: string;
+
+    // What is this all about
+    about?: string;
+
+    // More details and links
+    learnMore?: string;
+  };
 
   config: IConstructable<TConfig>;
 

@@ -32,6 +32,25 @@ export class TransformerSchemaHelper<
       ([_key, prop]) => prop.name
     );
   }
+
+  /*hasValidInputs(errors: string[] = []): boolean {
+    let ok = true;
+    let props = Object.entries(this.schema.properties);
+
+    const block = this.block;
+
+    props.forEach(([key, propInfo]) => {
+      let value = this[key];
+
+      if (!propInfo.optional && value == null) {
+        errors.push( key + "")
+        ok = false;
+      }
+    });
+
+    return ok;
+    //
+  }*/
 }
 
 export abstract class Transformer<
@@ -50,12 +69,12 @@ export abstract class Transformer<
    */
   get canTrigger(): boolean {
     const requiredInputs = this.helper.filterPorts(
-      item => item.io.type == "data-in" && !item.optional
+      item => item && item.io && item.io.type == "data-in" && !item.optional
     );
 
     let missingInputs = requiredInputs.filter(([key, _item]) => !this[key]);
 
-    return missingInputs.length > 0;
+    return missingInputs.length == 0;
   }
 
   /**

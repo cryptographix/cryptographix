@@ -228,14 +228,15 @@ export namespace Flow {
       case "transformer": {
         let trans = node as TransformerNode;
         let hasLabel = !!trans.id;
-        let hasConfig = trans.config && Object.keys(trans.config).length > 0;
+        let hasConfig =
+          trans.initConfig && Object.keys(trans.initConfig).length > 0;
 
         res =
           trans.blockName +
           "(" +
           (hasLabel ? '"' + trans.id + '"' : "") +
           (hasLabel && hasConfig ? ", " : "") +
-          (hasConfig ? JSON.stringify(trans.config) : "") +
+          (hasConfig ? JSON.stringify(trans.initConfig) : "") +
           (hasLabel && hasConfig ? " " : "") +
           ")";
       }
@@ -296,14 +297,15 @@ export namespace Flow {
       case "transformer": {
         let trans = node as TransformerNode;
         let hasLabel = !!trans.id;
-        let hasConfig = trans.config && Object.keys(trans.config).length > 0;
+        let hasConfig =
+          trans.initConfig && Object.keys(trans.initConfig).length > 0;
 
         res =
           trans.blockName +
           "(" +
           (hasLabel ? "'" + trans.id + "'" : "") +
           (hasLabel && hasConfig ? ", " : "") +
-          (hasConfig ? objToString(trans.config) : "") +
+          (hasConfig ? objToString(trans.initConfig) : "") +
           (hasLabel && hasConfig ? " " : "") +
           ")";
       }

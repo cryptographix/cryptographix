@@ -37,7 +37,7 @@ export const Fragment = (attributes: ViewParams) => {
 
 type FunctionView<VP extends ViewParams = any> = (_props: VP) => View.ViewNode;
 
-const attribAliasMap = {
+const nonStandardAttributeMap = {
   htmlFor: "for",
   class: "class",
   className: "class",
@@ -54,8 +54,8 @@ const attribAliasMap = {
 export function createElement(
   type: string | IConstructable<View> | FunctionView,
   attributes?: object,
-  ...children: (View.ChildNode)[]
-): View.ViewNode {
+  ...children: (View.ChildNode | View)[]
+): View.ViewNode | View {
   attributes = attributes || {};
 
   let $node: View.ViewNode;
@@ -81,8 +81,16 @@ export function createElement(
         }
       }
 
+      // add in any child views
+      children.forEach(child => {
+        if (child instanceof View) {
+          view.addChildView(child);
+        }
+      });
+
+      return view; // .element;
       // render-it
-      $node = view.element;
+      //return view.element;
     } else {
       // simple function
       $node = (type as FunctionView)(attributes || {});
@@ -98,13 +106,6 @@ export function createElement(
     Object.entries(attributes)
       // ignore null/undefined attributes
       .filter(([_key, value]) => value != null)
-      // map 'alias' names
-      .map(([name, value]) => {
-        return [
-          attribAliasMap.hasOwnProperty(name) ? attribAliasMap[name] : name,
-          value
-        ];
-      })
       // lowercase event attribute name
       .map(([name, value]) => {
         return [name.indexOf("on") === 0 ? name.toLowerCase() : name, value];
@@ -117,9 +118,9 @@ export function createElement(
           } else {
             throw new Error("'ref' must be a function");
           }
-        } else if (name.indexOf("data-") === 0) {
+          /*} else if (name.indexOf("data-") === 0) {
           // Example: <div data-element=.../> - must set on dataset property
-          $element.dataset[name.slice(5)] = value;
+          $element.dataset[name.slice(5)] = value;*/
         } else if (name === "style" && typeof value === "object") {
           // Example: <div style={{height: "20px"}}></div>
           for (const styleName in value) {
@@ -130,11 +131,16 @@ export function createElement(
           $element[name] = value; // value is set without any type conversion
           /*} else if (eventMap.hasOwnProperty(prop)) {
           node[eventMap[prop]] = value; } */
-        } else if (typeof value === "function") {
+        } /*else if (typeof value === "function") {
           $element.addEventListener(name, value);
+        } */ else if (
+          nonStandardAttributeMap.hasOwnProperty(name)
+        ) {
+          // Wierd and Aliased attributes
+          $element.setAttribute(nonStandardAttributeMap[name], value);
         } else {
           // set normal attributes on element
-          $element.setAttribute(name, value);
+          $element[name] = value;
         }
       });
 
