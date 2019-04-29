@@ -11,7 +11,7 @@ import { ensureNodeView, calcBlockHeight, LightenDarkenColor } from "./helpers";
 import { GridView } from "./grid-view";
 import { GridView as GV } from "./grid-view";
 
-export class NodeView extends View<GridView> {
+export class NodeView extends View {
   layout?: {
     x: number;
     y: number;

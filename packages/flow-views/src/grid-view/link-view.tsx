@@ -170,7 +170,7 @@ height: 3px;`}
       );
     }
 
-    return <fragment>{segs}</fragment>;
+    return <View.Fragment>{segs}</View.Fragment>;
     /*<div class="link" style={style}>
   </div>*/
   }

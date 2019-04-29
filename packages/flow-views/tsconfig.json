@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig-build.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "View.createElement",
+    "lib": ["dom"],
+    "declarationDir": "dist",
+    "outDir": "dist/build",
+    "rootDir": "src"
+  },
+  "include": ["src"]
+}

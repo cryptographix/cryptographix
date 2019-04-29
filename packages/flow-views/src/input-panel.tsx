@@ -1,7 +1,7 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 import { IActionHandler, Action } from "@cryptographix/core";
 import { View /*BlockView,  BlockViewParams */ } from "@cryptographix/core";
-import { PropertyView, PropertyValueChanged } from "./property-view";
+import { PropertyView, PropertyValueChanged } from "./properties/property-view";
 
 export class InputTransformer extends Transformer implements IActionHandler {
   public _key: string;
@@ -32,7 +32,7 @@ export class InputTransformer extends Transformer implements IActionHandler {
       ? initConfig.initValue
       : ByteArray.from([]);
 
-    this.helper.updatePortSchema(key, propInfo);
+    this.helper.updatePropSchema(key, propInfo);
   }
 
   private _firstTime = true;
@@ -97,7 +97,7 @@ export function InputPanel(params: { key: string; input: InputTransformer }) {
   const propRef = {
     target: input,
     key: key,
-    propertyType: input.helper.getPortSchema<IBytesSchemaProp>(key)
+    propertyType: input.helper.getPropSchema<IBytesSchemaProp>(key)
   };
 
   return <PropertyView handler={input} propRef={propRef} />;

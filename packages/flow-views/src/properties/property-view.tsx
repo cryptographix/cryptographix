@@ -131,7 +131,7 @@ export class PropertyView extends View {
    * Renders label.
    */
   renderLabel() {
-    return <label class="label">{this.ui.label}</label>;
+    return <label class="label  has-text-white">{this.ui.label}</label>;
   }
 
   /**
@@ -141,9 +141,9 @@ export class PropertyView extends View {
   renderMessage() {
     if (this.message) {
       return <p class="help is-danger">{this.message}</p>;
-    } else if (this.ui.hint) {
+    } /*else if (this.ui.hint) {
       return <p class="help is-info">{this.ui.hint}</p>;
-    }
+    }*/
   }
 
   stringValueChanged(evt: any) {
@@ -164,12 +164,52 @@ export class PropertyView extends View {
 
   boolValueChanged(evt: Event) {
     this.clearError();
-    let value = (evt.target as HTMLInputElement).checked;
+
+    let $el = evt.currentTarget as HTMLInputElement;
+
+    let value = $el.value != "false";
 
     this.value = value;
   }
 
   renderBoolean(propInfo: IBooleanSchemaProp, value: boolean) {
+    if (this.ui.widget === "radio") {
+      const options = {
+        false: propInfo.falseLabel || "false",
+        true: propInfo.trueLabel || "true"
+      };
+      const $$radio = [];
+
+      // render each option
+      Object.entries(options).map(([key, label]) => {
+        let isTrueOption = key != "false";
+
+        const $radio = (
+          <span>
+            <input
+              type="radio"
+              name="radio"
+              value={isTrueOption}
+              id={"radio-" + key}
+              checked={isTrueOption == value}
+              onChange={this.boolValueChanged.bind(this)}
+            />
+            <label htmlFor={"radio-" + key} style="text-transform: uppercase">
+              {label}
+            </label>
+          </span>
+        );
+
+        $$radio.push($radio);
+      });
+
+      return (
+        <div class="control">
+          <div class="radio">{$$radio}</div>
+        </div>
+      );
+    }
+
     return (
       <div class="control has-icons-right">
         <label class="checkbox">
@@ -195,7 +235,7 @@ export class PropertyView extends View {
           <label class="radio">
             <input
               type="radio"
-              name={this.propRef.key + "-" + key}
+              name={this.propRef.key}
               value={key}
               onChange={this.stringValueChanged.bind(this)}
               checked={value == key}
@@ -356,7 +396,7 @@ export class PropertyView extends View {
   }
 
   updateView(): boolean {
-    const $field = this.element;
+    const $field = this.element as HTMLElement;
 
     // Set focus modifier
     $field.classList.toggle("field--focus", this.hasFocus);

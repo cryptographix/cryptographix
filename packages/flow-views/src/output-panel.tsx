@@ -1,7 +1,7 @@
 import { Transformer, ByteArray, IBytesSchemaProp } from "@cryptographix/core";
 //import { IActionHandler } from "@cryptographix/core";
 import { View, BlockView } from "@cryptographix/core";
-import { PropertyView } from "./property-view";
+import { PropertyView } from "./properties/property-view";
 
 export class OutputTransformer extends Transformer {
   _key: string;
@@ -32,7 +32,7 @@ export class OutputTransformer extends Transformer {
       ? initConfig.initValue
       : ByteArray.from([]);
 
-    this.helper.updatePortSchema(key, propInfo);
+    this.helper.updatePropSchema(key, propInfo);
     this.helper.inPortKeys.push(key);
   }
 
@@ -54,7 +54,7 @@ export class OutputPanel extends BlockView<OutputTransformer> {
     const propRef = {
       target: output,
       key: key,
-      propertyType: output.helper.getPortSchema<IBytesSchemaProp>(key)
+      propertyType: output.helper.getPropSchema<IBytesSchemaProp>(key)
     };
 
     //    this.addChildView( new PropertyView( {handler={this.handler} propRef={propRef} readOnly={true} />
@@ -73,7 +73,7 @@ export class OutputPanel extends BlockView<OutputTransformer> {
   }
 
   render() {
-    return <fragment>{this.renderChildViews()}</fragment>;
+    return <View.Fragment>{this.renderChildViews()}</View.Fragment>;
   }
 }
 
