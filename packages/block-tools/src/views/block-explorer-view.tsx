@@ -30,11 +30,14 @@ export class BlockExplorerView extends View {
   transformer: TransformerNode;
   outputs = new Map<string, TransformerNode<{}, OutputTransformer>>();
 
+  flow;
+
   createView(transCtor: IConstructable<Transformer>) {
     let flow = Flow.fromTransformer<{}>(transCtor, transCtor.name, {
       iv: H2BA("0123456789ABCDEFFEDCBA9876543210")
     });
 
+    this.flow = flow;
     // instantiate
     flow.setup();
 
@@ -95,13 +98,16 @@ export class BlockExplorerView extends View {
     return (
       <div
         class="tile is-ancestor"
-        style="padding: 0.75rem"
+        style="padding: 0.75rem; background-color: darkblue"
         id="block-explorer"
       >
         <div class="tile is-vertical">
           {Array.from(this.inputs, ([key, input]) => {
             return (
-              <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+              <div
+                class="box tile is-child has-background-grey"
+                style="padding: 0.5rem 0.25rem"
+              >
                 <InputPanel key={key} input={input.transformer} />
               </div>
             );
@@ -116,7 +122,10 @@ export class BlockExplorerView extends View {
           </span>
         </div>
         <div class="tile" style="align-items: center">
-          <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+          <div
+            class="box has-background-grey tile is-child"
+            style="padding: 0.5rem 0.25rem"
+          >
             <TransformerView handler={this} node={this.transformer} />
             {}
           </div>
@@ -132,7 +141,10 @@ export class BlockExplorerView extends View {
         <div class="tile is-vertical">
           {Array.from(this.outputs, ([key, output]) => {
             return (
-              <div class="box tile is-child" style="padding: 0.5rem 0.25rem">
+              <div
+                class="box has-background-grey tile is-child"
+                style="padding: 0.5rem 0.25rem"
+              >
                 <OutputPanel key={key} output={output.transformer} />
               </div>
             );
@@ -190,6 +202,7 @@ export class BlockExplorerView extends View {
       case "property:value-changed":
         this.triggerTransformer().catch(err => console.log(err));
     }*/
+    this.flow.trigger();
 
     return null;
   }

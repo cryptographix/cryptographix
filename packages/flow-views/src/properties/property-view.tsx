@@ -295,7 +295,7 @@ export class PropertyView extends View {
           rows={rows}
           value={BA2H(value)}
         />
-      );
+      ).element;
     } else {
       $inner = (
         <input
@@ -308,7 +308,7 @@ export class PropertyView extends View {
           placeholder={this.ui.hint}
           value={BA2H(value)}
         />
-      );
+      ).element;
     }
 
     if (this.ui["readOnly"]) {
@@ -336,6 +336,7 @@ export class PropertyView extends View {
           placeholder={this.ui.hint}
           rows={rows}
           value={value || ""}
+          readonly={this.ui["readOnly"]}
         />
       );
     } else {
@@ -350,13 +351,14 @@ export class PropertyView extends View {
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
           value={value || ""}
+          readonly={this.ui["readOnly"]}
         />
       );
     }
 
-    if (this.ui["readOnly"]) {
-      $inner.setAttribute("readonly", "true");
-    }
+    //if (this.ui["readOnly"]) {
+    //  $inner.setAttribute("readonly", "true");
+    //}
 
     return <div class="control">{$inner}</div>;
   }

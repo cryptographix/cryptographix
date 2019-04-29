@@ -1,0 +1,125 @@
+#flow-script-panel {
+  position: relative;
+}
+#flow-grid {
+  position: absolute;
+  box-sizing: border-box;
+
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  overflow: auto;
+
+  padding: 1rem;
+
+  background-color: rgb(238, 238, 255);
+}
+
+#flow-grid .grid-inner {
+  position: absolute;
+  box-sizing: border-box;
+
+  background-color: rgb(201, 208, 255);
+}
+
+#flow-grid .node {
+  display: inline-block;
+  flex-grow: 0;
+  flex-shrink: 1;
+  position: absolute;
+  box-sizing: border-box;
+  width: 182px;
+  min-height: 5rem;
+  z-index: 100;
+  border: 3px solid rgb(123, 127, 165);
+  border-radius: 0.25rem;
+  /* padding: 1.25rem; */
+  padding-left: 1rem;
+  background-color: rgb(242, 243, 255);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+  color: rgb(49, 49, 49);
+  text-align: left;
+}
+
+#flow-grid .node:hover {
+  border-color: #f0f;
+}
+
+.pipeline .sc-htpNat {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  z-index: 250;
+}
+
+#flow-grid .port {
+  position: absolute;
+  box-sizing: border-box;
+  width: 15px;
+  height: 30px;
+
+  border: 3px solid rgb(0, 0, 0);
+
+  background-color: rgb(196, 195, 196);
+}
+
+#flow-grid .port:hover {
+  border-color: #f0f;
+}
+
+#flow-grid .in-port {
+  left: -15px;
+  border-radius: 14.5px 0px 0px 14.5px;
+}
+
+#flow-grid .out-port {
+  right: -15px;
+
+  border-radius: 0px 14.5px 14.5px 0px;
+}
+
+#flow-grid .link {
+  position: absolute;
+  box-sizing: border-box;
+  z-index: 99;
+}
+
+.link-seg {
+  position: absolute;
+  background-color: black;
+}
+
+#flow-grid .link-seg:hover {
+  background-color: #f0f;
+}
+
+#xflow-grid .link:hover .link-seg {
+  background-color: #f0f;
+}
+
+#flow-grid .h-link {
+  border-bottom: 3px solid black;
+}
+
+#flow-grid .mapper {
+  border: 1px solid #448;
+  border-right: 3px dashed #448;
+  /* z-index: 180; */
+  opacity: 0.3;
+}
+
+#flow-grid .mapper:hover {
+  background-color: lightblue;
+  opacity: 0.5;
+}
+
+#flow-grid .pipeline {
+  opacity: 0.3;
+}
+
+#flow-grid .pipeline:hover {
+  background-color: lightgreen;
+  border: 1px dashed #844;
+  opacity: 0.5;
+}

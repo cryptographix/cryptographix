@@ -1,0 +1,526 @@
+@import url("https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700|Ubuntu:300,300i,500,700&subset=latin-ext");
+
+body {
+  font-family: Ubuntu, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.42857;
+  background-color: #fff;
+}
+
+/**
+ *
+ */
+.field {
+  margin-bottom: 0px;
+  //border-bottom: 1px solid #e3e8ec;
+  position: relative;
+}
+.field:last-child {
+  border: none;
+}
+.field label,
+.field p {
+  color: #90999e;
+  //margin-left: 0.5rem;
+  margin-bottom: 0px;
+}
+
+.control {
+  font-size: 90%;
+}
+input[type="checkbox"] {
+  margin-right: 0.5rem;
+}
+
+.input.text,
+.input.bytes,
+.textarea.bytes,
+.textarea.text {
+  padding: 0.25rem;
+  font-size: 12px;
+}
+
+.input.bytes,
+.textarea.bytes {
+  font-family: monospace;
+}
+
+.button,
+.input,
+.textarea,
+.select select,
+.select:not(.is-multiple) {
+  /* height: 2rem; */
+}
+.field:not(:last-child) {
+  margin-bottom: 0.25rem;
+}
+
+.label:not(:last-child) {
+  margin-bottom: 0rem;
+}
+
+.control .input:not(:focus) {
+  border: none;
+  box-shadow: inherit;
+}
+
+.field .help {
+  margin-top: 0px;
+  margin-bottom: 0.25rem;
+}
+
+.field--invalid .label {
+  color: #ff6940;
+}
+
+.field--invalid::before {
+  content: "";
+  display: block;
+  width: 3px;
+  background: #ff6940;
+  position: absolute;
+  top: 4px;
+  left: 0px;
+  bottom: 4px;
+}
+
+.tabs {
+}
+.tab-content {
+  position: absolute;
+  height: calc(100vh - 52px - 42px);
+  top: 42px;
+  left: 0px;
+  right: 0px;
+}
+.tab {
+  display: none;
+}
+.tab.is-active {
+  display: inherit;
+}
+.tabs ul li a {
+  color: #ff0;
+  border-bottom: 1px solid #dbdbdb;
+}
+.tabs ul li.is-active a {
+  color: #fff;
+  font-weight: 700;
+  border-bottom: 1px solid #dbdbdb;
+}
+
+/**
+ *
+ */
+
+@media (min-width: 992px) {
+  .blocks-tool .hint {
+    /* display: block; */
+    /* margin-top: 90px; */
+    text-align: center;
+    background-color: transparent;
+  }
+
+  .blocks-tool .hint p {
+    line-height: 25px;
+  }
+
+  .blocks-tool .options {
+    /* margin-top: 60px; */
+    /* text-align: center; */
+  }
+
+  .blocks-tool .options i {
+    margin-top: 15px;
+  }
+}
+
+.blocks-tool .label {
+  font-weight: 700;
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+}
+
+.blocks-tool .p {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 30px;
+  margin-bottom: 20px;
+}
+
+.blocks-tool .transform-input {
+  margin-bottom: 15px;
+}
+
+.blocks-tool .transform-config {
+  border-left: 1px dashed lightgrey;
+}
+
+#jsondata {
+  font-family: "Ubuntu Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+  border-width: 0;
+  resize: vertical;
+  height: 316px;
+  overflow-y: scroll;
+}
+
+.button {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.overlay {
+  position: absolute;
+}
+
+.is-bottom-right {
+  bottom: 0px;
+  right: 0px;
+}
+
+.about h2.title {
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 40px;
+  margin-bottom: 30px;
+}
+
+.about p {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 30px;
+  margin-bottom: 20px;
+}
+
+.results {
+  background-color: #222;
+  color: #fff;
+  padding: 0;
+}
+
+.results .result {
+  padding: 20px;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #111;
+}
+
+.results .result .json {
+  font-family: "Ubuntu Mono", Menlo, Monaco, Consolas, "Courier New", monospace;
+  border-width: 0;
+}
+
+.results .result .json .sColon,
+.results .result .json .sComma {
+  color: #666;
+}
+
+.results .result .json .sObjectK {
+  font-weight: 700;
+  color: #333;
+}
+
+.results .result .json .sBrace,
+.results .result .json .sBracket {
+  color: #666;
+}
+
+.results .result .json .error {
+  color: #fff;
+  background-color: #c04830;
+}
+
+.results .result .json .warning {
+  background-color: #f1c40f;
+}
+
+.results .result .json .fa {
+  position: relative;
+  top: 2px;
+}
+
+.result .top {
+  display: table;
+  width: 100%;
+  position: relative;
+}
+
+.result .top .left,
+.result .top .middle,
+.result .top .right {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.result .top .middle {
+  width: 100%;
+}
+
+.result .top .right {
+  width: 208px;
+  min-width: 208px;
+}
+
+.result .top .buttons {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.result .top .buttons button {
+  color: #fff;
+}
+
+.result .name,
+.result .url {
+  position: relative;
+}
+
+.result .name div,
+.result .url div {
+  position: absolute;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  text-overflow: ellipsis;
+}
+
+.result .name div {
+  color: #ccc;
+}
+
+.result .name div i {
+  margin-left: 6px;
+  display: none;
+}
+
+.result .name div span:hover {
+  border-bottom: 1px dotted #666;
+  cursor: pointer;
+}
+
+.result .name div .form-control {
+  display: none;
+  padding: 0 5px;
+  border-width: 0;
+  height: 23px;
+  font-size: 16px;
+}
+
+.result .url div {
+  top: 23px;
+  color: #999;
+  font-style: italic;
+}
+
+.result .bottom {
+  margin-top: 15px;
+  margin-bottom: 7px;
+}
+
+.result .bottom .buttons {
+  position: absolute;
+  bottom: 20px;
+  right: 40px;
+}
+
+.result .btn-expand-data,
+.result .btn-expand-window {
+  display: none;
+}
+
+.result .fullscreen {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.result .fullscreen .json {
+  padding: 40px;
+}
+
+.result h3 {
+  margin: 0 10px 0 0;
+  color: #fff;
+  font-size: 3em;
+  line-height: 44px;
+}
+
+.result .validity {
+  display: block;
+  text-align: center;
+  color: #fff;
+  font-weight: 800;
+  text-transform: uppercase;
+  background-color: #27ae60;
+  font-size: 20px;
+  border-radius: 3px;
+  margin-bottom: 15px;
+}
+
+.result .validity-invalid {
+  background-color: #c0392b;
+}
+
+.result .jsonholder {
+  position: relative;
+  min-height: 200px;
+  height: 300px;
+}
+
+.result .jsonholder .ui-resizable-s {
+  cursor: s-resize;
+  height: 7px;
+  width: 100%;
+  bottom: -7px;
+  left: 0;
+  background-color: #333;
+  border-radius: 0 0 3px 3px;
+  text-align: center;
+}
+
+.result .jsonholder .ui-resizable-s:before {
+  content: "=";
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 6px;
+  color: #fff;
+}
+
+.result .errors,
+.result .json {
+  overflow-x: auto;
+  overflow-y: scroll;
+  background-color: #fff;
+  border-radius: 3px;
+  padding: 6px 12px;
+  color: #555;
+}
+
+.result .json {
+  height: 100%;
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+}
+
+.result .json pre {
+  display: inline;
+}
+
+.result .errors {
+  max-height: 200px;
+}
+
+.result .errors .fa {
+  margin-right: 8px;
+}
+
+.result .errors .fa-exclamation-triangle {
+  color: #f1c40f;
+}
+
+.result .errors .fa-exclamation-circle {
+  color: #c0392b;
+}
+
+.result .errors strong {
+  width: 5.6em;
+  display: inline-block;
+}
+
+.result .errors a {
+  margin-right: 15px;
+}
+
+.result .errors em {
+  font-size: 0.8em;
+  color: #999;
+}
+
+.switch[type="checkbox"] + label::before,
+.switch[type="checkbox"] + label:before {
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  width: 3rem;
+  height: 1.5rem;
+  border: 0.1rem solid transparent;
+  border-radius: 4px;
+  background: #b5b5b5;
+  content: "";
+}
+
+.switch[type="checkbox"] + label::after,
+.switch[type="checkbox"] + label:after {
+  display: block;
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 1rem;
+  height: 1rem;
+  transform: translate3d(0, 0, 0);
+  border-radius: 4px;
+  background: #fff;
+  transition: all 0.25s ease-out;
+  content: "";
+}
+
+.switch[type="checkbox"].is-rtl + label {
+  padding-left: 0;
+  padding-right: 3.5rem;
+}
+
+.switch[type="checkbox"].is-rtl + label::before,
+.switch[type="checkbox"].is-rtl + label:before {
+  left: auto;
+  right: 0;
+}
+
+.switch[type="checkbox"].is-rtl + label::after,
+.switch[type="checkbox"].is-rtl + label:after {
+  left: auto;
+  right: 0.25rem;
+}
+
+.switch[type="checkbox"]:checked + label::before,
+.switch[type="checkbox"]:checked + label:before {
+  background: #00d1b2;
+}
+
+.switch[type="checkbox"]:checked + label::after {
+  left: 1.625rem;
+}
+
+.switch[type="checkbox"]:checked.is-rtl + label::after,
+.switch[type="checkbox"]:checked.is-rtl + label:after {
+  left: auto;
+  right: 1.625rem;
+}
+
+.control .radio {
+  margin-bottom: 0.5rem;
+}
+.radio input {
+  visibility: hidden;
+  opacity: 0;
+  width: 0;
+}
+
+.radio label {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #999999;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  color: #90999e;
+}
+
+.radio input:checked + label {
+  color: white;
+  border: 1px solid white;
+}
+
+.radio input:not(:checked) + label:hover {
+  color: white;
+  background-color: #2222;
+}

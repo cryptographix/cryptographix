@@ -4,7 +4,6 @@ import { IStringSchemaProp } from "@cryptographix/core";
 import { Flow } from "@cryptographix/flow";
 
 import { PropertyView, PropertyValueChanged } from "@cryptographix/flow-views";
-//import { TileView } from "./tile-view";
 import { GridView } from "@cryptographix/flow-views";
 
 export class FlowScriptView extends View implements IActionHandler {
@@ -138,7 +137,7 @@ export class FlowScriptView extends View implements IActionHandler {
 
   renderFlowPanel() {
     return (
-      <div id="flow-script-panel">
+      <div id="flow-script-panel" style="background-color: darkblue">
         <div class="tabs">
           <ul>
             <li data-tab="1" onClick={this.showTab.bind(this)}>

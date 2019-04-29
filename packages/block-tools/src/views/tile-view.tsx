@@ -9,8 +9,14 @@ import {
 } from "@cryptographix/flow";
 
 export class TileView extends View {
-  constructor(public node: Flow, public root: boolean) {
+  node: Flow;
+  root: boolean;
+
+  constructor(props: { node: Flow; root: boolean }) {
     super();
+
+    this.node = props.node;
+    this.root = props.root;
   }
 
   renderPipe(node: PipelineNode) {
@@ -111,6 +117,10 @@ export class TileView extends View {
   }
 
   render() {
-    return <div class="tile is-ancestor">{this.renderNode(this.node)}</div>;
+    return (
+      <div class="tile is-ancestor" style="background-color: darkblue">
+        {this.renderNode(this.node)}
+      </div>
+    );
   }
 }
