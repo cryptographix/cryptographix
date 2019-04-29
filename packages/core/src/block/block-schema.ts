@@ -61,10 +61,8 @@ export class BlockSchemaHelper<
   protected block: TBlock;
   readonly schema: IBlockSchema<TConfig>;
 
-  readonly configSchema: ISchema<TConfig>;
-
   //
-  propertyCache: { [key: string]: AnySchemaProperty } = {};
+  readonly configSchema: ISchema<TConfig>;
 
   constructor(block: TBlock) {
     //
@@ -77,16 +75,63 @@ export class BlockSchemaHelper<
     this.configSchema = Schema.getSchemaForClass<TConfig, ISchema<TConfig>>(
       this.schema.config || ({} as any)
     );
+  }
 
-    // Local copy of merged properties
-    this.propertyCache = {
-      ...this.configSchema.properties,
-      ...this.schema.properties
-    };
+  //
+  protected _propertyCache: { [key: string]: AnySchemaProperty };
+
+  /**
+   * Local cache for block and config properties
+   */
+  get propertyCache() {
+    if (!this._propertyCache) {
+      // Merge block and config properties into local cache
+      let cache = (this._propertyCache = {
+        ...this.schema.properties,
+        ...this.configSchema.properties
+      });
+
+      // some magic ..
+      Object.keys(this.schema.properties)
+        // 'shared' property, present both in block and config
+        .filter(prop => this.configSchema.properties.hasOwnProperty(prop))
+        .forEach(prop => {
+          // Merge property definitions .. lets hope they are compatible
+          cache[prop] = {
+            ...this.configSchema.properties[prop],
+            ...this.schema.properties[prop]
+          } as any;
+        });
+    }
+
+    return this._propertyCache;
   }
 
   isSchemaProperty(prop: string): boolean {
-    return !!this.schema.properties[prop];
+    return this.schema.properties.hasOwnProperty(prop);
+  }
+
+  getPropSchema<TSchemaProp extends ISchemaProperty>(key: string): TSchemaProp {
+    let schemaProp = this.propertyCache[key as string];
+
+    return schemaProp as TSchemaProp;
+  }
+
+  updatePropSchema<TSchemaProp extends ISchemaProperty>(
+    key: string,
+    updatedProp: Partial<TSchemaProp>
+  ): TSchemaProp {
+    let schemaProp = this.propertyCache[key];
+
+    schemaProp = {
+      ...schemaProp,
+      ...updatedProp
+    };
+
+    // Save to cache
+    this.propertyCache[key as string] = schemaProp;
+
+    return schemaProp as TSchemaProp;
   }
 
   /*
@@ -97,10 +142,9 @@ export class BlockSchemaHelper<
    *   3. Default value defined in Schema
    */
   initBlockProperties(): void {
-    let props = Object.entries(this.schema.properties);
-
     const block = this.block;
-    props.forEach(([key, propInfo]) => {
+
+    Object.entries(this.schema.properties).forEach(([key, propInfo]) => {
       Schema.initPropertyFromPropertyType(
         propInfo,
         block,
@@ -112,22 +156,22 @@ export class BlockSchemaHelper<
   }
 
   extractBlockProperties(props: string[]): Partial<TBlock> {
-    const self = this;
+    const block = this.block;
 
     return props
       .filter(this.isSchemaProperty.bind(this))
       .reduce<Partial<TBlock>>((accum, name) => {
-        accum[name] = self.block[name];
+        accum[name] = block[name];
 
         return accum;
       }, {});
   }
 
   updateBlockProperties(obj: Partial<TBlock>, props: string[]): void {
-    const self = this;
+    const block = this.block;
 
     props.filter(this.isSchemaProperty.bind(this)).forEach(name => {
-      self.block[name] = obj[name];
+      block[name] = obj[name];
     });
   }
 
@@ -151,32 +195,7 @@ export class BlockSchemaHelper<
     return (this.config[key] as unknown) as RT;
   }
 
-  getConfigPropSchema<TSchemaProp extends ISchemaProperty>(
-    key: string
-  ): TSchemaProp {
-    let schemaProp = this.propertyCache[key as string];
-
-    return schemaProp as TSchemaProp;
-  }
-
-  updateConfigPropSchema<TSchemaProp extends ISchemaProperty>(
-    key: string,
-    updatedProp: Partial<TSchemaProp>
-  ): TSchemaProp {
-    let schemaProp = this.propertyCache[key];
-
-    schemaProp = {
-      ...schemaProp,
-      ...updatedProp
-    };
-
-    // Save to cache
-    this.propertyCache[key as string] = schemaProp;
-
-    return schemaProp as TSchemaProp;
-  }
-
-  getPortSchema<TSchemaProp extends ISchemaProperty = AnySchemaProperty>(
+  /*getPortSchema<TSchemaProp extends ISchemaProperty = AnySchemaProperty>(
     key: string
   ): TSchemaProp {
     let schemaProp = this.propertyCache[key];
@@ -199,11 +218,11 @@ export class BlockSchemaHelper<
     this.propertyCache[key] = schemaProp;
 
     return schemaProp as TSchemaProp;
-  }
+  }*/
 
-  filterPorts(filterFn?: (item: ISchemaProperty) => boolean) {
-    return Object.entries(this.propertyCache).filter(([_key, propInfo]) => {
-      return !filterFn || filterFn(propInfo);
+  filterProps(filterFn?: (item: ISchemaProperty, key: string) => boolean) {
+    return Object.keys(this.propertyCache).filter(key => {
+      return !filterFn || filterFn(this.propertyCache[key], key);
     });
   }
 }

@@ -44,13 +44,13 @@ export class BlockExplorerApp extends View {
 
   render(): HTMLElement {
     return (
-      <fragment>
+      <View.Fragment>
         <Header />
         <div id="flows" style="background-color: #2980b9; padding: 0.5rem">
           {/*<BlockExplorerView transCtor={CR.SecretKeyEncrypter} />*/}
           <FlowScriptView flowScript={netx} />
         </div>
-      </fragment>
+      </View.Fragment>
     );
   }
 }

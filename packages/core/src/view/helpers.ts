@@ -1,5 +1,5 @@
 import { IConstructable } from "../index";
-import { View, ViewParams } from "./view";
+import { View, ViewParams, ElementView } from "./view";
 
 const svgElements = {
   circle: true,
@@ -28,7 +28,7 @@ export const Fragment = (attributes: ViewParams) => {
 
   if (attributes.children) {
     attributes.children.forEach($item => {
-      View.appendChildNode($node, $item);
+      View.appendChild($node, $item);
     });
 
     return $node;
@@ -37,6 +37,8 @@ export const Fragment = (attributes: ViewParams) => {
 
 type FunctionView<VP extends ViewParams = any> = (_props: VP) => View.ViewNode;
 
+// From: UIBuilder & cryptii
+// Map name, and use Element.setAttribute
 const nonStandardAttributeMap = {
   htmlFor: "for",
   class: "class",
@@ -58,7 +60,7 @@ export function createElement(
 ): View.ViewNode | View {
   attributes = attributes || {};
 
-  let $node: View.ViewNode;
+  let $node: View.ViewNode | View;
 
   // Component (class or Function)
   if (typeof type == "function") {
@@ -81,6 +83,8 @@ export function createElement(
         }
       }
 
+      // Lazy rendering allows us to build View hierarchies
+
       // add in any child views
       children.forEach(child => {
         if (child instanceof View) {
@@ -88,11 +92,10 @@ export function createElement(
         }
       });
 
-      return view; // .element;
-      // render-it
-      //return view.element;
+      // and return the View instance ..
+      return view;
     } else {
-      // simple function
+      // call function ..
       $node = (type as FunctionView)(attributes || {});
       type = (type as Function).name;
     }
@@ -110,51 +113,65 @@ export function createElement(
       .map(([name, value]) => {
         return [name.indexOf("on") === 0 ? name.toLowerCase() : name, value];
       })
-      .forEach(([name, value]) => {
-        if (name === "ref") {
-          // UIBuilder-style refs
-          if (typeof value === "function") {
-            value($element);
-          } else {
-            throw new Error("'ref' must be a function");
-          }
-          /*} else if (name.indexOf("data-") === 0) {
-          // Example: <div data-element=.../> - must set on dataset property
-          $element.dataset[name.slice(5)] = value;*/
-        } else if (name === "style" && typeof value === "object") {
-          // Example: <div style={{height: "20px"}}></div>
-          for (const styleName in value) {
-            $element.style[styleName] = value[styleName];
-          }
-        } else if (name in $element && typeof value === "object") {
-          // pass object-valued attributes to Web Components
-          $element[name] = value; // value is set without any type conversion
-          /*} else if (eventMap.hasOwnProperty(prop)) {
-          node[eventMap[prop]] = value; } */
-        } /*else if (typeof value === "function") {
-          $element.addEventListener(name, value);
-        } */ else if (
-          nonStandardAttributeMap.hasOwnProperty(name)
-        ) {
-          // Wierd and Aliased attributes
-          $element.setAttribute(nonStandardAttributeMap[name], value);
-        } else {
-          // set normal attributes on element
-          $element[name] = value;
-        }
-      });
+      .forEach(([name, value]) => setAttribute($element, name, value));
 
     children.forEach($item => {
-      View.appendChildNode($element, $item);
+      View.appendChild($element, $item);
     });
 
-    $node = $element;
+    $node = new ElementView($element);
   }
 
   return $node;
 }
 
-// From: UIBuilder
+function setAttribute(
+  $element: HTMLElement | SVGElement,
+  name: string,
+  value: any
+): void {
+  if (name === "ref") {
+    // UIBuilder-style refs
+    if (typeof value === "function") {
+      value($element);
+    } else {
+      throw new Error("'ref' must be a function");
+    }
+  } else if (name.indexOf("data-") === 0) {
+    // Example: <div data-element=.../> - must set on dataset property
+    const upperFirst = (s: string) => {
+      s.substr(0, 1).toUpperCase() + s.substr(1);
+    };
+    const attr = name.slice(5); // remove 'data-'
+    const camelCased = attr
+      .split("-")
+      .map((segment, index) => (index > 0 ? upperFirst(segment) : segment))
+      .join("");
+
+    $element.dataset[camelCased] = value;
+  } else if (name === "style" && typeof value === "object") {
+    // Example: <div style={{height: "20px"}}></div>
+    for (const styleName in value) {
+      $element.style[styleName] = value[styleName];
+    }
+  } else if (name in $element && typeof value === "object") {
+    // pass object-valued attributes to Web Components
+    $element[name] = value; // value is set without any type conversion
+  }
+  //else if (eventMap.hasOwnProperty(prop)) {
+  //    node[eventMap[prop]] = value; } */
+  //} else if (typeof value === "function") {
+  //    $element.addEventListener(name, value);
+  //}
+  else if (nonStandardAttributeMap.hasOwnProperty(name)) {
+    // Wierd and aliased attributes
+    $element.setAttribute(nonStandardAttributeMap[name], value);
+  } else {
+    // set normal attributes on element
+    $element[name] = value;
+  }
+}
+
 /*
 const attribMap = {
   htmlFor: "for",

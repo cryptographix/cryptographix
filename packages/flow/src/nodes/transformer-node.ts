@@ -89,7 +89,7 @@ export class TransformerNode<
     this.inMask = this.trigMask = 0;
 
     this.inKeys.forEach((key, index) => {
-      let propSchema = this.block.helper.getPortSchema(key);
+      let propSchema = this.block.helper.getPropSchema(key);
 
       if (!propSchema.optional) this.trigMask |= 1 << index;
 
@@ -118,7 +118,7 @@ export class TransformerNode<
   getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
     key: string
   ): TSchemaProperty {
-    return this.block.helper.getPortSchema(key) as TSchemaProperty;
+    return this.block.helper.getPropSchema(key) as TSchemaProperty;
   }
 
   /**

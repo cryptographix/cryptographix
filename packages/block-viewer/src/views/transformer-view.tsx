@@ -12,7 +12,10 @@ import { TransformerNode } from "@cryptographix/flow";
 
 export { PropertyValueChanged };
 
-import { PropertyListView, PropertyValueChanged } from "./property-list-view";
+import {
+  PropertyListView,
+  PropertyValueChanged
+} from "@cryptographix/flow-views";
 
 export class TransformerView extends View {
   node: TransformerNode;

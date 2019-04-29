@@ -6,7 +6,7 @@
     "packages/flow",
     "packages/cryptography",
     "packages/payments",
-    "packages/sim-core",
+    "packages/flow-views",
     "packages/block-viewer"
   ],
   "version": "0.1.0"

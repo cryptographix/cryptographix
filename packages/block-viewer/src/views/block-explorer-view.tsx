@@ -14,8 +14,8 @@ import {
   PipelineNode
 } from "@cryptographix/flow";
 
-import { InputTransformer, InputPanel } from "./input-panel";
-import { OutputTransformer, OutputPanel } from "./output-panel";
+import { InputTransformer, InputPanel } from "@cryptographix/flow-views";
+import { OutputTransformer, OutputPanel } from "@cryptographix/flow-views";
 import { TransformerView } from "./transformer-view";
 //import { PropertyValueChanged } from "./property-view";
 
@@ -44,7 +44,7 @@ export class BlockExplorerView extends View {
 
     let inputMapper = new MapperNode({});
     flow.inKeys.forEach(key => {
-      let schema = block.helper.getPortSchema(key);
+      let schema = block.helper.getPropSchema(key);
 
       let input = new TransformerNode<{}, InputTransformer>(
         InputTransformer,
@@ -66,7 +66,7 @@ export class BlockExplorerView extends View {
 
     let outputMapper = new MapperNode({});
     flow.outKeys.forEach(key => {
-      let schema = block.helper.getPortSchema(key);
+      let schema = block.helper.getPropSchema(key);
 
       let output = new TransformerNode<{}, OutputTransformer>(
         OutputTransformer,

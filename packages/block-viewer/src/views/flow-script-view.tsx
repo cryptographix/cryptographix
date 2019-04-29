@@ -3,9 +3,9 @@ import { IStringSchemaProp } from "@cryptographix/core";
 
 import { Flow } from "@cryptographix/flow";
 
-import { PropertyView, PropertyValueChanged } from "./property-view";
+import { PropertyView, PropertyValueChanged } from "@cryptographix/flow-views";
 //import { TileView } from "./tile-view";
-import { GridView } from "../grid-view/grid-view";
+import { GridView } from "@cryptographix/flow-views";
 
 export class FlowScriptView extends View implements IActionHandler {
   inputView: PropertyView;

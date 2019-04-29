@@ -62,7 +62,7 @@ export class Z {
   @stringProp({ default: "a string" })
   text: string;
 
-  @bytesProp({ default: H2BA("0123456789abcdef"), minSize: 8 })
+  @bytesProp({ default: H2BA("0123456789abcdef"), minLength: 8 })
   bytes: ByteArray;
 
   // @enumProp( { options: { elements: [ "1","2","3" ], labels: [ "one", "two", "three" ] }} )

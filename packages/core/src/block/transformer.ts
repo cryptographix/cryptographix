@@ -1,5 +1,5 @@
 import { Block } from "./block";
-import { IActionHandler, Action } from "../dispatcher/action";
+import { IActionHandler /*, Action*/ } from "../dispatcher/action";
 import { BlockSchemaHelper } from "./block-schema";
 import { BlockConfiguration } from "./block-config";
 import { FilterSchemaProps } from "../schema/index";
@@ -19,18 +19,14 @@ export class TransformerSchemaHelper<
    * Return list of keys (names of ) Input Ports
    */
   get inPortKeys() {
-    return this.filterPorts(prop => prop.io && prop.io.type == "data-in").map(
-      ([_key, prop]) => prop.name
-    );
+    return this.filterProps(prop => prop.io && prop.io.type == "data-in");
   }
 
   /**
    * Return list of keys (names of ) Output Ports
    */
   get outPortKeys() {
-    return this.filterPorts(prop => prop.io && prop.io.type == "data-out").map(
-      ([_key, prop]) => prop.name
-    );
+    return this.filterProps(prop => prop.io && prop.io.type == "data-out");
   }
 
   /*hasValidInputs(errors: string[] = []): boolean {
@@ -68,7 +64,7 @@ export abstract class Transformer<
    * Ready for trigger ?
    */
   get canTrigger(): boolean {
-    const requiredInputs = this.helper.filterPorts(
+    const requiredInputs = this.helper.filterProps(
       item => item && item.io && item.io.type == "data-in" && !item.optional
     );
 
@@ -103,7 +99,6 @@ export abstract class Transformer<
 
 /**
  *
- */
 export class PortDataAction<T = any> extends Action {
   action: "port:data" = "port:data";
 
@@ -129,4 +124,4 @@ export class PortDataAction<T = any> extends Action {
   get id() {
     return this.__id;
   }
-}
+}*/

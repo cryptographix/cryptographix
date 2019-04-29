@@ -101,9 +101,17 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
   @isPort({ type: "data-in", primary: true })
   "in"?: Uint8Array;
 
-  @bytesProp({ title: "Secret Key", minSize: 8, maxSize: 32 })
+  @bytesProp({ title: "Secret Key", minLength: 8, maxLength: 32 })
   @isPort({ type: "data-in" })
   key: Uint8Array;
+
+  @bytesProp({
+    title: "Initial Vector",
+    optional: true,
+    ui: { hint: "Size must be equal to cipher block size" }
+  })
+  @isPort({ type: "data-in" })
+  iv?: Uint8Array;
 
   @bytesProp({
     title: "Encrypted / Decrypted Data",
@@ -138,21 +146,25 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
     switch (setting) {
       case "algorithm": {
         const { keySize } = BlockCipherHelper.getAlgorithm(value);
+        const { blockSize } = BlockCipherHelper.getAlgorithm(value);
 
-        helper.updatePortSchema<IBytesSchemaProp>("key", {
-          minSize: keySize,
-          maxSize: keySize
+        helper.updatePropSchema<IBytesSchemaProp>("key", {
+          minLength: keySize,
+          maxLength: keySize
         });
+
+        helper.updatePropSchema<IBytesSchemaProp>("iv", {
+          minLength: blockSize,
+          maxLength: blockSize
+        });
+
         break;
       }
 
       case "mode": {
-        const { algorithm } = this.config;
-        const { blockSize } = BlockCipherHelper.getAlgorithm(algorithm);
         const { hasIV } = BlockCipherHelper.getMode(value);
 
-        helper.updateConfigPropSchema<IBytesSchemaProp>("iv", {
-          minSize: blockSize,
+        helper.updatePropSchema<IBytesSchemaProp>("iv", {
           ignore: !hasIV
         });
         break;
