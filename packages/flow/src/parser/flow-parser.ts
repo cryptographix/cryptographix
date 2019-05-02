@@ -1,8 +1,12 @@
+import { ByteArray } from "@cryptographix/core";
+
 import { Tokenizer, Token, EOF } from "./tokenizer";
 import {
   Flow,
   AnyFlowNode,
-  DataNode,
+  ConstantDataNode,
+  SelectorDataNode,
+  FunctionDataNode,
   TransformerNode,
   MapperNode,
   PipelineNode
@@ -16,9 +20,17 @@ export class ParseError extends Error {
   }
 }
 
-const operators = ["|>", ".", "{", "}", "[", "]", ",", ":"];
+function isTokenOneOf(token: Token, tokens: string | string[]) {
+  let ok = false;
 
-type PropType<TObj, TProp extends keyof TObj> = TObj[TProp];
+  if (Array.isArray(tokens)) {
+    ok = !!tokens.find(t => t == token.value);
+  } else ok = tokens == token.value;
+
+  return ok;
+}
+
+const operators = ["|>", ".", "{", "}", "[", "]", ",", ":"];
 
 export class FlowParser {
   readonly tokenizer: Tokenizer;
@@ -27,77 +39,96 @@ export class FlowParser {
     this.tokenizer = new Tokenizer(operators);
 
     this.tokenizer.startParse(text);
+
+    this.tokenStack = [];
   }
+
+  // LIFO
+  protected tokenStack: Token[] = [];
 
   protected get isEOF() {
-    return (
-      (this._curToken && this._curToken.type == "EOF") || this.tokenizer.isEOF
-    );
+    return this.tokenStack.length == 0 && this.tokenizer.isEOF;
   }
 
-  private _curToken: Token;
-  protected tokPos: PropType<Tokenizer, "position">;
+  /**
+   * Read and consume 'next' token.
+   */
+  protected readToken(): Token {
+    let token = this.token;
 
-  protected get curToken(): Token {
-    if (!this._curToken) {
-      let pos = (this.tokPos = this.tokenizer.position);
-      let posn = `(${pos.line + 1},${pos.col + 1}): `;
+    this.tokenStack.shift();
 
-      if (this.isEOF) {
-        return (this._curToken = EOF);
-      }
+    return token;
+  }
 
-      let tok = (this._curToken = this.tokenizer.nextToken());
+  /**
+   *
+   */
+  protected get token(): Token {
+    return this.peekToken(0);
+  }
 
-      if (0)
-        switch (tok.type) {
+  /**
+   *
+   */
+  protected pushToken(token: Token) {
+    this.tokenStack.unshift(token);
+  }
+
+  /**
+   * Take a look an the 'n'th token (0 = current)
+   * If necessary, perform read-ahead
+   */
+  protected peekToken(index: number): Token {
+    let stack = this.tokenStack;
+
+    while (!this.isEOF && stack.length <= index) {
+      let token = this.tokenizer.nextToken();
+
+      if (0) {
+        let posn = `(${token.position.line + 1},${token.position.col + 1}): `;
+
+        switch (token.type) {
           case "number":
-            console.log(posn + "Number", tok.value);
+            console.log(posn + "Number", token.value);
             break;
 
           case "string":
-            console.log(posn + "String", tok.value);
+            console.log(posn + "String", token.value);
             break;
 
           case "identifier":
-            console.log(posn + "Identifier", tok.value);
+            console.log(posn + "Identifier", token.value);
             break;
 
           case "boolean":
-            console.log(posn + "Boolean", tok.value);
+            console.log(posn + "Boolean", token.value);
             break;
 
           case "token":
-            console.log(posn + "Token", tok.value);
+            console.log(posn + "Token", token.value);
             break;
 
           default:
-            console.log(posn + tok.value);
+            console.log(posn + token.value);
         }
+      }
+
+      if (token.type != "EOF") stack.push(token);
     }
 
-    return this._curToken;
+    return index < stack.length ? stack[index] : EOF;
   }
 
-  protected skipToken(): Token {
-    const tok = this.curToken;
-
-    this._curToken = null;
-
-    return tok;
-  }
-
+  /**
+   *
+   */
   protected ensureToken(tokens: string | string[], msg: string) {
-    let tok = this.curToken.value;
-    let ok = false;
+    if (!isTokenOneOf(this.token, tokens)) {
+      throw new ParseError(this.token.position, msg);
+    }
 
-    if (Array.isArray(tokens)) {
-      ok = !!tokens.find(t => t == tok);
-    } else ok = tokens == tok;
-
-    if (!ok) throw new ParseError(this.tokPos, msg);
-
-    this.skipToken();
+    this.readToken();
   }
 
   protected isValue(tok: Token) {
@@ -106,124 +137,190 @@ export class FlowParser {
     );
   }
 
-  protected parseValue() {
-    let tok = this.curToken;
-    let val = tok.value;
+  protected parseValue<T = boolean | string | number>(): T {
+    let token = this.token;
+    let value = token.value;
 
-    switch (tok.type) {
-      case "string":
+    switch (token.type) {
       case "number":
+        this.readToken();
+        return (parseInt(value) as unknown) as T;
+
+      case "string":
+        this.readToken();
+        return (value as unknown) as T;
+
       case "boolean":
-        this.skipToken();
-        break;
+        this.readToken();
+        return ((value != "false") as unknown) as T;
 
       default:
-        throw new ParseError(this.tokPos, "Needed a constant value");
+        throw new ParseError(token.position, "Needed a constant value");
     }
-
-    return val;
   }
 
   protected parseString(): string {
-    let tok = this.curToken;
-    let val = tok.value;
+    let token = this.token;
 
-    if (tok.type == "string") {
-      this.skipToken();
-      return val as string;
+    if (token.type == "string") {
+      this.readToken();
+
+      return this.readToken().value;
     }
 
-    throw new ParseError(this.tokPos, "Needed a string");
+    throw new ParseError(token.position, "Needed a string");
   }
 
   protected parseIdentifier(): string {
-    if (this.curToken.type == "identifier") {
-      return this.skipToken().value as string;
+    let token = this.token;
+
+    if (token.type == "identifier") {
+      return this.readToken().value;
     }
 
-    throw new ParseError(this.tokPos, "Needed an identifier");
+    throw new ParseError(token.position, "Needed an identifier");
   }
 
   protected parseObject() {
     let result = {};
 
-    this.skipToken(); // skip {
+    this.ensureToken("{", "Missing '{'");
 
-    if (this.curToken.value != "}") {
-      while (!this.isEOF) {
-        const seq = this.parseIdentifier();
+    while (!this.isEOF && this.token.value != "}") {
+      const seq = this.parseIdentifier();
 
-        this.ensureToken(":", "missing property terminator :");
+      this.ensureToken(":", "missing property terminator :");
 
-        let item = this.parseValue();
+      let item = this.parseValue();
 
-        result[seq] = item;
+      result[seq] = item;
 
-        if (this.curToken.value != ",") break;
+      if (this.token.value != ",") break;
 
-        this.skipToken();
-      }
+      this.readToken();
     }
 
-    this.ensureToken("}", "Object");
+    this.ensureToken("}", "Missing '}'");
 
     return result;
   }
 
   protected parseStringOrObject() {
-    return this.curToken.value == "{" ? this.parseObject() : this.parseString();
+    return this.token.value == "{" ? this.parseObject() : this.parseString();
   }
 
   protected parseMapperNode(): AnyFlowNode {
     let map = {};
     let id: string;
-    //let flow: string | {};
 
-    this.skipToken(); // skip {
+    this.ensureToken("{", "Missing '{'");
 
-    if (this.curToken.value != "}") {
-      while (!this.isEOF) {
-        const key = this.parseIdentifier();
+    while (!this.isEOF && this.token.value != "}") {
+      const key = this.parseIdentifier();
 
-        if (this.curToken.value != ":") {
-          // Allow ES6 style initializers, { key }
-          if ("},".indexOf("" + this.curToken.value) >= 0) {
-            map[key] = null;
-          }
-        } else {
-          this.ensureToken(":", "missing property terminator :");
+      if (this.token.value != ":") {
+        // Allow ES6 style initializers: { key }
+        if (isTokenOneOf(this.token, ["}", ","])) {
+          map[key] = new SelectorDataNode(key, key);
+        }
+      } else {
+        this.ensureToken(":", "Missing ':'");
 
-          if (key.indexOf("$") == 0) {
-            if (key == "$id") {
-              id = this.parseString();
-            } else {
-              let item = this.parseStringOrObject();
-
-              map[key] = item;
-            }
+        if (key.indexOf("$") == 0) {
+          if (key == "$id") {
+            id = this.parseString();
           } else {
-            let item = this.parseFlowNode();
+            let item = this.parseStringOrObject();
 
             map[key] = item;
           }
+        } else {
+          let item: AnyFlowNode;
+
+          switch (this.token.type) {
+            case "identifier":
+              // just identifier .. must be a selector { id: id2 }
+              if (isTokenOneOf(this.peekToken(1), ["}", ","])) {
+                item = new SelectorDataNode(this.token.value, key);
+
+                this.readToken();
+              } else {
+                // should be a FlowNode ..
+                item = this.parseFlowNode();
+              }
+              break;
+
+            default:
+              item = this.parseFlowNode();
+          }
+
+          map[key] = item;
         }
+      }
 
-        if (this.curToken.value != ",") break;
+      if (this.token.value != ",") break;
 
-        this.skipToken();
+      this.readToken();
+    }
+
+    this.ensureToken("}", "missing '}'");
+
+    return new MapperNode(map, id);
+  }
+
+  protected parseInternalNode(): FunctionDataNode | ConstantDataNode<any> {
+    let name = this.parseIdentifier();
+    let params: string[] = [];
+
+    this.ensureToken("(", "missing '(' on inbuilt");
+
+    if (this.token.type == "string") {
+      params.push(this.parseValue<string>());
+    }
+
+    this.ensureToken(")", "missing close parenthesis on block");
+
+    switch (name) {
+      case "$hex": {
+        // Convert param[0] from hex to bytes
+        const byteValue = ByteArray.fromString(params[0], "hex");
+
+        return new ConstantDataNode(byteValue, "hex");
+      }
+
+      case "$base64": {
+        // Convert param[0] from base64 to bytes
+        // TODO
+        const byteValue = ByteArray.fromString(params[0], "base64");
+
+        return new ConstantDataNode(byteValue, "base64");
       }
     }
 
-    this.ensureToken("}", "Object");
+    // TODO:
+    return new FunctionDataNode(name, params);
+  }
 
-    return new MapperNode(map, id);
+  protected parseConstantNode() {
+    let token = this.token;
+
+    switch (token.type) {
+      case "number":
+        return new ConstantDataNode<number>(this.parseValue(), token.type);
+
+      case "string":
+        return new ConstantDataNode<string>(this.parseValue(), token.type);
+
+      case "boolean":
+        return new ConstantDataNode<boolean>(this.parseValue(), token.type);
+    }
   }
 
   /*protected parseArray() {
     let result = [];
 
-    this.skipToken(); // skip [
-    if (this.curToken.value == "]") {
+    this.readToken(); // skip [
+    if (this.token.value == "]") {
       return result;
     }
 
@@ -232,45 +329,47 @@ export class FlowParser {
 
       result.push(seq);
 
-      if (this.curToken.value != ",") break;
+      if (this.token.value != ",") break;
 
-      this.skipToken();
+      this.readToken();
     }
 
     this.ensureToken(["]"], "missing array terminator ']'");
 
-    //this.skipToken();
+    //this.readToken();
 
     return result;
   }*/
 
+  /**
+   *
+   *
+   *
+   */
   protected parseBlockNode(): TransformerNode {
-    let block = this.curToken.value;
+    let block = this.readToken().value;
     let cfg = undefined;
     let name = undefined;
-    this.skipToken();
 
-    this.ensureToken("(", "missing open parenthesis on block");
+    this.ensureToken("(", "missing '(' on block");
 
-    if (this.curToken.type == "string") {
-      name = this.curToken.value;
-      this.skipToken();
+    if (this.token.type == "string") {
+      name = this.token.value;
+      this.readToken();
 
-      if (this.curToken.value == ",") {
-        this.skipToken();
-        let tok = this.curToken;
+      if (this.token.value == ",") {
+        this.readToken(); // skip ','
+
+        let tok = this.token;
 
         if (tok.value != "{") {
           this.ensureToken("{", "missing config parameter on block");
         }
       }
-
-      //console.log("Got label", name);
     }
 
-    if (this.curToken.value == "{") {
+    if (this.token.value == "{") {
       cfg = this.parseObject();
-      console.log("Got CFG", cfg);
     }
 
     this.ensureToken(")", "missing close parenthesis on block");
@@ -281,43 +380,53 @@ export class FlowParser {
 
   /**
    *  Parses a flow node, returning one of:
-   *    DataNode:         a literal value -> ""/''/int/bool/0xHEX,0bBASE64
-   *    TransformerNode:  a transformer -> Block( opts?, cfg? )
-   *    MapperNode:       a map of named nodes -> '{ key: node, ... }'
-   *    PipelineNode:     a pipe of nodes -> N1 |>
+   *    DataNode:
+   *      ConstantDataNode: a literal value -> ""/''/int/bool
+   *      SelectorDataNode: a selector '{ out: in } or { io }'
+   *      InbuiltDataNode:  a function '$set/$get/$hex/...'
+   *    TransformerNode:    a transformer -> Block( id, cfg? )
+   *    MapperNode:         a map of named nodes -> '{ key: node, ... }'
+   *    PipelineNode:       a pipe of nodes -> N1 |> ...
    */
   protected parseFlowNode(): AnyFlowNode {
     let pipe = [];
 
     while (!this.isEOF) {
-      const tok = this.curToken;
-      const val = tok.value;
+      const token = this.token;
+      const val = token.value;
 
       let item = null;
 
-      if (this.isValue(tok)) {
-        item = new DataNode("" + this.parseValue());
+      if (this.isValue(token)) {
+        item = this.parseConstantNode();
       } else if (val == "{") {
         item = this.parseMapperNode();
       } else if (val == "[") {
         //        item = new DataNode( this.parseArray() )
-      } else if (tok.type == "identifier") {
-        item = this.parseBlockNode();
+      } else if (token.type == "identifier") {
+        // Any 'block' beginning with "$" is an internal function
+        if (val.indexOf("$") == 0) {
+          // Internal - $func( ... )
+          item = this.parseInternalNode();
+        } else {
+          item = this.parseBlockNode();
+        }
       } else {
-        throw new ParseError(this.tokPos, "Invalid syntax " + tok);
+        throw new ParseError(token.position, "Invalid syntax " + token.value);
       }
 
       pipe.push(item);
 
       if (this.isEOF) break;
 
-      if (this.curToken.value == "|>") {
-        this.skipToken();
+      if (this.token.value == "|>") {
+        this.readToken();
       } else {
         break;
       }
     }
 
+    // Two or more nodes form a pipe
     return pipe.length == 1 ? pipe[0] : new PipelineNode(pipe);
   }
 
@@ -325,7 +434,7 @@ export class FlowParser {
     let node = this.parseFlowNode();
 
     if (!this.isEOF) {
-      throw new ParseError(this.tokPos, "Invalid syntax " + this.curToken);
+      throw new ParseError(this.token.position, "Invalid syntax " + this.token);
     }
 
     return new Flow(node);

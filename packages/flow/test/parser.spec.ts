@@ -2,15 +2,6 @@ import "mocha";
 //import { expect } from "chai";
 import { FlowParser, Tokenizer } from "@cryptographix/flow";
 
-let s: string[] = [];
-
-s.push("a bb cc dd\n1234 5678 9876");
-s.push("a\nbb\r\ncc\n\rdd");
-s.push("[1,2,3,4]");
-s.push("{a:1,b:2,c:3,d:4}");
-s.push("'literal'");
-s.push('"literal"');
-
 function tokenize(s: string) {
   let tokens = [];
   let tokenizer = new Tokenizer();
@@ -22,11 +13,23 @@ function tokenize(s: string) {
   return tokens;
 }
 
+/**
+ * Different literals
+ */
+let testStrings: string[] = [];
+
+testStrings.push("a bb cc dd\n1234 5678 9876");
+testStrings.push("a\nbb\r\ncc\n\rdd");
+testStrings.push("[1,2,3,4]");
+testStrings.push("{a:1,b:2,c:3,d:4}");
+testStrings.push("'literal'");
+testStrings.push('"literal"');
+
 describe("Tokenizer", () => {
   beforeEach(function() {
     //debugger;
   });
-  s.forEach(ss => {
+  testStrings.forEach(ss => {
     it("must tokenize: " + ss, () => {
       console.log(tokenize(ss));
     });

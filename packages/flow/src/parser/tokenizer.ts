@@ -8,6 +8,13 @@ export function isDigit(c: string) {
   return /^[0-9]$/.test(c);
 }
 
+export function isHexChar(c: string) {
+  return /^[A-F0-9a-f]$/i.test(c);
+}
+export function isBase64Char(c: string) {
+  return /^[A-Za-z0-9\+/=]$/i.test(c);
+}
+
 export function isWhiteSpace(c: string) {
   return /^[\s]$/.test(c);
 }
@@ -24,11 +31,6 @@ export function isIdentifierChar(c: string, init: boolean = false) {
   return /^[A-Z_]$/i.test(c) || c == "$" || (!init && isDigit(c));
 }
 
-export type Token = {
-  type: TokenTypes;
-  value: number | string;
-};
-
 export type TokenTypes =
   | "EOF"
   | "unknown"
@@ -37,6 +39,17 @@ export type TokenTypes =
   | "string"
   | "identifier"
   | "token";
+
+export type Token = {
+  type: TokenTypes;
+  value: string;
+
+  position?: {
+    line: number;
+    col: number;
+    pos: number;
+  };
+};
 
 export const EOF: Token = {
   type: "EOF",
@@ -66,16 +79,6 @@ export class Tokenizer {
     this.linePos.push(0);
 
     this.skipToContent();
-  }
-
-  get position() {
-    this.skipToContent();
-
-    return {
-      line: this.linePos.length - 1,
-      col: this.pos - this.linePos[this.linePos.length - 1],
-      pos: this.pos
-    };
   }
 
   get curChar() {
@@ -137,17 +140,31 @@ export class Tokenizer {
     }
 
     // Moved cursor?
-    return pos != this.pos;
+    return pos != this.pos && !this.isEOF;
   }
 
   isToken(str: string) {
     return this.operators.has(str);
   }
 
+  /**
+   *
+   */
   nextToken(): Token {
-    while (!this.isEOF) {
-      if (this.skipToContent()) continue;
+    let result = EOF;
 
+    while (!this.isEOF) {
+      if (!this.skipToContent()) break;
+    }
+
+    let position = {
+      line: this.linePos.length - 1,
+      col: this.pos - this.linePos[this.linePos.length - 1],
+      pos: this.pos
+    };
+
+    // Found any content?
+    if (!this.isEOF) {
       this.markPos();
 
       let ch = this.peekChar();
@@ -159,18 +176,37 @@ export class Tokenizer {
           ch = this.peekChar();
         } while (isIdentifierChar(ch));
 
-        return {
-          type: "identifier",
-          value: this.getMarkedText()
-        };
-      } else if (isDigit(ch) || ch == "+" || ch == "-") {
-        do {
-          this.nextChar();
-        } while (isDigit(this.peekChar()));
+        const ident = this.getMarkedText();
 
-        return {
+        if (ident == "true" || ident == "false")
+          result = {
+            type: "boolean",
+            value: ident
+          };
+        else
+          result = {
+            type: "identifier",
+            value: ident
+          };
+      } else if (isDigit(ch) || ch == "+" || ch == "-") {
+        this.nextChar();
+
+        // Handle hex constants "0x"
+        if (ch == "0" && this.peekChar() == "x") {
+          this.nextChar();
+
+          while (isHexChar(this.peekChar())) {
+            this.nextChar();
+          }
+        } else {
+          while (isDigit(this.peekChar())) {
+            this.nextChar();
+          }
+        }
+
+        result = {
           type: "number",
-          value: +this.getMarkedText()
+          value: this.getMarkedText()
         };
       } else if (isQuoteChar(ch)) {
         let initQuote = ch;
@@ -187,7 +223,7 @@ export class Tokenizer {
 
         let quoted = this.getMarkedText();
 
-        return {
+        result = {
           type: "string",
           value: quoted.slice(1, quoted.length - 1)
         };
@@ -198,13 +234,16 @@ export class Tokenizer {
 
         if (this.isToken(tok + this.peekChar())) tok += this.nextChar();
 
-        return {
+        result = {
           type: this.isToken(tok) ? "token" : "unknown",
           value: tok
         };
       }
     }
 
-    return EOF;
+    return {
+      ...result,
+      position
+    };
   }
 }

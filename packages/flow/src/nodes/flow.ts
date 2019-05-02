@@ -1,16 +1,22 @@
 import {
   IConstructable,
+  ByteArray,
   Transformer,
   BlockConfiguration,
   ISchemaProperty
 } from "@cryptographix/core";
 
-import { FlowNode } from "./flow-node";
-import { TransformerNode } from "./transformer-node";
-import { PipelineNode } from "./pipeline-node";
-import { MapperNode } from "./mapper-node";
+import { FlowNode, TransformerNode, PipelineNode, MapperNode } from "./index";
+//import { TransformerNode } from "./transformer-node";
+//import { PipelineNode } from "./pipeline-node";
+//import { MapperNode } from "./mapper-node";
+import {
+  DataNode,
+  ConstantDataNode,
+  SelectorDataNode,
+  FunctionDataNode
+} from "./data-node";
 import { FlowParser } from "../parser/flow-parser";
-import { DataNode } from "./data-node";
 
 export type AnyFlowNode =
   | Flow
@@ -189,17 +195,17 @@ export namespace Flow {
   /**
    *
    */
-  export function toFlowScript(node: FlowNode): string {
+  export function toFlowScript(node: AnyFlowNode): string {
     let res = "";
 
     switch (node.$type) {
       case "flow":
-        res = Flow.toFlowScript((node as Flow).root);
+        res = Flow.toFlowScript(node.root);
         break;
 
       case "pipeline": {
         let nodes: string[] = [];
-        (node as PipelineNode).nodes.forEach(step => {
+        node.nodes.forEach(step => {
           nodes.push(Flow.toFlowScript(step));
         });
 
@@ -210,9 +216,10 @@ export namespace Flow {
       case "mapper": {
         let items = [];
 
-        (node as MapperNode).nodes.forEach((value, key) => {
-          //nodes[key] = Flow.toFlowString(value);
-          items.push(key + ": " + Flow.toFlowScript(value));
+        node.nodes.forEach((value, key) => {
+          if (value instanceof SelectorDataNode && key == value.outKeys[0])
+            items.push(key);
+          else items.push(key + ": " + Flow.toFlowScript(value));
         });
 
         res = items.length == 0 ? "{}" : "{ " + items.join(", ") + " }";
@@ -221,22 +228,50 @@ export namespace Flow {
       }
 
       case "data": {
-        res = (node as DataNode).value;
+        if (node instanceof ConstantDataNode) {
+          let out = node.output[DataNode.PRIMARY_KEY];
+
+          switch (node.typeName) {
+            case "string":
+              res = "'" + out + "'";
+              break;
+
+            case "hex":
+              res =
+                "$hex( '" + ByteArray.toString(out as ByteArray, "hex") + "' )";
+              break;
+
+            case "bytes":
+            case "base64":
+              res =
+                "$base64( '" +
+                ByteArray.toString(out as ByteArray, "base64") +
+                "' )";
+              break;
+
+            default:
+              res = out;
+          }
+        } else if (node instanceof SelectorDataNode) {
+          //res = (node.inKeys[0] == node.outKeys[0]) ?
+          res = node.inKeys[0];
+        } else if (node instanceof FunctionDataNode) {
+          res = node.name + "( '" + node.params[0] + "' )";
+        }
         break;
       }
 
       case "transformer": {
-        let trans = node as TransformerNode;
-        let hasLabel = !!trans.id;
+        let hasLabel = !!node.id;
         let hasConfig =
-          trans.initConfig && Object.keys(trans.initConfig).length > 0;
+          node.initConfig && Object.keys(node.initConfig).length > 0;
 
         res =
-          trans.blockName +
+          node.blockName +
           "(" +
-          (hasLabel ? '"' + trans.id + '"' : "") +
+          (hasLabel ? '"' + node.id + '"' : "") +
           (hasLabel && hasConfig ? ", " : "") +
-          (hasConfig ? JSON.stringify(trans.initConfig) : "") +
+          (hasConfig ? JSON.stringify(node.initConfig) : "") +
           (hasLabel && hasConfig ? " " : "") +
           ")";
       }
@@ -248,7 +283,7 @@ export namespace Flow {
   /**
    *
    */
-  export function toJSON(node: FlowNode): any {
+  export function toJSON(node: AnyFlowNode): any {
     let res: any;
 
     function objToString(obj: object): string {
@@ -264,13 +299,13 @@ export namespace Flow {
       case "flow":
         res = {
           $flow: true,
-          root: Flow.toJSON((node as Flow).root)
+          root: Flow.toJSON(node.root)
         };
         break;
 
       case "pipeline": {
         let nodes: any[] = [];
-        (node as PipelineNode).nodes.forEach(step => {
+        node.nodes.forEach(step => {
           nodes.push(Flow.toJSON(step));
         });
 
@@ -281,7 +316,7 @@ export namespace Flow {
       case "mapper": {
         let items = {};
 
-        (node as MapperNode).nodes.forEach((value, key) => {
+        node.nodes.forEach((value, key) => {
           items[key] = Flow.toJSON(value);
         });
 
@@ -290,22 +325,44 @@ export namespace Flow {
       }
 
       case "data": {
-        res = (node as DataNode).value;
+        if (node instanceof ConstantDataNode) {
+          let out = node.output[DataNode.PRIMARY_KEY];
+
+          switch (node.typeName) {
+            case "string":
+              res = "'" + out + '"';
+              break;
+
+            case "hex":
+            case "bytes":
+            case "base64":
+              res =
+                '"' + ByteArray.toString(out as ByteArray, "base64") + '" )';
+              break;
+
+            default:
+              res = out;
+          }
+        } else if (node instanceof SelectorDataNode) {
+          //res = (node.inKeys[0] == node.outKeys[0]) ?
+          res = node.inKeys[0];
+        } else if (node instanceof FunctionDataNode) {
+          res = node.name + '( "' + node.params[0] + '" )';
+        }
         break;
       }
 
       case "transformer": {
-        let trans = node as TransformerNode;
-        let hasLabel = !!trans.id;
+        let hasLabel = !!node.id;
         let hasConfig =
-          trans.initConfig && Object.keys(trans.initConfig).length > 0;
+          node.initConfig && Object.keys(node.initConfig).length > 0;
 
         res =
-          trans.blockName +
+          node.blockName +
           "(" +
-          (hasLabel ? "'" + trans.id + "'" : "") +
+          (hasLabel ? "'" + node.id + "'" : "") +
           (hasLabel && hasConfig ? ", " : "") +
-          (hasConfig ? objToString(trans.initConfig) : "") +
+          (hasConfig ? objToString(node.initConfig) : "") +
           (hasLabel && hasConfig ? " " : "") +
           ")";
       }

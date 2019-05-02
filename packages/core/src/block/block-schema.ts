@@ -195,31 +195,6 @@ export class BlockSchemaHelper<
     return (this.config[key] as unknown) as RT;
   }
 
-  /*getPortSchema<TSchemaProp extends ISchemaProperty = AnySchemaProperty>(
-    key: string
-  ): TSchemaProp {
-    let schemaProp = this.propertyCache[key];
-
-    return schemaProp as TSchemaProp;
-  }
-
-  updatePortSchema<TSchemaProp extends ISchemaProperty>(
-    key: string,
-    updatedProp: Partial<TSchemaProp>
-  ): TSchemaProp {
-    let schemaProp = this.propertyCache[key];
-
-    schemaProp = {
-      ...schemaProp,
-      ...updatedProp
-    };
-
-    // Save to cache
-    this.propertyCache[key] = schemaProp;
-
-    return schemaProp as TSchemaProp;
-  }*/
-
   filterProps(filterFn?: (item: ISchemaProperty, key: string) => boolean) {
     return Object.keys(this.propertyCache).filter(key => {
       return !filterFn || filterFn(this.propertyCache[key], key);

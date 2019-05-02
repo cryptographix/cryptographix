@@ -8,7 +8,7 @@ A Transformer processes data received via its input ports and outputs the proces
 
 Transformers have metadata that declares a set of named input and output ports. As a minimum, ports have a name ('key'), an associated data-type and a direction (data-in / data-out).
 
-A port may have additional restrictions such as min/max length, min/max values, etc. Ports may additionally be marked as optional or primary.
+A port may have additional restrictions such as min/max length, min/max values, etc. Ports may additionally be marked as optional and/or primary.
 
 A 'primary' port is a preferred port that can be automatically selected when connections between transformers are inferred.
 
@@ -29,7 +29,7 @@ If a Transformer has a single input or output port, that port shall be used when
 
 ## References
 
-A simple data reference `${key}` may be used to refer to an output within the same 'scope', where scope is defined as the closest Map / Splitter enclosing the reference.
+A simple data reference `${key}` may be used to refer to an output within the same 'scope', where scope is defined as the closest Map enclosing the reference.
 
 https://github.com/lightbend/config/blob/master/HOCON.md
 https://mozilla-services.github.io/react-jsonschema-form/
