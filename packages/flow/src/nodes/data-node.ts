@@ -10,6 +10,17 @@ export abstract class DataNode extends FlowNode {
   static PRIMARY_KEY = "default";
 
   /**
+   * @override
+   */
+  setup(): this {
+    this.input = {};
+
+    this.result = null;
+
+    return this;
+  }
+
+  /**
    * Store for output data
    */
   protected _output = {};

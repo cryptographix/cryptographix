@@ -6,6 +6,7 @@ import {
   TransformerNode,
   PipelineNode,
   MapperNode,
+  SelectorDataNode,
   AnyFlowNode
 } from "@cryptographix/flow";
 
@@ -53,8 +54,14 @@ function createNode(type: "trans" | "map" | "pipe", id: string, opts?: {}) {
     case "map":
       node = new MapperNode(
         {
-          par1: createNode("trans", "node 100", { mult: 100 }),
-          par2: createNode("trans", "node 200", { mult: 200 })
+          par1: new PipelineNode([
+            createNode("trans", "node 100", { mult: 100 }),
+            new SelectorDataNode("x", "par1")
+          ]),
+          par2: new PipelineNode([
+            createNode("trans", "node 200", { mult: 200 }),
+            new SelectorDataNode("x", "par2")
+          ])
         },
         id
       );
@@ -118,13 +125,13 @@ describe("AddAndMultiply parallel flows", () => {
   it("... and output correct property values for input=5", async () => {
     let output = root.output;
 
-    expect(output)
-      .to.have.property("par1")
-      .to.include({ x: 600 }, "Incorrect Output Value");
+    expect(output).to.have.property("par1");
+    expect(output).to.have.property("par2");
 
-    expect(output)
-      .to.have.property("par2")
-      .to.include({ x: 1200 }, "Incorrect Output Value");
+    expect(output).to.include(
+      { par1: 600, par2: 1200 },
+      "Incorrect Output Value"
+    );
   });
 
   it("... and output correct property values for input=555", async () => {
@@ -132,13 +139,15 @@ describe("AddAndMultiply parallel flows", () => {
 
     let output = root.output;
 
-    expect(output)
-      .to.have.property("par1")
-      .to.include({ x: (555 + 1) * 100 }, "Incorrect Output Value");
+    expect(output).to.include(
+      { par1: (555 + 1) * 100 },
+      "Incorrect Output Value"
+    );
 
-    expect(output)
-      .to.have.property("par2")
-      .to.include({ x: (555 + 1) * 200 }, "Incorrect Output Value");
+    expect(output).to.include(
+      { par2: (555 + 1) * 200 },
+      "Incorrect Output Value"
+    );
   });
 });
 
