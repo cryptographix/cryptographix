@@ -59,6 +59,11 @@ export class TransformerToolView extends View implements IActionHandler {
       await this.transformer.trigger().then(() => {
         this.done = true;
         this.refresh();
+
+        let $el = this.resultView.element;
+        $el.scrollIntoView();
+
+        //window.scrollTo(0, $el.win);
       });
     } catch (e) {
       alert(e.toString());
@@ -66,6 +71,8 @@ export class TransformerToolView extends View implements IActionHandler {
   }
 
   propertyViews: { [index: string]: View } = {};
+
+  resultView: View;
 
   render(): HTMLElement {
     const helper = this.transformer.helper;
@@ -229,9 +236,11 @@ export class TransformerToolView extends View implements IActionHandler {
           </div>
         </section>
 
-        {this.done ? (
-          <Results handler={this} transformer={this.transformer} />
-        ) : null}
+        {this.done
+          ? (this.resultView = (
+              <Results handler={this} transformer={this.transformer} />
+            ))
+          : null}
 
         <About helper={helper} />
       </View.Fragment>
@@ -301,7 +310,9 @@ class DropdownIcon extends View {
         class="icon has-text-white has-dropdown is-unselectable"
         title="Input Format"
       >
-        <span style="padding-right: 5px">{this.option}</span>
+        <span class="is-unselectable" style="padding-right: 5px">
+          {this.option}
+        </span>
         <ul class="byte-property-dropdown">
           {this.options.map(opt => (
             <li title={opt} onclick={this.onChange.bind(this)}>
@@ -631,34 +642,35 @@ export class DropOrOpen extends View {
                 style="overflow: hidden; color: #222; width: 100%; height: 100%; valign: none;"
               />
             </div>
-            <form
-              role="form"
-              action=""
-              method="post"
-              enctype="multipart/form-data"
-              id="js-upload-form"
+
+            <div
+              class="file is-fullwidth"
+              style="border: 1px solid #ccc; padding: 2px;"
             >
-              <div
-                class="form-inline"
-                style="border: 1px solid #ccc; padding: 2px;"
-              >
-                <div id="xx" class="form-group">
-                  <input
-                    class="btn-primary"
-                    type="file"
-                    name="files[]"
-                    id="btn-select-files"
-                    style="clip:0 0 0 0; display: none"
-                  />
-                  <input
-                    class="btn-primary"
-                    type="button"
-                    id="btn-process-text"
-                    style="clip:0 0 0 0"
-                  />
-                </div>
-              </div>
-            </form>
+              <label class="file-label">
+                <input
+                  class="file-input"
+                  type="file"
+                  name="resume"
+                  onChange={evt => {
+                    //var files = evt.currentTarget.files;
+
+                    //if (files.length) readFiles(files);
+                    readFiles(evt.currentTarget.files).then(data =>
+                      modal.onReadData(data)
+                    );
+
+                    //evt.currentTarget.files = [];
+                  }}
+                />
+                <span class="file-cta">
+                  <span class="file-icon">
+                    <i class="fas fa-upload" />
+                  </span>
+                  <span class="file-label">Choose a file…</span>
+                </span>
+              </label>
+            </div>
           </div>
 
           <button

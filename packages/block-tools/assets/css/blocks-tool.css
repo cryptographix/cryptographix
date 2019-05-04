@@ -21,8 +21,7 @@ body {
 .field label,
 .field p {
   color: #90999e;
-  //margin-left: 0.5rem;
-  margin-bottom: 0px;
+  min-width: 100%;
 }
 
 .control {

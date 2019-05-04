@@ -7,7 +7,7 @@
     "packages/cryptography",
     "packages/payments",
     "packages/flow-views",
-    "packages/block-viewer"
+    "packages/block-tools"
   ],
   "version": "0.1.0"
 }
