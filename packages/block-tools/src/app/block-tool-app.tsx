@@ -46,12 +46,14 @@ export class BlockToolApp extends View {
     //    if (document.)
   }
   renderTool() {
+    document.designMode = "on";
+
     switch (this.selectedTool) {
       case 0:
         return (
           <TransformerToolView
             transCtor={CR.SecretKeyEncrypter}
-            config={{ mode: "cbc", encrypt: true }}
+            config={{ mode: "cbc" }}
           />
         );
       case 1:

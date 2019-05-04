@@ -272,6 +272,15 @@ export class PropertyView extends View {
         );
       });
 
+      if (value == "") {
+        $options.unshift(
+          <option value="" selected disabled hidden>
+            Choose here
+          </option>
+        );
+      }
+      //<option value="" selected disabled hidden>Choose here</option>
+
       return (
         <div class="control">
           <span class="select" style="width: 100%">
@@ -335,7 +344,9 @@ export class PropertyView extends View {
     return (
       <div class="control">
         {this.children.length > 0 && (
-          <div class="byte-property-buttons buttons">{this.children}</div>
+          <div class="byte-property-buttons buttons is-unselectable">
+            {this.children}
+          </div>
         )}
         {$inner}
       </div>

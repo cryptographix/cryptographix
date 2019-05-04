@@ -4,6 +4,7 @@ import {
   IActionHandler,
   Transformer,
   IConstructable,
+  ByteArray,
   H2BA
 } from "@cryptographix/core";
 import { PropertyView } from "@cryptographix/flow-views";
@@ -105,7 +106,10 @@ export class TransformerToolView extends View implements IActionHandler {
       .reduce<{
         [index: string]: View;
       }>((prev, key) => {
-        const view = (
+        let transformer = this.transformer;
+        let view: PropertyView;
+
+        view = (
           <PropertyView
             handler={this}
             propRef={{
@@ -114,10 +118,37 @@ export class TransformerToolView extends View implements IActionHandler {
               propertyType: this.transformer.helper.getPropSchema(key)
             }}
           >
-            <a class="icon has-text-white" title="Paste from Clipboard">
-              <i class="fas fa-paste" />
+            <a
+              class="icon has-text-white is-unselectable"
+              title="Copy to Clipboard"
+              onClick={() => {
+                let $el = view.element.getElementsByTagName("textarea")[0];
+                $el.select();
+                document.execCommand("copy");
+              }}
+            >
+              <i class="fas fa-copy" />
             </a>
-            <a class="icon has-text-white" title="Upload as File">
+            <a
+              class="icon has-text-white is-unselectable"
+              title="Upload as File"
+              onClick={() => {
+                let dropOrOpenView: DropOrOpen;
+
+                view.addChildView(
+                  (dropOrOpenView = (
+                    <DropOrOpen
+                      onReadData={data => {
+                        dropOrOpenView.close();
+                        //view.removeChildView(dropOrOpenView);
+                        transformer[key] = new ByteArray(data);
+                        view.refresh();
+                      }}
+                    />
+                  ))
+                );
+              }}
+            >
               <i class="fas fa-upload" />
             </a>
             <DropdownIcon
@@ -127,6 +158,16 @@ export class TransformerToolView extends View implements IActionHandler {
               }}
               options={["HEX", "BASE64", "UTF8"]}
             />
+            <a
+              class="icon has-text-white is-unselectable"
+              title="Clear"
+              onClick={() => {
+                transformer[key] = new ByteArray();
+                view.refresh();
+              }}
+            >
+              <i class="fas fa-trash-alt" />
+            </a>
           </PropertyView>
         );
 
@@ -140,22 +181,22 @@ export class TransformerToolView extends View implements IActionHandler {
         <section style="background-color: #2980b9; padding: 1rem 0.5rem 3rem 0.5rem;">
           <div class="container">
             <div class="columns is-centered">
-              <div class="column is-6-desktop has-text-centered has-text-white">
-                <p class="subtitle has-text-grey-lighter">
+              <div class="column is-6-desktop is-9-tablet has-text-centered has-text-white">
+                <p class="subtitle has-text-grey-lighter" spellcheck="false">
                   {helper.schema.markdown.prompt}
                 </p>
               </div>
             </div>
-            <div class="columns is-desktop">
+            <div class="columns is-centered">
               <div
-                class="column is-hidden-touch is-2 hint has-text-white"
+                class="column is-hidden-touch hint has-text-white"
                 style="align-self: center"
               >
                 <i class="fa fa-share fa-5x"> </i> <br />
                 <p />
               </div>
 
-              <div class="transform-inputs column is-7">
+              <div class="transform-inputs column is-7-desktop is-8-tablet">
                 {Object.entries(this.propertyViews)
                   .filter(([key]) => helper.isSchemaProperty(key))
                   .map(([_key, view]) => (
@@ -256,7 +297,10 @@ class DropdownIcon extends View {
 
   render() {
     return (
-      <a class="icon has-text-white has-dropdown" title="Input Format">
+      <a
+        class="icon has-text-white has-dropdown is-unselectable"
+        title="Input Format"
+      >
         <span style="padding-right: 5px">{this.option}</span>
         <ul class="byte-property-dropdown">
           {this.options.map(opt => (
@@ -351,12 +395,24 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
             propertyType: helper.getPropSchema(key)
           }}
         >
-          {/*<a class="icon has-text-white" title="Copy to Clipboard">
+          <a
+            class="icon has-text-white is-unselectable"
+            title="Copy to Clipboard"
+            onClick={() => {
+              let $el = view.element.getElementsByTagName("textarea")[0];
+              $el.select();
+              document.execCommand("copy");
+            }}
+          >
+            >
             <i class="fas fa-copy" />
           </a>
-          <a class="icon has-text-white" title="Download as File">
+          <a
+            class="icon has-text-white is-unselectable"
+            title="Download as File"
+          >
             <i class="fas fa-download" />
-          </a>*/}
+          </a>
           <DropdownIcon
             onChange={option => {
               view.options["format"] = option;
@@ -468,3 +524,222 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
     </section>
   );
 }
+
+var readFiles = function(files: FileList): Promise<ArrayBuffer> {
+  const file = files[0];
+  const reader = new FileReader();
+
+  let resolve: (res: ArrayBuffer) => any;
+  let reject: (reason: any) => any;
+
+  reader.onload = (event: ProgressEvent) => {
+    resolve((event.target as any).result as ArrayBuffer);
+  };
+
+  reader.onerror = event => {
+    reader.abort();
+
+    reject(event);
+  };
+
+  //alert(file.name);
+  reader.readAsArrayBuffer(file);
+  return new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+};
+
+export class DropOrOpen extends View {
+  protected isVisible = true;
+
+  onReadData: (data: ArrayBuffer) => void;
+
+  constructor(props: { onReadData: (data: ArrayBuffer) => void }) {
+    super();
+
+    this.onReadData = props.onReadData;
+    //
+  }
+
+  close() {
+    this.isVisible = false;
+    this.refresh();
+  }
+
+  render() {
+    let modal: DropOrOpen = this;
+    let dropZone: View;
+
+    function onKeyDown(evt: KeyboardEvent) {
+      if (evt.which == 13) {
+        evt.preventDefault();
+      } else if (evt.which == 27) {
+        evt.preventDefault();
+
+        modal.isVisible = false;
+        modal.refresh();
+      }
+    }
+
+    return (
+      this.isVisible && (
+        <div class="modal is-active" style="z-index: 2000">
+          <div class="modal-background has-background-grey" />
+          <div
+            class="modal-content"
+            onKeyDown={onKeyDown}
+            onKeyPress={onKeyDown}
+          >
+            {
+              (dropZone = (
+                <div
+                  class="view-object-drop-zone"
+                  style="color:#666; display: block"
+                  onDrop={(evt: Event) => {
+                    evt.preventDefault();
+                    (evt.currentTarget as HTMLElement).classList.remove("drop");
+
+                    readFiles((evt as DragEvent).dataTransfer.files).then(
+                      data => modal.onReadData(data)
+                    );
+
+                    return false;
+                  }}
+                  onDragOver={(evt: DragEvent) => {
+                    (evt.currentTarget as HTMLElement).classList.add("drop");
+                    return false;
+                  }}
+                  onDragLeave={(evt: DragEvent) => {
+                    (evt.currentTarget as HTMLElement).classList.remove("drop");
+                    return false;
+                  }}
+                >
+                  <span style="line-height: 200px; text-align: center;">
+                    Drag and drop file here
+                  </span>
+                </div>
+              ))
+            }
+            <div
+              id="type-zone"
+              class="view-object-drop-zone"
+              style="display: none;"
+            >
+              <textarea
+                id="type-in"
+                style="overflow: hidden; color: #222; width: 100%; height: 100%; valign: none;"
+              />
+            </div>
+            <form
+              role="form"
+              action=""
+              method="post"
+              enctype="multipart/form-data"
+              id="js-upload-form"
+            >
+              <div
+                class="form-inline"
+                style="border: 1px solid #ccc; padding: 2px;"
+              >
+                <div id="xx" class="form-group">
+                  <input
+                    class="btn-primary"
+                    type="file"
+                    name="files[]"
+                    id="btn-select-files"
+                    style="clip:0 0 0 0; display: none"
+                  />
+                  <input
+                    class="btn-primary"
+                    type="button"
+                    id="btn-process-text"
+                    style="clip:0 0 0 0"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <button
+            class="modal-close is-large"
+            aria-label="close"
+            onClick={() => {
+              modal.isVisible = false;
+              modal.refresh();
+            }}
+          />
+        </div>
+      )
+    );
+  }
+}
+
+/*const $ = el => {
+  document.getElementById(el);
+};
+
+function showhideDropArea(showDrop) {
+  if (showDrop) {
+    $("#type-zone").hide();
+    $("#drop-zone").show();
+    $("#xx > .bootstrap-filestyle").show();
+    $("#btn-select-files").show();
+    $("#btn-process-text").hide();
+  } else {
+    $("#drop-zone").hide();
+    $("#type-zone").show();
+    $("#xx > .bootstrap-filestyle").hide();
+    $("#btn-process-text").show();
+    $("#btn-select-files").hide();
+  }
+}
+
+$("#btn-select-files").change(function() {
+  var files = $(this).prop("files");
+
+  if (files.length) readFiles(files);
+
+  $(this).val("");
+});
+
+var dropZone = document.getElementById("drop-zone");
+var uploadForm = document.getElementById("js-upload-form");
+
+var readFiles = function(files) {
+  var file = files[0],
+    reader = new FileReader();
+
+  reader.onload = function(event) {
+    //handleALU(event.target.result);
+  };
+
+  alert(file.name);
+  reader.readAsArrayBuffer(file);
+};
+
+uploadForm.addEventListener("submit", function(e) {
+  var files = $("#btn-select-files").prop("files");
+  e.preventDefault();
+
+  if (files.length) readFiles(files);
+});
+
+dropZone.ondrop = function(e) {
+  e.preventDefault();
+  this.className = "view-object-drop-zone";
+
+  readFiles(e.dataTransfer.files);
+
+  return false;
+};
+
+dropZone.ondragover = function() {
+  this.className = "view-object-drop-zone drop";
+  return false;
+};
+
+dropZone.ondragleave = function() {
+  this.className = "view-object-drop-zone";
+  return false;
+};*/

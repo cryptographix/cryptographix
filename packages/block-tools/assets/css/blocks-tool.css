@@ -65,7 +65,34 @@ input[type="checkbox"] {
   box-shadow: inherit;
 }
 
-.field .help {
+.control .radio {
+  margin-bottom: 0.5rem;
+}
+.radio input {
+  visibility: hidden;
+  opacity: 0;
+  width: 0;
+}
+
+.control .radio label {
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #999999;
+  margin-right: 0.5rem;
+  cursor: pointer;
+  color: #90999e;
+}
+
+.control .radio input:checked + label {
+  color: white;
+  border: 1px solid white;
+}
+
+.control .radio input:not(:checked) + label:hover {
+  color: white;
+  background-color: #2222;
+}
+
+.control .field .help {
   margin-top: 0px;
   margin-bottom: 0.25rem;
 }
@@ -160,16 +187,12 @@ input[type="checkbox"] {
   position: absolute;
   top: calc(-1.75rem + 3px);
   right: 3px;
-
   margin: 0px !important;
-
-  visibility: hidden;
-  opacity: 0;
+  /* visibility: hidden; */
+  /* opacity: 0; */
   background-color: #4588b3;
-
   border: 1px dotted #9e9e9e;
   border-radius: 3px 3px 0px 0px;
-
   transition: visibility 1s, opacity 0.5s;
 }
 
@@ -179,6 +202,11 @@ input[type="checkbox"] {
   opacity: 1;
 
   transition: visibility 0s, opacity 0.5s;
+}
+
+.byte-property-buttons a,
+.byte-property-buttons a span {
+  user-select: none;
 }
 
 .byte-property-buttons a:not(:last-child) {
@@ -573,31 +601,30 @@ a.has-dropdown:focus .byte-property-dropdown {
   left: auto;
   right: 1.625rem;
 }
-
-.control .radio {
-  margin-bottom: 0.5rem;
-}
-.radio input {
-  visibility: hidden;
-  opacity: 0;
-  width: 0;
-}
-
-.radio label {
-  padding: 0.25rem 0.75rem;
-  border: 1px solid #999999;
-  margin-right: 0.5rem;
-  cursor: pointer;
-  color: #90999e;
-}
-
-.radio input:checked + label {
-  color: white;
-  border: 1px solid white;
-}
-
-.radio input:not(:checked) + label:hover {
-  color: white;
-  background-color: #2222;
-}
 */
+
+.view-object-drop-zone {
+  height: 200px;
+  border-width: 2px;
+  margin-bottom: 20px;
+}
+
+/* skin.css Style*/
+.view-object-drop-zone {
+  color: #ccc;
+  border-style: dashed;
+  border-color: #ccc;
+  //  line-height: 200px;
+  text-align: center;
+}
+.view-object-drop-zone.drop {
+  color: #222;
+  border-color: #222;
+}
+#drop-zone,
+#type-zone {
+  border: 10px dashed #ccc;
+  width: 300px;
+  height: 260px;
+  margin: 10px auto;
+}

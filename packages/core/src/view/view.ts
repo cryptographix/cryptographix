@@ -64,7 +64,7 @@ export abstract class View<TViewParams extends ViewParams = ViewParams> {
     console.log("--Views:", --View.viewCount);
   }
 
-  get element() {
+  get element(): HTMLElement | SVGElement {
     let $element = this.$element || (this.$element = this.render());
 
     if ($element instanceof View) {
@@ -145,7 +145,7 @@ export abstract class View<TViewParams extends ViewParams = ViewParams> {
     // Render child and insert into DOM
     // .. only insert if we're already rendered
     if ($element) {
-      let $newChild = view.render();
+      let $newChild = view.element;
 
       if ($newChild) {
         if (nextView && nextView.element) {
@@ -320,7 +320,7 @@ export namespace View {
   export function appendChild($node: Node, $child: ChildNode | ChildNode[]) {
     if ($child instanceof View) {
       // Lazy view rendering .. its render time ..
-      $node.appendChild($child.element);
+      appendChild($node, $child.element);
     } else if ($child instanceof Node) {
       // .. a DOM node .. just append it
       $node.appendChild($child);
