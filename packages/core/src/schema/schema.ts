@@ -84,12 +84,17 @@ export abstract class Schema {
     initValue?: any,
     useDefaultForType: boolean = true
   ): void {
-    let value = initValue || obj[key] || propInfo.default;
+    let value =
+      initValue != null
+        ? initValue
+        : obj[key] != null
+        ? obj[key]
+        : propInfo.default;
 
     if (propInfo.type instanceof Object) {
       // initialize sub-object
       value = Schema.initObjectFromSchema(propInfo.type, value);
-    } else if (!value && !propInfo.optional && useDefaultForType) {
+    } else if (value == null && !propInfo.optional && useDefaultForType) {
       // no initial or default value .. use default for type
       switch (propInfo.type) {
         case "boolean":
@@ -115,7 +120,7 @@ export abstract class Schema {
       }
     }
 
-    if (value) obj[key] = value;
+    if (value != undefined) obj[key] = value;
   }
 
   /**

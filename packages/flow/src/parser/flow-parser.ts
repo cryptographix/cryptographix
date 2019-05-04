@@ -89,20 +89,20 @@ export class FlowParser {
         let posn = `(${token.position.line + 1},${token.position.col + 1}): `;
 
         switch (token.type) {
-          case "number":
-            console.log(posn + "Number", token.value);
+          case "integer":
+            console.log(posn + "Integer", token.value);
             break;
 
           case "string":
             console.log(posn + "String", token.value);
             break;
 
-          case "identifier":
-            console.log(posn + "Identifier", token.value);
-            break;
-
           case "boolean":
             console.log(posn + "Boolean", token.value);
+            break;
+
+          case "identifier":
+            console.log(posn + "Identifier", token.value);
             break;
 
           case "token":
@@ -133,7 +133,7 @@ export class FlowParser {
 
   protected isValue(tok: Token) {
     return (
-      tok.type == "string" || tok.type == "number" || tok.type == "boolean"
+      tok.type == "string" || tok.type == "integer" || tok.type == "boolean"
     );
   }
 
@@ -142,7 +142,7 @@ export class FlowParser {
     let value = token.value;
 
     switch (token.type) {
-      case "number":
+      case "integer":
         this.readToken();
         return (parseInt(value) as unknown) as T;
 
@@ -305,7 +305,7 @@ export class FlowParser {
     let token = this.token;
 
     switch (token.type) {
-      case "number":
+      case "integer":
         return new ConstantDataNode<number>(this.parseValue(), token.type);
 
       case "string":

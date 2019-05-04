@@ -34,7 +34,7 @@ export function isIdentifierChar(c: string, init: boolean = false) {
 export type TokenTypes =
   | "EOF"
   | "unknown"
-  | "number"
+  | "integer"
   | "boolean"
   | "string"
   | "identifier"
@@ -205,7 +205,7 @@ export class Tokenizer {
         }
 
         result = {
-          type: "number",
+          type: "integer",
           value: this.getMarkedText()
         };
       } else if (isQuoteChar(ch)) {

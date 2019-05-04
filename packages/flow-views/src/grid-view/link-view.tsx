@@ -93,7 +93,7 @@ export class LinkView extends View {
 
     // Draw an "inverted S" shape from 3 elements - horiz, vert, horiz
     //    let ports = target.inKeys.length;
-    let off = target.inKeys.indexOf(this.target.portKey);
+    let off = target.inPortKeys.indexOf(this.target.portKey);
 
     // X pos of vertical.
     let vertX = pos.width - (2 + off - 1) * GV.PORT_LINK_DELTA_X;

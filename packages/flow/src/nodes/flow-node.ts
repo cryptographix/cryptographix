@@ -1,5 +1,5 @@
 import { View, IViewModel, IActionHandler, Action } from "@cryptographix/core";
-import { ISchemaProperty } from "@cryptographix/core";
+import { ISchemaPropertyMap, ISchemaProperty } from "@cryptographix/core";
 
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
 
@@ -18,13 +18,16 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
   protected parentNode: FlowNode = null;
 
   //
-  public inKeys: string[] = [];
+  public inPortKeyMap: { [index: string]: string } = {};
+
+  //
+  public inPortSchemas: ISchemaPropertyMap = {};
 
   //
   public input: object = {};
 
   //
-  public outKeys: string[] = [];
+  public outPortSchemas: ISchemaPropertyMap = {};
 
   //
   public abstract get output(): object;
@@ -47,6 +50,16 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
     this.parentNode = parentNode;
   }
 
+  //
+  public get inPortKeys(): string[] {
+    return Object.keys(this.inPortSchemas);
+  }
+
+  //
+  public get outPortKeys(): string[] {
+    return Object.keys(this.outPortSchemas);
+  }
+
   /**
    *
    */
@@ -60,10 +73,10 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
    *
    */
   setup(): this {
-    this.inKeys = [];
+    this.inPortSchemas = {};
     this.input = {};
 
-    this.outKeys = [];
+    this.outPortSchemas = {};
 
     this.result = null;
 
@@ -80,9 +93,22 @@ export abstract class FlowNode implements IActionHandler, IViewModel {
     return this;
   }
 
-  abstract getPortSchema<
-    TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>
-  >(key: string): TSchemaProperty;
+  /**
+   *
+   */
+  getPortSchema<TSchemaProperty extends ISchemaProperty>(
+    key: string
+  ): TSchemaProperty {
+    let schema: TSchemaProperty = null;
+
+    if (this.inPortKeys.indexOf(key) >= 0) {
+      schema = <TSchemaProperty>this.inPortSchemas[key];
+    } else if (this.outPortKeys.indexOf(key) >= 0) {
+      schema = <TSchemaProperty>this.outPortSchemas[key];
+    }
+
+    return schema;
+  }
 
   /**
    *

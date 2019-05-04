@@ -65,13 +65,13 @@ export interface ISchemaProperty<
  */
 export interface ISchemaPropPortInfo {
   //
-  type?: "trigger" | "data-in" | "data-out" | ISchema<object>;
+  type: "trigger" | "data-in" | "data-out" | ISchema<object>;
 
   //
   primary?: boolean;
 
   //
-  //reversible?: boolean;
+  [index: string]: any;
 }
 
 /**
@@ -95,6 +95,9 @@ export interface ISchemaPropUI {
 
   // layout on a 12-column grid.
   columns?: number;
+
+  //
+  [index: string]: any;
 }
 
 /**
@@ -201,6 +204,10 @@ export type SchemaPropertyDataType =
   | number
   | ByteArray
   | Object;
+
+export interface ISchemaPropertyMap {
+  [index: string]: ISchemaProperty;
+}
 
 /**
  * Helper to allow partial schemas

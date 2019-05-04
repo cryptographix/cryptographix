@@ -40,10 +40,20 @@ export class BlockToolApp extends View {
   } |> MAC('AC')
   `;
 
+  parseUrl() {
+    let params = {};
+
+    //    if (document.)
+  }
   renderTool() {
     switch (this.selectedTool) {
       case 0:
-        return <TransformerToolView transCtor={CR.SecretKeyEncrypter} />;
+        return (
+          <TransformerToolView
+            transCtor={CR.SecretKeyEncrypter}
+            config={{ mode: "cbc", encrypt: false }}
+          />
+        );
       case 1:
         return (
           <div id="flows" style="position: relative">

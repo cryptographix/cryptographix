@@ -6,6 +6,7 @@ import {
   enumProp,
   bytesProp,
   objectProp,
+  ISchemaPropUI,
   ByteArray,
   H2BA
 } from "@cryptographix/core";
@@ -86,7 +87,7 @@ export class ZZ {
   @objectProp(Z)
   z: Z;
 
-  @integerProp({ default: 100, ui: { int: 1234 } })
+  @integerProp({ default: 100, ui: { lines: 1234 } as ISchemaPropUI })
   num: Number;
 }
 

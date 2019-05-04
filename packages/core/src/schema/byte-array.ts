@@ -13,6 +13,10 @@ export function BA2S(ba: ByteArray) {
   return ByteArray.toString(ba);
 }
 
+function h2b(s: string): number {
+  return "0123456789ABCDEF".indexOf(s && s.toUpperCase());
+}
+
 export class ByteArray extends Uint8Array {
   static alloc(len: number): Uint8Array {
     return new ByteArray(len);
@@ -47,13 +51,17 @@ export class ByteArray extends Uint8Array {
         }*/
 
       case "hex": {
+        if (!/[a-fA-F0-9]*/i.test(data) || data.length % 2 != 0)
+          throw new Error("Invalid hexadecimal string");
+
         let l = data.length / 2;
         bytes = ByteArray.alloc(l);
         for (let i = 0, j = 0; j < l; j++, i += 2) {
-          let b = Number.parseInt("0x" + data.substr(i, 2));
-          if (!isNaN(b)) {
+          let b = (h2b(data[i]) << 4) + h2b(data[i + 1]);
+
+          if (b >= 0) {
             bytes[j] = b;
-          } else throw new Error("Invalid haexadecimal string");
+          } else throw new Error("Invalid hexadecimal string");
         }
         break;
       }

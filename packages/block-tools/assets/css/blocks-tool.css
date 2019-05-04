@@ -150,8 +150,81 @@ input[type="checkbox"] {
   margin-bottom: 20px;
 }
 
-.blocks-tool .transform-input {
+.blocks-tool .transform-input,
+.blocks-tool .transform-output {
+  position: relative;
   margin-bottom: 15px;
+}
+
+.byte-property-buttons {
+  position: absolute;
+  top: calc(-1.75rem + 3px);
+  /* height: 1.75rem; */
+  right: 3px;
+  background-color: #4588b3;
+  /*#50859e*/
+  border-radius: 3px 3px 0px 0px;
+  border: 1px dotted #9e9e9e;
+  /* visibility: hidden; */
+  /* opacity: 0; */
+  transition: visibility 1s, opacity 0.5s;
+
+  margin: 0px !important;
+}
+
+.blocks-tool .transform-input:hover .byte-property-buttons,
+.blocks-tool .transform-output:hover .byte-property-buttons {
+  visibility: visible;
+  opacity: 1;
+  transition: visibility 0s, opacity 0.5s;
+}
+
+.byte-property-buttons a:not(:last-child) {
+  border-right: 1px dotted #9e9e9e;
+}
+
+.byte-property-buttons a.has-dropdown {
+  position: relative;
+  width: auto;
+  padding: 0 0.25rem;
+}
+
+.byte-property-buttons a.has-dropdown:after {
+  content: "\f150";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+}
+
+.byte-property-dropdown {
+  position: absolute;
+  /* TOP: 1px border + 2px margin */
+  top: calc(1.75rem - 6px);
+  left: 0;
+  min-width: 100%;
+  z-index: 1000;
+
+  margin-top: 2px;
+  border: 1px dotted #9e9e9e;
+  background-color: #62a2cf; /*#4588b3 + 10%*/
+  border-radius: 0px 3px 3px 3px;
+
+  visibility: hidden;
+  opacity: 0.5;
+}
+
+.byte-property-dropdown li {
+  padding: 0 0.25rem;
+}
+
+.byte-property-dropdown li:hover {
+  color: #fff;
+  background-color: #00567e;
+}
+
+a.has-dropdown:hover .byte-property-dropdown,
+a.has-dropdown:focus .byte-property-dropdown {
+  visibility: visible;
+  opacity: 1;
 }
 
 .blocks-tool .transform-config {

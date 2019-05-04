@@ -39,7 +39,7 @@ export class NodeView extends View {
   renderPorts() {
     let ports = [];
 
-    this.node.inKeys.reduce<number>((y, _key) => {
+    this.node.inPortKeys.reduce<number>((y, _key) => {
       //      console.log("Port", this.getPortPosition(_inp));
       ports.push(
         <a class="port in-port" style={"top: " + y + "px; left:  -15px; "}>
@@ -57,7 +57,7 @@ export class NodeView extends View {
       return y + GV.PORT_DELTA_Y;
     }, GV.PORT_INIT_Y);
 
-    this.node.outKeys.reduce<number>((y, _key) => {
+    this.node.outPortKeys.reduce<number>((y, _key) => {
       //      console.log("Port", this.getPortPosition(_out));
       ports.push(
         <a class="port out-port" style={"top: " + y + "px; right: -15px; "}>
@@ -95,8 +95,8 @@ export class NodeView extends View {
   }
 
   getPortPosition(portKey: string) {
-    let inIndex = this.node.inKeys.indexOf(portKey);
-    let outIndex = this.node.outKeys.indexOf(portKey);
+    let inIndex = this.node.inPortKeys.indexOf(portKey);
+    let outIndex = this.node.outPortKeys.indexOf(portKey);
 
     let out = inIndex < 0;
     let idx = out ? outIndex : inIndex;
@@ -153,7 +153,10 @@ export class NodeView extends View {
 
   getBlockPosition() {
     let view = ensureNodeView(this.node);
-    let ports = Math.max(this.node.inKeys.length, this.node.outKeys.length);
+    let ports = Math.max(
+      this.node.inPortKeys.length,
+      this.node.outPortKeys.length
+    );
 
     return {
       x: view.layout.x,

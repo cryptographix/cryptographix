@@ -68,7 +68,7 @@ export abstract class Transformer<
       item => item && item.io && item.io.type == "data-in" && !item.optional
     );
 
-    let missingInputs = requiredInputs.filter(([key, _item]) => !this[key]);
+    let missingInputs = requiredInputs.filter(key => !this[key]);
 
     return missingInputs.length == 0;
   }

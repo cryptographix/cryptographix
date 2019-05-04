@@ -35,7 +35,7 @@ export function calcBlockHeight(ports: number) {
  */
 export function calculateNodeSizes(node: AnyFlowNode, children: AnyFlowNode[]) {
   let layout = ensureNodeView(node).layout;
-  let ports = Math.max(node.inKeys.length, node.outKeys.length);
+  let ports = Math.max(node.inPortKeys.length, node.outPortKeys.length);
 
   switch (node.$type) {
     case "flow": {

@@ -30,26 +30,26 @@ export class GridView extends View {
     Flow.traverseFlow(this.flow, null, (node, children, prev) => {
       if (node.$type == "transformer") {
         if (node.blockName == "HEX") {
-          node.outKeys.push("out");
+          node.outPortKeys.push("out");
         } else if (node.blockName == "DERIVE" || node.blockName == "MAC") {
-          node.inKeys.push("data");
-          node.inKeys.push("key");
+          node.inPortKeys.push("data");
+          node.inPortKeys.push("key");
 
-          node.outKeys.push("out");
+          node.outPortKeys.push("out");
         }
       } else {
         if (prev) {
-          node.inKeys.push(...prev.outKeys);
+          node.inPortKeys.push(...prev.outPortKeys);
         }
 
         if (children.length > 0) {
           if (node.$type == "mapper") {
             for (let key of node.nodes.keys()) {
-              node.outKeys.push(key);
+              node.outPortKeys.push(key);
             }
           } else {
             let last = children[children.length - 1];
-            node.outKeys.push(...last.outKeys);
+            node.outPortKeys.push(...last.outPortKeys);
           }
         }
       }
@@ -123,10 +123,10 @@ export class GridView extends View {
             console.log("  child: " + child.$type + ":" + child.id);
 
             if (prev && child.$type == "transformer") {
-              let inKeys = [...child.inKeys];
-              let outKeys = [...prev.outKeys];
+              let inKeys = [...child.inPortKeys];
+              let outKeys = [...prev.outPortKeys];
 
-              for (let key of child.inKeys) {
+              for (let key of child.inPortKeys) {
                 if (outKeys.indexOf(key) >= 0) {
                   const view = new LinkView(
                     { node: prev, portKey: key },

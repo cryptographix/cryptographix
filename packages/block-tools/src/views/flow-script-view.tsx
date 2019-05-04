@@ -20,8 +20,8 @@ export class FlowScriptView extends View implements IActionHandler {
       type: "string",
       title: "FlowScript",
       ui: {
-        widget: "multiline",
-        lines: null
+        widget: "multiline"
+        //lines: null
       }
     };
 

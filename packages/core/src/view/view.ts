@@ -354,11 +354,18 @@ export namespace View {
 
     // Gotta have something to mount!
     if (!$root) return;
+    /*
+if ($root instanceof DocumentFragment) {
+  let $fake = document.createElement("View");
+  appendChild($fake, $root);
 
-    appendChild($rootElement, $root);
-    if ($root instanceof DocumentFragment) {
-      rootView.$element = $rootElement;
-    }
+  rootView.$element = $fake;
+
+  $root = $fake;
+}
+
+*/
+    $rootElement.appendChild($root);
   }
 }
 

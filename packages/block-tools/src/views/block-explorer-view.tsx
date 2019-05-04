@@ -30,7 +30,7 @@ export class BlockExplorerView extends View {
   transformer: TransformerNode;
   outputs = new Map<string, TransformerNode<{}, OutputTransformer>>();
 
-  flow;
+  flow: Flow;
 
   createView(transCtor: IConstructable<Transformer>) {
     let flow = Flow.fromTransformer<{}>(transCtor, transCtor.name, {
@@ -46,7 +46,7 @@ export class BlockExplorerView extends View {
     let block = this.transformer.transformer;
 
     let inputMapper = new MapperNode({});
-    flow.inKeys.forEach(key => {
+    flow.inPortKeys.forEach(key => {
       let schema = block.helper.getPropSchema(key);
 
       let input = new TransformerNode<{}, InputTransformer>(
@@ -68,7 +68,7 @@ export class BlockExplorerView extends View {
     pipeNode.appendNode(flow.root);
 
     let outputMapper = new MapperNode({});
-    flow.outKeys.forEach(key => {
+    flow.outPortKeys.forEach(key => {
       let schema = block.helper.getPropSchema(key);
 
       let output = new TransformerNode<{}, OutputTransformer>(

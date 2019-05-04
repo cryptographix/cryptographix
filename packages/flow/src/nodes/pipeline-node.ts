@@ -1,4 +1,3 @@
-import { ISchemaProperty } from "@cryptographix/core";
 import { FlowNode } from "./flow-node";
 import { AnyFlowNode } from "./flow";
 import { NodeSetupAction, NodeTeardownAction } from "./node-actions";
@@ -60,24 +59,6 @@ export class PipelineNode extends FlowNode {
     });
 
     return super.tearDown();
-  }
-
-  /**
-   *
-   */
-  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
-    key: string
-  ): TSchemaProperty {
-    let schema: TSchemaProperty;
-
-    if (this.inKeys.indexOf(key) >= 0) {
-      schema = this.nodes[0].getPortSchema<TSchemaProperty>(key);
-    } else if (this.outKeys.indexOf(key) >= 0)
-      schema = this.nodes[this.nodes.length - 1].getPortSchema<TSchemaProperty>(
-        key
-      );
-
-    return schema;
   }
 
   /**

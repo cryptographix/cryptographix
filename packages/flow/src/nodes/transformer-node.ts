@@ -3,8 +3,7 @@ import {
   Schema,
   Transformer,
   IBlockSchema,
-  BlockConfiguration,
-  ISchemaProperty
+  BlockConfiguration
 } from "@cryptographix/core";
 
 import { FlowNode } from "./flow-node";
@@ -81,15 +80,24 @@ export class TransformerNode<
     // Create new transformer object.
     // Block super constructor will initialize all block properties
     // where defaults are defined in Schema definitions.
-    this.block = new this.target(this.initConfig, null);
+    let block = new this.target(this.initConfig, null);
 
-    this.inKeys = this.block.helper.inPortKeys;
-    this.outKeys = this.block.helper.outPortKeys;
+    this.block = block;
+
+    this.inPortSchemas = block.helper.inPortKeys.reduce<{}>((map, key) => {
+      map[key] = block.helper.getPropSchema(key);
+      return map;
+    }, {});
+
+    this.outPortSchemas = block.helper.outPortKeys.reduce<{}>((map, key) => {
+      map[key] = block.helper.getPropSchema(key);
+      return map;
+    }, {});
 
     this.inMask = this.trigMask = 0;
 
-    this.inKeys.forEach((key, index) => {
-      let propSchema = this.block.helper.getPropSchema(key);
+    this.inPortKeys.forEach((key, index) => {
+      let propSchema = this.inPortSchemas[key];
 
       if (!propSchema.optional) this.trigMask |= 1 << index;
 
@@ -115,15 +123,6 @@ export class TransformerNode<
   /**
    *
    */
-  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
-    key: string
-  ): TSchemaProperty {
-    return this.block.helper.getPropSchema(key) as TSchemaProperty;
-  }
-
-  /**
-   *
-   */
   get status() {
     if (!this.block) return "created";
     else return super.status;
@@ -144,7 +143,7 @@ export class TransformerNode<
   setInput(data: any) {
     let block = this.block;
 
-    this.inKeys.forEach((key, index) => {
+    this.inPortKeys.forEach((key, index) => {
       if (data[key]) {
         block[key] = data[key];
 
@@ -162,7 +161,7 @@ export class TransformerNode<
     let block = this.block;
     let ret = {};
 
-    this.outKeys.forEach(key => {
+    this.outPortKeys.forEach(key => {
       if (block[key]) ret[key] = block[key];
     });
 

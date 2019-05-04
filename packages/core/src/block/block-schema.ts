@@ -38,6 +38,9 @@ export interface IBlockSchema<
 
     // More details and links
     learnMore?: string;
+
+    // How can this block be used?
+    usage?: string;
   };
 
   config: IConstructable<TConfig>;
@@ -195,7 +198,7 @@ export class BlockSchemaHelper<
     return (this.config[key] as unknown) as RT;
   }
 
-  filterProps(filterFn?: (item: ISchemaProperty, key: string) => boolean) {
+  filterProps(filterFn?: (item: AnySchemaProperty, key: string) => boolean) {
     return Object.keys(this.propertyCache).filter(key => {
       return !filterFn || filterFn(this.propertyCache[key], key);
     });

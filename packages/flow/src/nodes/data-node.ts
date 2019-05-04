@@ -1,4 +1,8 @@
-import { ISchemaProperty, ByteArray } from "@cryptographix/core";
+import {
+  ISchemaProperty,
+  SchemaPropertyDataType,
+  ByteArray
+} from "@cryptographix/core";
 import { FlowNode } from "./flow-node";
 
 /**
@@ -31,22 +35,13 @@ export abstract class DataNode extends FlowNode {
   get output() {
     return this._output;
   }
-
-  /**
-   *
-   */
-  getPortSchema<TSchemaProperty extends ISchemaProperty = ISchemaProperty<any>>(
-    key: string
-  ): TSchemaProperty {
-    return null && key;
-  }
 }
 
 /**
  *
  */
 export class ConstantDataNode<
-  T extends number | string | boolean | ByteArray
+  T extends SchemaPropertyDataType
 > extends DataNode {
   typeName: string;
 
@@ -55,7 +50,29 @@ export class ConstantDataNode<
 
     this.typeName = typeName;
 
-    this.outKeys.push(DataNode.PRIMARY_KEY);
+    let prop: ISchemaProperty<any>;
+
+    switch (typeName) {
+      case "string":
+        prop = { type: "string" };
+        break;
+
+      case "integer":
+        prop = { type: "integer" };
+        break;
+
+      case "boolean":
+        prop = { type: "boolean" };
+        break;
+
+      case "hex":
+      case "base64":
+        prop = { type: "bytes" };
+        break;
+    }
+
+    this.outPortSchemas[DataNode.PRIMARY_KEY] = prop;
+
     this._output[DataNode.PRIMARY_KEY] = value;
   }
 
@@ -76,12 +93,13 @@ export class SelectorDataNode extends DataNode {
   constructor(inKey: string, outKey: string, id: string = "") {
     super(id);
 
-    this.inKeys.push(inKey);
-    this.outKeys.push(outKey);
+    this.inPortSchemas[inKey] = this.outPortSchemas[outKey] = {
+      type: null
+    };
   }
 
   get canTrigger() {
-    return super.canTrigger && this.input[this.inKeys[0]];
+    return super.canTrigger && this.input[this.inPortKeys[0]];
   }
 
   /**
@@ -90,7 +108,7 @@ export class SelectorDataNode extends DataNode {
   async trigger() {
     if (!this.canTrigger) return Promise.reject("Unable to trigger");
 
-    this._output[this.outKeys[0]] = this.input[this.inKeys[0]];
+    this._output[this.outPortKeys[0]] = this.input[this.inPortKeys[0]];
 
     return this.setTriggerResult(Promise.resolve(true));
   }
@@ -122,24 +140,23 @@ export class FunctionDataNode extends DataNode {
 
     switch (this.name) {
       case "$get": {
-        this.outKeys.push(DataNode.PRIMARY_KEY);
+        this.outPortSchemas[DataNode.PRIMARY_KEY] = {
+          type: null
+        };
+
         break;
       }
 
       case "$set": {
-        this.inKeys.push(DataNode.PRIMARY_KEY);
-        this.outKeys.push(DataNode.PRIMARY_KEY);
+        this.inPortSchemas[DataNode.PRIMARY_KEY] = {
+          type: null
+        };
+
+        this.outPortSchemas[DataNode.PRIMARY_KEY] = {
+          type: null
+        };
+
         break;
-      }
-
-      // Convert param[0] from hex to bytes
-      case "$hex": {
-        this.outKeys.push(DataNode.PRIMARY_KEY);
-
-        this._output[DataNode.PRIMARY_KEY] = ByteArray.fromString(
-          params[0],
-          "hex"
-        );
       }
     }
   }
@@ -148,17 +165,17 @@ export class FunctionDataNode extends DataNode {
    *
    */
   get canTrigger() {
-    let canI = true;
+    let ready = true;
 
     switch (this.name) {
       case "$set":
       case "$get": {
-        canI = !!this.input[DataNode.PRIMARY_KEY];
+        ready = !!this.input[DataNode.PRIMARY_KEY];
         break;
       }
     }
 
-    return super.canTrigger && canI;
+    return super.canTrigger && ready;
   }
 
   /**

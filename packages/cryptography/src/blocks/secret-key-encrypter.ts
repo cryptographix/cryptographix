@@ -176,8 +176,8 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
    * Performs encode or decode on given content.
    */
   async trigger(reverse: boolean) {
-    const message = this.in;
-    const { algorithm, encrypt, mode, padding, iv } = this.config;
+    const { in: message, iv } = this;
+    const { algorithm, encrypt, mode, padding } = this.config;
 
     try {
       // Try to encrypt or decrypt

@@ -24,7 +24,8 @@ const svgElements = {
 };
 
 export const Fragment = (attributes: ViewParams) => {
-  let $node = document.createDocumentFragment();
+  //  let $node = document.createDocumentFragment();
+  let $node = document.createElement("View");
 
   if (attributes.children) {
     attributes.children.forEach($item => {

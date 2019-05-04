@@ -116,7 +116,6 @@ export class PropertyView extends View {
         class={`field ${errClass} ${this.ui.className} ${
           this._first ? " field--first" : ""
         }`}
-        style="padding-left: 0.5rem; padding-right: 0.5rem;"
         onFocus={(_evt: Event) => this.focus()}
         onBlur={(_evt: Event) => this.blur()}
       >
@@ -157,8 +156,8 @@ export class PropertyView extends View {
     let value = (evt.target as HTMLInputElement).value;
     try {
       this.value = H2BA(value);
-    } catch (E) {
-      this.setError("fudeo");
+    } catch (e) {
+      this.setError((e as Error).message);
     }
   }
 
@@ -231,6 +230,9 @@ export class PropertyView extends View {
 
       // render each option
       Object.entries(propInfo.options).map(([key, label]) => {
+        let checked =
+          key.toLowerCase() == value.toLowerCase() ? "true" : undefined;
+
         const $radio = (
           <label class="radio">
             <input
@@ -238,7 +240,7 @@ export class PropertyView extends View {
               name={this.propRef.key}
               value={key}
               onChange={this.stringValueChanged.bind(this)}
-              checked={value == key}
+              checked={checked}
             />
             {label}
           </label>
@@ -251,8 +253,11 @@ export class PropertyView extends View {
     } else {
       // create option for each element
       const $options = Object.entries(propInfo.options).map(([key, label]) => {
+        let selected =
+          key.toLowerCase() == value.toLowerCase() ? "true" : undefined;
+
         return (
-          <option value={key} title={label || ""}>
+          <option value={key} title={label || ""} selected={selected}>
             {label}
           </option>
         );
@@ -265,7 +270,6 @@ export class PropertyView extends View {
               onChange={this.stringValueChanged.bind(this)}
               class="input"
               placeholder={this.ui.hint}
-              value={this.value}
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
             >
@@ -315,7 +319,14 @@ export class PropertyView extends View {
       $inner.setAttribute("readonly", "true");
     }
 
-    return <div class="control">{$inner}</div>;
+    return (
+      <div class="control">
+        {this.children.length > 0 && (
+          <div class="byte-property-buttons buttons">{this.children}</div>
+        )}
+        {$inner}
+      </div>
+    );
   }
 
   renderString(_propInfo: IStringSchemaProp, value: string) {
@@ -408,14 +419,14 @@ export class PropertyView extends View {
 
     // Remove old message, if any
     if (this.$message) {
-      this.$message.remove();
+      this.$message.element.remove();
       this.$message = null;
     }
 
     // Create new message, if any
     this.$message = this.renderMessage();
     if (this.$message) {
-      this.element.appendChild(this.$message);
+      this.element.appendChild(this.$message.element);
     }
 
     return false;
