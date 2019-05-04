@@ -17,6 +17,8 @@ function h2b(s: string): number {
   return "0123456789ABCDEF".indexOf(s && s.toUpperCase());
 }
 
+export type ByteArrayFormats = "hex" | "base64" | "ascii" | "utf8";
+
 export class ByteArray extends Uint8Array {
   static alloc(len: number): Uint8Array {
     return new ByteArray(len);
@@ -24,13 +26,10 @@ export class ByteArray extends Uint8Array {
   /**
    *
    */
-  static fromString(
-    data: string,
-    fmt?: "hex" | "base64" | "ascii"
-  ): Uint8Array {
+  static fromString(data: string, fmt?: ByteArrayFormats): Uint8Array {
     let bytes: Uint8Array;
 
-    if (!fmt || fmt == "ascii") {
+    if (!fmt || fmt == "ascii" || fmt == "utf8") {
       bytes = ByteArray.alloc(data.length);
 
       for (let i = 0; i < data.length; ++i) bytes[i] = data.charCodeAt(i);
@@ -78,11 +77,8 @@ export class ByteArray extends Uint8Array {
   /**
    *
    */
-  static toString(
-    bytes: ByteArray,
-    fmt?: "hex" | "ascii" | "base64" | "utf8"
-  ): string {
-    if (!fmt) {
+  static toString(bytes: ByteArray, fmt?: ByteArrayFormats): string {
+    if (!fmt || fmt == "utf8" || fmt == "ascii") {
       let str = "";
 
       for (let i = 0; i < bytes.length; ++i)

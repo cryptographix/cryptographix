@@ -8,7 +8,7 @@ import {
   IStringSchemaProp,
   ISchemaPropUI
 } from "@cryptographix/core";
-import { BA2H, H2BA, ByteArray } from "@cryptographix/core";
+import { ByteArray } from "@cryptographix/core";
 
 export class PropertyValueChanged extends Action<object> {
   action: "property:value-changed" = "property:value-changed";
@@ -37,14 +37,18 @@ export class PropertyView extends View {
   //
   protected message: string;
 
-  constructor(params: {
+  //
+  public options: {};
+
+  constructor(props: {
     handler?: IActionHandler;
     propRef: ISchemaPropReference;
     readOnly?: boolean;
+    options?: {};
   }) {
-    super(params);
+    super(props);
 
-    const { propRef, readOnly } = params;
+    const { propRef, readOnly, options } = props;
 
     this.propRef = propRef;
 
@@ -58,6 +62,8 @@ export class PropertyView extends View {
       label: propRef.propertyType.title || propRef.key,
       ...propRef.propertyType.ui
     };
+
+    this.options = options || {};
 
     if (this.value != undefined) {
       let self = this;
@@ -151,11 +157,14 @@ export class PropertyView extends View {
     this.value = value;
   }
 
+  private byteFormat: any;
+
   byteValueChanged(evt: Event) {
     this.clearError();
     let value = (evt.target as HTMLInputElement).value;
     try {
-      this.value = H2BA(value);
+      this.value = ByteArray.fromString(value, this.byteFormat);
+      //      this.value = H2BA(value);
     } catch (e) {
       this.setError((e as Error).message);
     }
@@ -284,6 +293,10 @@ export class PropertyView extends View {
   renderBytes(_propInfo: IBytesSchemaProp, value: ByteArray) {
     let $inner: HTMLElement;
 
+    this.byteFormat = (this.options["format"] || "hex").toLowerCase();
+
+    const valString = ByteArray.toString(value, this.byteFormat);
+
     if (this.ui.widget == "multiline") {
       let lines = (this.ui as any).lines;
       let rows = lines != null ? lines || 5 : undefined;
@@ -297,7 +310,7 @@ export class PropertyView extends View {
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
           rows={rows}
-          value={BA2H(value)}
+          value={valString}
         />
       ).element;
     } else {
@@ -310,7 +323,7 @@ export class PropertyView extends View {
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
-          value={BA2H(value)}
+          value={valString}
         />
       ).element;
     }

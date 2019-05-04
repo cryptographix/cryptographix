@@ -51,7 +51,7 @@ export class BlockToolApp extends View {
         return (
           <TransformerToolView
             transCtor={CR.SecretKeyEncrypter}
-            config={{ mode: "cbc", encrypt: false }}
+            config={{ mode: "cbc", encrypt: true }}
           />
         );
       case 1:

@@ -3,7 +3,8 @@ import {
   Action,
   IActionHandler,
   Transformer,
-  IConstructable
+  IConstructable,
+  H2BA
 } from "@cryptographix/core";
 import { PropertyView } from "@cryptographix/flow-views";
 //import { TransformerNode } from "@cryptographix/flow";
@@ -24,6 +25,16 @@ export class TransformerToolView extends View implements IActionHandler {
     const { transCtor, config } = props;
 
     this.transformer = new transCtor(config);
+
+    this.transformer["in"] = H2BA(
+      "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
+    );
+    this.transformer["key"] = H2BA(
+      "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
+    );
+    this.transformer["iv"] = H2BA(
+      "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
+    );
   }
 
   updateView() {
@@ -41,13 +52,13 @@ export class TransformerToolView extends View implements IActionHandler {
     }
   }
 
-  done: boolean = true;
+  done: boolean = false;
   async onExecute() {
     try {
-      await this.transformer.trigger();
-      //alert("ok: " + this.transformer[this.transformer.helper.outPortKeys[0]]);
-      this.done = true;
-      this.refresh();
+      await this.transformer.trigger().then(() => {
+        this.done = true;
+        this.refresh();
+      });
     } catch (e) {
       alert(e.toString());
     }
@@ -94,7 +105,7 @@ export class TransformerToolView extends View implements IActionHandler {
       .reduce<{
         [index: string]: View;
       }>((prev, key) => {
-        prev[key] = (
+        const view = (
           <PropertyView
             handler={this}
             propRef={{
@@ -109,9 +120,17 @@ export class TransformerToolView extends View implements IActionHandler {
             <a class="icon has-text-white" title="Upload as File">
               <i class="fas fa-upload" />
             </a>
-            <DropdownIcon />
+            <DropdownIcon
+              onChange={option => {
+                view.options["format"] = option;
+                view.refresh();
+              }}
+              options={["HEX", "BASE64", "UTF8"]}
+            />
           </PropertyView>
         );
+
+        prev[key] = view;
 
         return prev;
       }, this.propertyViews);
@@ -123,12 +142,10 @@ export class TransformerToolView extends View implements IActionHandler {
             <div class="columns is-centered">
               <div class="column is-6-desktop has-text-centered has-text-white">
                 <p class="subtitle has-text-grey-lighter">
-                  {" "}
                   {helper.schema.markdown.prompt}
                 </p>
               </div>
             </div>
-
             <div class="columns is-desktop">
               <div
                 class="column is-hidden-touch is-2 hint has-text-white"
@@ -150,15 +167,11 @@ export class TransformerToolView extends View implements IActionHandler {
                 {Object.entries(this.propertyViews)
                   .filter(([key]) => !helper.isSchemaProperty(key))
                   .map(([_key, view]) => view)}
-
-                {/*<div class="is-hidden-touch has-text-white">
-                      <br />
-                      <i class="fas fa-share fa-rotate-180 fa-5x"> </i>
-                    </div>*/}
               </div>
             </div>
-            <div class="columns">
-              <div class="column is-8 is-offset-2 has-text-centered">
+
+            <div class="columns  is-centered">
+              <div class="column is-8 has-text-centered">
                 {
                   (this.execButton = (
                     <ExecButton
@@ -175,7 +188,9 @@ export class TransformerToolView extends View implements IActionHandler {
           </div>
         </section>
 
-        {this.done ? <Results transformer={this.transformer} /> : null}
+        {this.done ? (
+          <Results handler={this} transformer={this.transformer} />
+        ) : null}
 
         <About helper={helper} />
       </View.Fragment>
@@ -209,22 +224,43 @@ export class TransformerToolView extends View implements IActionHandler {
   }
 }
 
+/**
+ *
+ */
 class DropdownIcon extends View {
-  opts = ["HEX", "BASE64", "UTF8"];
+  options = ["HEX", "BASE64", "UTF8"];
+  onChangeCallback: (option: string) => void;
 
-  selected = 0;
+  constructor(props: {
+    onChange: (option: string) => void;
+    options: string[];
+  }) {
+    super();
 
-  select(evt: Event) {
-    this.selected = this.opts.indexOf(evt.target["title"]);
+    this.options = props.options;
+
+    this.option = props.options[0];
+
+    this.onChangeCallback = props.onChange;
+  }
+
+  option: string;
+
+  onChange(evt: Event) {
+    this.option = evt.target["title"];
+
+    if (this.onChangeCallback) this.onChangeCallback(this.option);
+
     this.refresh();
   }
+
   render() {
     return (
       <a class="icon has-text-white has-dropdown" title="Input Format">
-        <span style="padding-right: 5px">{this.opts[this.selected]}</span>
+        <span style="padding-right: 5px">{this.option}</span>
         <ul class="byte-property-dropdown">
-          {this.opts.map(opt => (
-            <li title={opt} onclick={this.select.bind(this)}>
+          {this.options.map(opt => (
+            <li title={opt} onclick={this.onChange.bind(this)}>
               {opt}
             </li>
           ))}
@@ -234,6 +270,9 @@ class DropdownIcon extends View {
   }
 }
 
+/**
+ *
+ */
 function About(props: { helper: any }) {
   const { helper } = props;
 
@@ -293,7 +332,7 @@ class ExecButton extends View {
   }
 }
 
-function Results(props: { transformer: Transformer }) {
+function Results(props: { handler: IActionHandler; transformer: Transformer }) {
   let { transformer } = props;
   let { helper } = transformer;
 
@@ -303,7 +342,7 @@ function Results(props: { transformer: Transformer }) {
     .reduce<{
       [index: string]: View;
     }>((prev, key) => {
-      prev[key] = (
+      const view: PropertyView = (
         <PropertyView
           readOnly
           propRef={{
@@ -312,22 +351,23 @@ function Results(props: { transformer: Transformer }) {
             propertyType: helper.getPropSchema(key)
           }}
         >
-          <a class="icon has-text-white" title="Copy to Clipboard">
+          {/*<a class="icon has-text-white" title="Copy to Clipboard">
             <i class="fas fa-copy" />
           </a>
           <a class="icon has-text-white" title="Download as File">
             <i class="fas fa-download" />
-          </a>
-          <a
-            class="icon has-text-white"
-            title="Input Format"
-            style="width: 4rem"
-          >
-            <span style="padding-right: 5px">HEX</span>
-            <i class="fas fa-caret-square-down" />
-          </a>
+          </a>*/}
+          <DropdownIcon
+            onChange={option => {
+              view.options["format"] = option;
+              view.refresh();
+            }}
+            options={["HEX", "BASE64", "UTF8"]}
+          />
         </PropertyView>
       );
+
+      prev[key] = view;
 
       return prev;
     }, {});
@@ -335,7 +375,7 @@ function Results(props: { transformer: Transformer }) {
   return (
     <section
       class="section"
-      style="background-color: #2990b9; padding: 1rem 0.5rem 3rem 0.5rem;"
+      style="background-color: #2990b9; padding: 3rem 0.5rem 3rem 0.5rem;"
     >
       <div class="container">
         <div class="columns is-desktop">
