@@ -46,8 +46,6 @@ export class BlockToolApp extends View {
     //    if (document.)
   }
   renderTool() {
-    document.designMode = "on";
-
     switch (this.selectedTool) {
       case 0:
         return (

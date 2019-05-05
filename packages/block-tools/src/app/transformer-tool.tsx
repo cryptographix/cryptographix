@@ -7,7 +7,7 @@ import {
   ByteArray,
   H2BA
 } from "@cryptographix/core";
-import { PropertyView } from "@cryptographix/flow-views";
+import { PropertyView, DropOrOpenDialog } from "@cryptographix/flow-views";
 //import { TransformerNode } from "@cryptographix/flow";
 //import { InputPanel } from "../views/input-panel";
 
@@ -114,9 +114,8 @@ export class TransformerToolView extends View implements IActionHandler {
         [index: string]: View;
       }>((prev, key) => {
         let transformer = this.transformer;
-        let view: PropertyView;
 
-        view = (
+        const view = (
           <PropertyView
             handler={this}
             propRef={{
@@ -140,15 +139,17 @@ export class TransformerToolView extends View implements IActionHandler {
               class="icon has-text-white is-unselectable"
               title="Upload as File"
               onClick={() => {
-                let dropOrOpenView: DropOrOpen;
+                let dropOrOpenView: DropOrOpenDialog;
 
                 view.addChildView(
                   (dropOrOpenView = (
-                    <DropOrOpen
+                    <DropOrOpenDialog
                       onReadData={data => {
                         dropOrOpenView.close();
                         //view.removeChildView(dropOrOpenView);
+
                         transformer[key] = new ByteArray(data);
+
                         view.refresh();
                       }}
                     />
@@ -397,7 +398,7 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
     .reduce<{
       [index: string]: View;
     }>((prev, key) => {
-      const view: PropertyView = (
+      const view = (
         <PropertyView
           readOnly
           propRef={{
@@ -415,12 +416,37 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
               document.execCommand("copy");
             }}
           >
-            >
             <i class="fas fa-copy" />
           </a>
           <a
             class="icon has-text-white is-unselectable"
             title="Download as File"
+            onClick={() => {
+              const blob = new Blob(
+                [ByteArray.toString(transformer[key], view.byteFormat)],
+                {
+                  type: "text/plain;charset=utf-8"
+                }
+              );
+
+              var downloadUrl = window.URL.createObjectURL(blob);
+
+              var a = document.createElement("a");
+              a.style.display = "none";
+
+              if (typeof a.download === "undefined") {
+                let loc = new Location();
+                loc.assign(downloadUrl);
+                window.location = loc;
+              } else {
+                a.href = downloadUrl;
+                a.download = "data.txt";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }
+              //
+            }}
           >
             <i class="fas fa-download" />
           </a>
@@ -534,157 +560,6 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
       </div>
     </section>
   );
-}
-
-var readFiles = function(files: FileList): Promise<ArrayBuffer> {
-  const file = files[0];
-  const reader = new FileReader();
-
-  let resolve: (res: ArrayBuffer) => any;
-  let reject: (reason: any) => any;
-
-  reader.onload = (event: ProgressEvent) => {
-    resolve((event.target as any).result as ArrayBuffer);
-  };
-
-  reader.onerror = event => {
-    reader.abort();
-
-    reject(event);
-  };
-
-  //alert(file.name);
-  reader.readAsArrayBuffer(file);
-  return new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-};
-
-export class DropOrOpen extends View {
-  protected isVisible = true;
-
-  onReadData: (data: ArrayBuffer) => void;
-
-  constructor(props: { onReadData: (data: ArrayBuffer) => void }) {
-    super();
-
-    this.onReadData = props.onReadData;
-    //
-  }
-
-  close() {
-    this.isVisible = false;
-    this.refresh();
-  }
-
-  render() {
-    let modal: DropOrOpen = this;
-    let dropZone: View;
-
-    function onKeyDown(evt: KeyboardEvent) {
-      if (evt.which == 13) {
-        evt.preventDefault();
-      } else if (evt.which == 27) {
-        evt.preventDefault();
-
-        modal.isVisible = false;
-        modal.refresh();
-      }
-    }
-
-    return (
-      this.isVisible && (
-        <div class="modal is-active" style="z-index: 2000">
-          <div class="modal-background has-background-grey" />
-          <div
-            class="modal-content"
-            onKeyDown={onKeyDown}
-            onKeyPress={onKeyDown}
-          >
-            {
-              (dropZone = (
-                <div
-                  class="view-object-drop-zone"
-                  style="color:#666; display: block"
-                  onDrop={(evt: Event) => {
-                    evt.preventDefault();
-                    (evt.currentTarget as HTMLElement).classList.remove("drop");
-
-                    readFiles((evt as DragEvent).dataTransfer.files).then(
-                      data => modal.onReadData(data)
-                    );
-
-                    return false;
-                  }}
-                  onDragOver={(evt: DragEvent) => {
-                    (evt.currentTarget as HTMLElement).classList.add("drop");
-                    return false;
-                  }}
-                  onDragLeave={(evt: DragEvent) => {
-                    (evt.currentTarget as HTMLElement).classList.remove("drop");
-                    return false;
-                  }}
-                >
-                  <span style="line-height: 200px; text-align: center;">
-                    Drag and drop file here
-                  </span>
-                </div>
-              ))
-            }
-            <div
-              id="type-zone"
-              class="view-object-drop-zone"
-              style="display: none;"
-            >
-              <textarea
-                id="type-in"
-                style="overflow: hidden; color: #222; width: 100%; height: 100%; valign: none;"
-              />
-            </div>
-
-            <div
-              class="file is-fullwidth"
-              style="border: 1px solid #ccc; padding: 2px;"
-            >
-              <label class="file-label">
-                <input
-                  class="file-input"
-                  type="file"
-                  name="resume"
-                  onChange={evt => {
-                    //var files = evt.currentTarget.files;
-
-                    //if (files.length) readFiles(files);
-                    readFiles(evt.currentTarget.files).then(data =>
-                      modal.onReadData(data)
-                    );
-
-                    //evt.currentTarget.files = [];
-                  }}
-                />
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i class="fas fa-upload" />
-                  </span>
-                  <span class="file-label">Choose a file…</span>
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <button
-            class="modal-close is-large"
-            aria-label="close"
-            onClick={() => {
-              modal.isVisible = false;
-              modal.refresh();
-            }}
-          />
-        </div>
-      )
-    );
-  }
 }
 
 /*const $ = el => {
