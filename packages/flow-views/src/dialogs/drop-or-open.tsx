@@ -33,74 +33,71 @@ export class DropOrOpenDialog extends View {
 
     return (
       this.isVisible && (
-        <div class="modal is-active" style="z-index: 2000">
+        <div
+          class="modal is-active"
+          style="z-index: 2000"
+          onDrop={(evt: Event) => {
+            evt.preventDefault();
+            (evt.currentTarget as HTMLElement)
+              .getElementsByClassName("view-object-drop-zone")[0]
+              .classList.remove("drop");
+
+            readFiles((evt as DragEvent).dataTransfer.files).then(data =>
+              modal.onReadData(data)
+            );
+
+            return false;
+          }}
+          onDragOver={(evt: DragEvent) => {
+            (evt.currentTarget as HTMLElement)
+              .getElementsByClassName("view-object-drop-zone")[0]
+              .classList.add("drop");
+            return false;
+          }}
+          onDragLeave={(evt: DragEvent) => {
+            (evt.currentTarget as HTMLElement)
+              .getElementsByClassName("view-object-drop-zone")[0]
+              .classList.remove("drop");
+            return false;
+          }}
+        >
           <div class="modal-background has-background-grey" />
           <div
-            class="modal-content"
+            class="modal-content view-object-drop-zone"
             onKeyDown={onKeyDown}
             onKeyPress={onKeyDown}
+            style="color:#666;"
           >
-            {
+            <div class="level" style="height: 75px">
               <div
-                class="view-object-drop-zone"
-                style="color:#666; display: block"
-                onDrop={(evt: Event) => {
-                  evt.preventDefault();
-                  (evt.currentTarget as HTMLElement).classList.remove("drop");
-
-                  readFiles((evt as DragEvent).dataTransfer.files).then(data =>
-                    modal.onReadData(data)
-                  );
-
-                  return false;
-                }}
-                onDragOver={(evt: DragEvent) => {
-                  (evt.currentTarget as HTMLElement).classList.add("drop");
-                  return false;
-                }}
-                onDragLeave={(evt: DragEvent) => {
-                  (evt.currentTarget as HTMLElement).classList.remove("drop");
-                  return false;
-                }}
+                class="level-item"
+                style="justify-content: center; cursor: alias;"
               >
-                <span style="line-height: 200px; text-align: center;">
-                  Drag and drop file here
-                </span>
+                <label class="label is-size-3" style="cursor: alias;">
+                  DROP A FILE
+                </label>
               </div>
-            }
-            <div
-              id="type-zone"
-              class="view-object-drop-zone"
-              style="display: none;"
-            >
-              <textarea
-                id="type-in"
-                style="overflow: hidden; color: #222; width: 100%; height: 100%; valign: none;"
-              />
-            </div>
-
-            <div
-              class="file is-fullwidth"
-              style="border: 1px solid #ccc; padding: 2px;"
-            >
-              <label class="file-label">
-                <input
-                  class="file-input"
-                  type="file"
-                  name="resume"
-                  onChange={(evt: Event) => {
-                    readFiles(
-                      (evt.currentTarget as HTMLInputElement).files
-                    ).then(data => modal.onReadData(data));
-                  }}
-                />
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i class="fas fa-upload" />
+              <div
+                class="level-right"
+                style="position: relative; height: 60px; background-color: #91917d; border-radius: 3px; padding-left: 1rem; margin-right: 1rem"
+              >
+                <label class="level-item">
+                  <span class="icon is-large">
+                    <i class="fas fa-upload fa-2x" />
                   </span>
-                  <span class="file-label">Choose a file…</span>
-                </span>
-              </label>
+                  <input
+                    class="file-input"
+                    type="file"
+                    name="resume"
+                    onChange={(evt: Event) => {
+                      readFiles(
+                        (evt.currentTarget as HTMLInputElement).files
+                      ).then(data => modal.onReadData(data));
+                    }}
+                  />
+                </label>
+                <label class="level-item is-size-3">OR CLICK HERE…</label>
+              </div>
             </div>
           </div>
 

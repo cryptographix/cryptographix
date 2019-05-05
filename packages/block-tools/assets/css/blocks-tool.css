@@ -164,7 +164,7 @@ input[type="checkbox"] {
 
 .blocks-tool .label {
   font-weight: 700;
-  display: inline-block;
+  /* display: inline-block; */
   max-width: 100%;
   margin-bottom: 5px;
 }
@@ -180,6 +180,29 @@ input[type="checkbox"] {
 .blocks-tool .transform-output {
   position: relative;
   margin-bottom: 15px;
+}
+
+.transform-input.fullscreen,
+.transform-output.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 40px;
+}
+
+.fullscreen .field {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 40px;
+  min-height: 100%;
+  min-width: 100%;
+  background-color: blue;
+  z-index: 2000;
 }
 
 .byte-property-buttons {
@@ -603,7 +626,7 @@ a.has-dropdown:focus .byte-property-dropdown {
 */
 
 .view-object-drop-zone {
-  height: 200px;
+  /* height: 200px; */
   border-width: 2px;
   margin-bottom: 20px;
 }

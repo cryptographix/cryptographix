@@ -26,10 +26,10 @@ export class ByteArray extends Uint8Array {
   /**
    *
    */
-  static fromString(data: string, fmt?: ByteArrayFormats): Uint8Array {
+  static fromString(data: string, fmt: ByteArrayFormats = "utf8"): Uint8Array {
     let bytes: Uint8Array;
 
-    if (!fmt || fmt == "ascii" || fmt == "utf8") {
+    if (fmt == "ascii") {
       bytes = ByteArray.alloc(data.length);
 
       for (let i = 0; i < data.length; ++i) bytes[i] = data.charCodeAt(i);
@@ -42,6 +42,10 @@ export class ByteArray extends Uint8Array {
     if (Environment.isNode()) return ByteArray.from(Buffer.from(data, fmt));
 
     switch (fmt) {
+      case "utf8":
+        bytes = new TextEncoder().encode(data);
+        break;
+
       /*      case "utf8": {
         let l = data.length;
         bytes = ByteArray.alloc(l);
@@ -77,8 +81,8 @@ export class ByteArray extends Uint8Array {
   /**
    *
    */
-  static toString(bytes: ByteArray, fmt?: ByteArrayFormats): string {
-    if (!fmt || fmt == "utf8" || fmt == "ascii") {
+  static toString(bytes: ByteArray, fmt: ByteArrayFormats = "utf8"): string {
+    if (fmt == "ascii") {
       let str = "";
 
       for (let i = 0; i < bytes.length; ++i)
@@ -92,6 +96,11 @@ export class ByteArray extends Uint8Array {
     let s = "";
 
     switch (fmt) {
+      case "utf8":
+      case "utf8":
+        s = new TextDecoder().decode(bytes);
+        break;
+
       case "hex": {
         for (let i = 0; i < bytes.length; ++i) {
           if (s.length > 0) s += " ";

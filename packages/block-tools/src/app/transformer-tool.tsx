@@ -141,7 +141,8 @@ export class TransformerToolView extends View implements IActionHandler {
               onClick={() => {
                 let dropOrOpenView: DropOrOpenDialog;
 
-                view.addChildView(
+                View.appendChild(
+                  view.element.parentNode,
                   (dropOrOpenView = (
                     <DropOrOpenDialog
                       onReadData={data => {
@@ -207,8 +208,14 @@ export class TransformerToolView extends View implements IActionHandler {
               <div class="transform-inputs column is-7-desktop is-8-tablet">
                 {Object.entries(this.propertyViews)
                   .filter(([key]) => helper.isSchemaProperty(key))
-                  .map(([_key, view]) => (
-                    <div class="transform-input">{view}</div>
+                  .map(([key, view]) => (
+                    <div
+                      class={
+                        "transform-input" /*+ (key == "in" ? " fullscreen" : "")*/
+                      }
+                    >
+                      {view}
+                    </div>
                   ))}
               </div>
 
@@ -457,6 +464,9 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
             }}
             options={["HEX", "BASE64", "UTF8"]}
           />
+          <a class="icon has-text-white" title="Fullscreen">
+            <i class="fas fa-arrows-alt"> </i>
+          </a>
         </PropertyView>
       );
 
@@ -481,52 +491,6 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
           </div>
 
           <div class="column is-7">
-            {/*  <div class="level">
-              <div class="level-left" />
-              <div class="level-right" style="min-width: 220px; width: 200px">
-                <div
-                  class="level-item buttons has-background-grey-dark"
-                  style="border-radius: 3px;"
-                >
-                  <a
-                    class="icon is-medium has-text-white  btn-result btn-copy"
-                    data-title="Copy to Clipboard"
-                  >
-                    <i class="fas fa-file-alt"> </i>
-                  </a>
-                  <a
-                    class="icon is-medium has-text-white  btn-result btn-collapse-data"
-                    title="Collapse All Nodes"
-                  >
-                    <i class="fas fa-minus-square"> </i>
-                  </a>
-                  <a
-                    class="icon is-medium has-text-white btn-result btn-expand-data"
-                    title="Expand All Nodes"
-                  >
-                    <i class="fas fa-plus-square"> </i>
-                  </a>
-                  <a
-                    class="icon is-medium has-text-white btn-result btn-collapse-window"
-                    title="Collapse Result"
-                  >
-                    <i class="far fa-caret-square-up"> </i>
-                  </a>
-                  <a
-                    class="icon is-medium has-text-white btn-result btn-expand-window"
-                    title="Expand Results"
-                  >
-                    <i class="fas fa-caret-square-down"> </i>
-                  </a>
-                  <a
-                    class="icon is-medium has-text-white btn-result btn-close"
-                    title="Close Result"
-                  >
-                    <i class="fas fa-times"> </i>
-                  </a>
-                </div>
-              </div>
-            </div>*/}
             <div class="transform-outputs">
               {Object.entries(propertyViews).map(([_key, view]) => (
                 <div class="transform-output">{view}</div>
@@ -561,72 +525,3 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
     </section>
   );
 }
-
-/*const $ = el => {
-  document.getElementById(el);
-};
-
-function showhideDropArea(showDrop) {
-  if (showDrop) {
-    $("#type-zone").hide();
-    $("#drop-zone").show();
-    $("#xx > .bootstrap-filestyle").show();
-    $("#btn-select-files").show();
-    $("#btn-process-text").hide();
-  } else {
-    $("#drop-zone").hide();
-    $("#type-zone").show();
-    $("#xx > .bootstrap-filestyle").hide();
-    $("#btn-process-text").show();
-    $("#btn-select-files").hide();
-  }
-}
-
-$("#btn-select-files").change(function() {
-  var files = $(this).prop("files");
-
-  if (files.length) readFiles(files);
-
-  $(this).val("");
-});
-
-var dropZone = document.getElementById("drop-zone");
-var uploadForm = document.getElementById("js-upload-form");
-
-var readFiles = function(files) {
-  var file = files[0],
-    reader = new FileReader();
-
-  reader.onload = function(event) {
-    //handleALU(event.target.result);
-  };
-
-  alert(file.name);
-  reader.readAsArrayBuffer(file);
-};
-
-uploadForm.addEventListener("submit", function(e) {
-  var files = $("#btn-select-files").prop("files");
-  e.preventDefault();
-
-  if (files.length) readFiles(files);
-});
-
-dropZone.ondrop = function(e) {
-  e.preventDefault();
-  this.className = "view-object-drop-zone";
-
-  readFiles(e.dataTransfer.files);
-
-  return false;
-};
-
-dropZone.ondragover = function() {
-  this.className = "view-object-drop-zone drop";
-  return false;
-};
-
-dropZone.ondragleave = function() {
-  this.className = "view-object-drop-zone";
-  return false;
-};*/
