@@ -650,3 +650,52 @@ a.has-dropdown:focus .byte-property-dropdown {
   height: 260px;
   margin: 10px auto;
 }
+
+.tree-pane {
+  width: 100%;
+  min-height: 100px;
+  height: 100%;
+
+  padding: 0.25rem;
+
+  background-color: #fff;
+
+  font-family: monospace;
+  font-size: 0.8rem;
+}
+
+.tree-node {
+  position: relative;
+  user-select: none;
+  left: 10px;
+}
+
+.tree-node span {
+  margin: 2px;
+}
+
+.tree-node-closed .tree-node {
+  display: none;
+}
+
+.tree-node-closed > :before {
+  position: absolute;
+  left: -10px;
+  content: "+";
+}
+
+.tree-node-open .tree-node {
+  display: block;
+}
+
+.tree-node-open > span:before {
+  position: absolute;
+  left: -10px;
+  content: "-";
+}
+
+.tree-node-empty:before {
+  position: absolute;
+  left: -15px;
+  content: "o";
+}

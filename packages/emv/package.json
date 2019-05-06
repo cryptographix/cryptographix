@@ -1,5 +1,5 @@
 {
-  "name": "@cryptographix/block-tools",
+  "name": "@cryptographix/emv",
   "version": "0.1.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -16,7 +16,7 @@
   },
   "keywords": [
     "cryptographix",
-    "block-viewer"
+    "emv"
   ],
   "files": [
     "dist",
@@ -32,10 +32,6 @@
     "access": "public"
   },
   "dependencies": {
-    "@cryptographix/core": "0.1.0",
-    "@cryptographix/cryptography": "0.1.0",
-    "@cryptographix/flow": "0.1.0",
-    "@cryptographix/emv": "0.1.0",
-    "express": "^4.16.4"
+    "@cryptographix/core": "0.1.0"
   }
 }

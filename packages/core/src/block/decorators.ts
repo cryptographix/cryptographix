@@ -12,6 +12,7 @@ export function block<TConfig extends BlockConfiguration>(
     schema = {
       namespace: "",
       category: "default",
+      markdown: {},
       ...schema,
       ...meta
     };

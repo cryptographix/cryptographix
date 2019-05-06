@@ -5,6 +5,7 @@
     "packages/core",
     "packages/flow",
     "packages/cryptography",
+    "packages/emv",
     "packages/payments",
     "packages/flow-views",
     "packages/block-tools"

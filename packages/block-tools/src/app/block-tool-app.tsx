@@ -1,11 +1,12 @@
 import { View } from "@cryptographix/core";
-import { Flow } from "@cryptographix/flow";
+//import { Flow } from "@cryptographix/flow";
+import { TLVDecoder } from "@cryptographix/emv";
 
 import { Header } from "./header";
-import { TransformerToolView } from "./transformer-tool";
+import { TransformerToolView } from "../transformer-tool/transformer-tool";
 import { FlowScriptView } from "../views/flow-script-view";
 import { BlockExplorerView } from "../views/block-explorer-view";
-import { TileView } from "../views/tile-view";
+//import { TileView } from "../views/tile-view";
 import * as CR from "@cryptographix/cryptography";
 
 export class BlockToolApp extends View {
@@ -13,7 +14,7 @@ export class BlockToolApp extends View {
     super();
   }
 
-  selectedTool = 0;
+  selectedTool = 2;
   toolPanel: View;
 
   changeTool(newTool: number) {
@@ -61,8 +62,12 @@ export class BlockToolApp extends View {
           </div>
         );
       case 2: {
-        const flow = Flow.fromFlowScript(this.net3);
-        return <TileView node={flow} root />;
+        return (
+          <TransformerToolView
+            transCtor={TLVDecoder}
+            config={{ mode: "cbc" }}
+          />
+        );
       }
       case 3: {
         return <BlockExplorerView transCtor={CR.SecretKeyEncrypter} />;
@@ -80,7 +85,7 @@ export class BlockToolApp extends View {
             menuItems={[
               "Secret Key Encrypter",
               "Flow Script Viewer",
-              "Tile View",
+              "TLV Decoder",
               "Block Explorer"
             ]}
             onMenuItemChange={index => {

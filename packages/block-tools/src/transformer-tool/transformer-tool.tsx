@@ -4,17 +4,20 @@ import {
   IActionHandler,
   Transformer,
   IConstructable,
-  ByteArray,
+  AnySchemaProperty,
   H2BA
 } from "@cryptographix/core";
-import { PropertyView, DropOrOpenDialog } from "@cryptographix/flow-views";
-//import { TransformerNode } from "@cryptographix/flow";
-//import { InputPanel } from "../views/input-panel";
+
+import { PropertyView } from "@cryptographix/flow-views";
+import { InputBytesView } from "./input-bytes-view";
+import { OutputBytesView } from "./output-bytes-view";
+import { TLVInfo, TLVNode } from "@cryptographix/emv";
 
 export class TransformerToolView extends View implements IActionHandler {
   //
   transformer: Transformer;
 
+  //
   execButton: ExecButton;
 
   //
@@ -27,15 +30,29 @@ export class TransformerToolView extends View implements IActionHandler {
 
     this.transformer = new transCtor(config);
 
-    this.transformer["in"] = H2BA(
-      "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
-    );
-    this.transformer["key"] = H2BA(
-      "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
-    );
-    this.transformer["iv"] = H2BA(
-      "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
-    );
+    switch (transCtor.name) {
+      case "SecretKeyEncrypter": {
+        this.transformer["in"] = H2BA(
+          "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
+        );
+        this.transformer["key"] = H2BA(
+          "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
+        );
+        this.transformer["iv"] = H2BA(
+          "11 11 22 22 33 33 44 44 11 11 22 22 33 33 44 44"
+        );
+
+        break;
+      }
+
+      case "TLVDecoder": {
+        this.transformer["data"] = H2BA(
+          " 700e 5a086271550000000001 5f340100 9505FFFFFFFFFF"
+        );
+      }
+    }
+
+    this.onExecute();
   }
 
   updateView() {
@@ -113,72 +130,7 @@ export class TransformerToolView extends View implements IActionHandler {
       .reduce<{
         [index: string]: View;
       }>((prev, key) => {
-        let transformer = this.transformer;
-
-        const view = (
-          <PropertyView
-            handler={this}
-            propRef={{
-              target: this.transformer,
-              key: key,
-              propertyType: this.transformer.helper.getPropSchema(key)
-            }}
-          >
-            <a
-              class="icon has-text-white is-unselectable"
-              title="Copy to Clipboard"
-              onClick={() => {
-                let $el = view.element.getElementsByTagName("textarea")[0];
-                $el.select();
-                document.execCommand("copy");
-              }}
-            >
-              <i class="fas fa-copy" />
-            </a>
-            <a
-              class="icon has-text-white is-unselectable"
-              title="Upload as File"
-              onClick={() => {
-                let dropOrOpenView: DropOrOpenDialog;
-
-                View.appendChild(
-                  view.element.parentNode,
-                  (dropOrOpenView = (
-                    <DropOrOpenDialog
-                      onReadData={data => {
-                        dropOrOpenView.close();
-                        //view.removeChildView(dropOrOpenView);
-
-                        transformer[key] = new ByteArray(data);
-
-                        view.refresh();
-                      }}
-                    />
-                  ))
-                );
-              }}
-            >
-              <i class="fas fa-upload" />
-            </a>
-            <DropdownIcon
-              onChange={option => {
-                view.options["format"] = option;
-                view.refresh();
-              }}
-              options={["HEX", "BASE64", "UTF8"]}
-            />
-            <a
-              class="icon has-text-white is-unselectable"
-              title="Clear"
-              onClick={() => {
-                transformer[key] = new ByteArray();
-                view.refresh();
-              }}
-            >
-              <i class="fas fa-trash-alt" />
-            </a>
-          </PropertyView>
-        );
+        const view = InputBytesView(this, this.transformer, key);
 
         prev[key] = view;
 
@@ -208,7 +160,7 @@ export class TransformerToolView extends View implements IActionHandler {
               <div class="transform-inputs column is-7-desktop is-8-tablet">
                 {Object.entries(this.propertyViews)
                   .filter(([key]) => helper.isSchemaProperty(key))
-                  .map(([key, view]) => (
+                  .map(([_key, view]) => (
                     <div
                       class={
                         "transform-input" /*+ (key == "in" ? " fullscreen" : "")*/
@@ -285,57 +237,6 @@ export class TransformerToolView extends View implements IActionHandler {
 /**
  *
  */
-class DropdownIcon extends View {
-  options = ["HEX", "BASE64", "UTF8"];
-  onChangeCallback: (option: string) => void;
-
-  constructor(props: {
-    onChange: (option: string) => void;
-    options: string[];
-  }) {
-    super();
-
-    this.options = props.options;
-
-    this.option = props.options[0];
-
-    this.onChangeCallback = props.onChange;
-  }
-
-  option: string;
-
-  onChange(evt: Event) {
-    this.option = evt.target["title"];
-
-    if (this.onChangeCallback) this.onChangeCallback(this.option);
-
-    this.refresh();
-  }
-
-  render() {
-    return (
-      <a
-        class="icon has-text-white has-dropdown is-unselectable"
-        title="Input Format"
-      >
-        <span class="is-unselectable" style="padding-right: 5px">
-          {this.option}
-        </span>
-        <ul class="byte-property-dropdown">
-          {this.options.map(opt => (
-            <li title={opt} onclick={this.onChange.bind(this)}>
-              {opt}
-            </li>
-          ))}
-        </ul>
-      </a>
-    );
-  }
-}
-
-/**
- *
- */
 function About(props: { helper: any }) {
   const { helper } = props;
 
@@ -395,6 +296,70 @@ class ExecButton extends View {
   }
 }
 
+/*<div
+  class="buttons has-background-grey-dark"
+  style="border-radius: 3px; display: none"
+>
+  <a
+    class="icon is-medium has-text-white btn-result btn-shrink"
+    title="Shrink Result"
+  >
+    <i class="fas fa-minus"> </i>
+  </a>
+  <a
+    class="icon is-medium has-text-white btn-result btn-grow"
+    title="Grow Result"
+  >
+    <i class="fas fa-plus"> </i>
+  </a>
+  <a
+    class="icon is-medium has-text-white btn-result btn-fullscreen"
+    title="Fullscreen"
+  >
+    <i class="fas fa-arrows-alt"> </i>
+  </a>
+</div>*/
+
+function OutputTreeView(transformer: Transformer, key: string) {
+  let tlvInfos: TLVInfo[] = transformer[key];
+
+  const view = (
+    <section class="panel-block">
+      <div class="tree-pane">
+        {tlvInfos && tlvInfos.map(info => <TLVNode node={info} mode="tree" />)}
+      </div>
+
+      {tlvInfos && tlvInfos.length == 0 ? (
+        <div style="height: 400px; border: 3px dotted #888; border-radius: 5px; padding: 10px;">
+          <h3>
+            <i>Explore</i> mode
+          </h3>
+          <p>Decompose hexadecimal TLV data, and represent it as a tree.</p>
+          <p>
+            Context sensitive lookup, ISO / EMV and different payment-card
+            standards
+          </p>
+          <br />
+          <p>
+            try something like
+            <a
+              onClick={
+                null
+                /*(view.tlvInput =
+                  "9505 3399AA55FF 700e 5a086271550000000001 5f340100")*/
+              }
+            >
+              700e 5a086271550000000001 5f340100
+            </a>
+          </p>
+        </div>
+      ) : null}
+    </section>
+  );
+
+  return view;
+}
+
 function Results(props: { handler: IActionHandler; transformer: Transformer }) {
   let { transformer } = props;
   let { helper } = transformer;
@@ -405,70 +370,12 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
     .reduce<{
       [index: string]: View;
     }>((prev, key) => {
-      const view = (
-        <PropertyView
-          readOnly
-          propRef={{
-            target: transformer,
-            key: key,
-            propertyType: helper.getPropSchema(key)
-          }}
-        >
-          <a
-            class="icon has-text-white is-unselectable"
-            title="Copy to Clipboard"
-            onClick={() => {
-              let $el = view.element.getElementsByTagName("textarea")[0];
-              $el.select();
-              document.execCommand("copy");
-            }}
-          >
-            <i class="fas fa-copy" />
-          </a>
-          <a
-            class="icon has-text-white is-unselectable"
-            title="Download as File"
-            onClick={() => {
-              const blob = new Blob(
-                [ByteArray.toString(transformer[key], view.byteFormat)],
-                {
-                  type: "text/plain;charset=utf-8"
-                }
-              );
+      const schema: AnySchemaProperty = helper.getPropSchema(key);
 
-              var downloadUrl = window.URL.createObjectURL(blob);
-
-              var a = document.createElement("a");
-              a.style.display = "none";
-
-              if (typeof a.download === "undefined") {
-                let loc = new Location();
-                loc.assign(downloadUrl);
-                window.location = loc;
-              } else {
-                a.href = downloadUrl;
-                a.download = "data.txt";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-              }
-              //
-            }}
-          >
-            <i class="fas fa-download" />
-          </a>
-          <DropdownIcon
-            onChange={option => {
-              view.options["format"] = option;
-              view.refresh();
-            }}
-            options={["HEX", "BASE64", "UTF8"]}
-          />
-          <a class="icon has-text-white" title="Fullscreen">
-            <i class="fas fa-arrows-alt"> </i>
-          </a>
-        </PropertyView>
-      );
+      const view =
+        schema.type == "bytes"
+          ? OutputBytesView(props.handler, transformer, key)
+          : OutputTreeView(transformer, key);
 
       prev[key] = view;
 
@@ -495,29 +402,6 @@ function Results(props: { handler: IActionHandler; transformer: Transformer }) {
               {Object.entries(propertyViews).map(([_key, view]) => (
                 <div class="transform-output">{view}</div>
               ))}
-              <div
-                class="buttons has-background-grey-dark"
-                style="border-radius: 3px; display: none"
-              >
-                <a
-                  class="icon is-medium has-text-white btn-result btn-shrink"
-                  title="Shrink Result"
-                >
-                  <i class="fas fa-minus"> </i>
-                </a>
-                <a
-                  class="icon is-medium has-text-white btn-result btn-grow"
-                  title="Grow Result"
-                >
-                  <i class="fas fa-plus"> </i>
-                </a>
-                <a
-                  class="icon is-medium has-text-white btn-result btn-fullscreen"
-                  title="Fullscreen"
-                >
-                  <i class="fas fa-arrows-alt"> </i>
-                </a>
-              </div>
             </div>
           </div>
         </div>

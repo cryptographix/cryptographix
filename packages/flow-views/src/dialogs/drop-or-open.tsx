@@ -79,7 +79,7 @@ export class DropOrOpenDialog extends View {
               </div>
               <div
                 class="level-right"
-                style="position: relative; height: 60px; background-color: #91917d; border-radius: 3px; padding-left: 1rem; margin-right: 1rem"
+                style="position: relative; height: 60px; background-color: #91917d; border-radius: 0px 3px 3px 0px; padding-left: 1rem; margin-right: 1rem"
               >
                 <label class="level-item">
                   <span class="icon is-large">
