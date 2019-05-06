@@ -7560,8 +7560,9 @@ a.navbar-item:hover, a.navbar-item.is-active,
   align-items: center;
   color: #363636;
   display: flex;
-  justify-content: flex-start;
-  padding: 0.5em 0.75em;
+  /* justify-content: flex-start; */
+  /* padding: 0.5em 0.75em; */
+  overflow: hidden;
 }
 
 .panel-block input[type="checkbox"] {

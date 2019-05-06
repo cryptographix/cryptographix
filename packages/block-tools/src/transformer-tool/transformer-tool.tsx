@@ -11,7 +11,7 @@ import {
 import { PropertyView } from "@cryptographix/flow-views";
 import { InputBytesView } from "./input-bytes-view";
 import { OutputBytesView } from "./output-bytes-view";
-import { TLVInfo, TLVNode } from "@cryptographix/emv";
+import { TLVInfo, TLVNode, TLVDetailsPanel } from "@cryptographix/emv";
 
 export class TransformerToolView extends View implements IActionHandler {
   //
@@ -57,7 +57,7 @@ export class TransformerToolView extends View implements IActionHandler {
 
   updateView() {
     alert("Hi");
-    this.execButton.refresh();
+    //this.execButton.refresh();
 
     return false;
   }
@@ -74,11 +74,15 @@ export class TransformerToolView extends View implements IActionHandler {
   async onExecute() {
     try {
       await this.transformer.trigger().then(() => {
-        this.done = true;
-        this.refresh();
+        if (this.done) {
+          this.resultView.refresh();
+        } else {
+          this.done = true;
+          this.refresh();
 
-        let $el = this.resultView.element;
-        $el.scrollIntoView();
+          let $el = this.resultView.element;
+          $el.scrollIntoView();
+        }
 
         //window.scrollTo(0, $el.win);
       });
@@ -94,15 +98,8 @@ export class TransformerToolView extends View implements IActionHandler {
   render(): HTMLElement {
     const helper = this.transformer.helper;
 
-    /*    this.execButton = new ExecButton({
-      text: "Process",
-      enabled: this.canExecute(),
-      onExecute: async () => {
-        await this.onExecute();
-      }
-    });*/
-
     this.propertyViews = {};
+    let hasConfig = false;
 
     this.propertyViews = Object.keys(helper.configSchema.properties)
       // Ignore 'shared' block properties
@@ -110,6 +107,8 @@ export class TransformerToolView extends View implements IActionHandler {
       .reduce<{
         [index: string]: View;
       }>((prev, key) => {
+        hasConfig = true;
+
         prev[key] = (
           <PropertyView
             handler={this}
@@ -148,16 +147,20 @@ export class TransformerToolView extends View implements IActionHandler {
                 </p>
               </div>
             </div>
-            <div class="columns is-centered">
+            <div class="columns">
               <div
                 class="column is-hidden-touch hint has-text-white"
                 style="align-self: center"
               >
-                <i class="fa fa-share fa-5x"> </i> <br />
+                <i class="fa fa-reply fa-rotate-180 fa-5x"> </i> <br />
                 <p />
               </div>
-
-              <div class="transform-inputs column is-7-desktop is-8-tablet">
+              <div
+                class={
+                  "transform-inputs column " +
+                  (hasConfig ? "is-7-desktop is-8-tablet" : "is-8-tablet")
+                }
+              >
                 {Object.entries(this.propertyViews)
                   .filter(([key]) => helper.isSchemaProperty(key))
                   .map(([_key, view]) => (
@@ -170,17 +173,27 @@ export class TransformerToolView extends View implements IActionHandler {
                     </div>
                   ))}
               </div>
-
-              <div class="column transform-config is-3">
-                {Object.entries(this.propertyViews)
-                  .filter(([key]) => !helper.isSchemaProperty(key))
-                  .map(([_key, view]) => view)}
-              </div>
+              {hasConfig ? (
+                <div class="column transform-config is-3">
+                  {Object.entries(this.propertyViews)
+                    .filter(([key]) => !helper.isSchemaProperty(key))
+                    .map(([_key, view]) => view)}
+                </div>
+              ) : (
+                <div
+                  class="column is-hidden-touch hint has-text-white"
+                  style="align-self: center"
+                >
+                  <i class="fa fa-share fa-5x fa-rotate-180"> </i>
+                  <p />
+                </div>
+              )}
             </div>
 
-            <div class="columns  is-centered">
-              <div class="column is-8 has-text-centered">
-                {
+            {/*<div class="columns is-centered">
+              <div class="column is-8 has-text-white">
+                <i class="fa fa-angle-double-down fa-5x"> </i>
+                {/ *
                   (this.execButton = (
                     <ExecButton
                       text="Process"
@@ -190,15 +203,19 @@ export class TransformerToolView extends View implements IActionHandler {
                       }}
                     />
                   ))
-                }
+                * /}
               </div>
-            </div>
+            </div>*/}
           </div>
         </section>
 
         {this.done
           ? (this.resultView = (
-              <Results handler={this} transformer={this.transformer} />
+              <Results
+                handler={this}
+                transformer={this.transformer}
+                isCompact={hasConfig}
+              />
             ))
           : null}
 
@@ -224,11 +241,14 @@ export class TransformerToolView extends View implements IActionHandler {
             $el.style.display = propInfo.ignore ? "none" : "inherit";
           }
         });
+
+        if (this.canExecute()) this.onExecute();
+
         break;
       }
     } //
 
-    this.execButton.setEnabled(this.canExecute());
+    if (this.execButton) this.execButton.setEnabled(this.canExecute());
 
     return null;
   }
@@ -360,52 +380,82 @@ function OutputTreeView(transformer: Transformer, key: string) {
   return view;
 }
 
-function Results(props: { handler: IActionHandler; transformer: Transformer }) {
-  let { transformer } = props;
-  let { helper } = transformer;
+class Results extends View {
+  constructor(
+    public props: {
+      handler: IActionHandler;
+      transformer: Transformer;
+      isCompact: boolean;
+    }
+  ) {
+    super();
+  }
 
-  let propertyViews = helper.outPortKeys
-    // Ignore 'shared' block properties
-    .filter(key => helper.isSchemaProperty(key))
-    .reduce<{
-      [index: string]: View;
-    }>((prev, key) => {
-      const schema: AnySchemaProperty = helper.getPropSchema(key);
+  render() {
+    let { transformer } = this.props;
+    let { helper } = transformer;
 
-      const view =
-        schema.type == "bytes"
-          ? OutputBytesView(props.handler, transformer, key)
-          : OutputTreeView(transformer, key);
+    let propertyViews = helper.outPortKeys
+      // Ignore 'shared' block properties
+      .filter(key => helper.isSchemaProperty(key))
+      .reduce<{
+        [index: string]: View;
+      }>((prev, key) => {
+        const schema: AnySchemaProperty = helper.getPropSchema(key);
 
-      prev[key] = view;
+        const view =
+          schema.type == "bytes"
+            ? OutputBytesView(this.props.handler, transformer, key)
+            : OutputTreeView(transformer, key);
 
-      return prev;
-    }, {});
+        prev[key] = view;
 
-  return (
-    <section
-      class="section"
-      style="background-color: #2990b9; padding: 3rem 0.5rem 3rem 0.5rem;"
-    >
-      <div class="container">
-        <div class="columns is-desktop">
-          <div
-            class="column is-hidden-touch is-2 hint has-text-white"
-            style="align-self: center"
-          >
-            <i class="fa fa-share fa-flip-vertical fa-5x"> </i> <br />
-            <p />
-          </div>
+        return prev;
+      }, {});
 
-          <div class="column is-7">
-            <div class="transform-outputs">
+    const mainWidth = this.props.isCompact
+      ? "is-7-desktop is-8-tablet"
+      : "is-8-tablet";
+
+    return (
+      <section
+        class="section"
+        style="background-color: #2990b9; padding: 3rem 0.5rem 3rem 0.5rem;"
+      >
+        <div class="container">
+          <div class="columns is-desktop">
+            <div
+              class="column is-hidden-touch is-2 hint has-text-white"
+              style="align-self: center"
+            >
+              <i class="fa fa-angle-double-right fa-5x"> </i>
+              <p />
+            </div>
+
+            <div class={"transform-outputs column " + mainWidth}>
               {Object.entries(propertyViews).map(([_key, view]) => (
                 <div class="transform-output">{view}</div>
               ))}
             </div>
+
+            <div
+              class="column is-hidden-touch hint has-text-white"
+              style="align-self: center"
+            >
+              <i class="fa fa-angle-double-left fa-5x"> </i>
+              <p />
+            </div>
           </div>
+
+          {transformer.constructor.name == "TLVDecoder" && (
+            <div class="columns is-centered is-desktop">
+              <div class={"transform-detail column " + mainWidth}>
+                <TLVDetailsPanel tlv={transformer["tlvs"][1]} />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-    </section>
-  );
+      </section>
+    );
+  }
 }

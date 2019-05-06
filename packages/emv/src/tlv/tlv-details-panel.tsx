@@ -1,11 +1,18 @@
 import { View } from "@cryptographix/core";
 import { TLVInfo } from "./tlv-database";
 
-export class TLVDetailsPanel {
+export class TLVDetailsPanel extends View {
   tlvInfo: TLVInfo;
 
+  constructor(props: { tlv: TLVInfo }) {
+    super();
+
+    this.tlvInfo = props.tlv;
+    this.tlvInfoChanged();
+  }
+
   tlvInfoChanged() {
-    this.tvrBit.splice(0);
+    this.tvrBit = [];
 
     for (let i = 0; i < 5; ++i) {
       for (let j = 0; j < 8; ++j) {
@@ -74,8 +81,6 @@ export class TLVDetailsPanel {
     console.log("changed" + newValue);
   }
 
-  constructor() {}
-
   selectedTab = 0;
 
   render() {
@@ -85,12 +90,17 @@ export class TLVDetailsPanel {
 
     return (
       <section class="panel">
-        <header class="panel-heading has-background-grey-light">
+        <header class="panel-heading is-size-6 has-background-grey-light">
           <div class="tabs">
             {tabs.map(tab => (
               <ul>
                 <li class={this.selectedTab == tab ? "is-active" : ""}>
-                  <a onClick={evt => (view.selectedTab = tab)}>
+                  <a
+                    onClick={evt => {
+                      view.selectedTab = tab;
+                      view.refresh();
+                    }}
+                  >
                     {`Byte ${tab + 1}`}
                   </a>
                 </li>
@@ -100,9 +110,11 @@ export class TLVDetailsPanel {
         </header>
 
         {tabs.map(i => (
-          <section style="display: ${(i == selectedTab)?'block':'none'}">
+          <section
+            style={`display: ${i == this.selectedTab ? "block" : "none"}`}
+          >
             <p
-              class="panel-heading"
+              class="panel-heading is-size-6"
               style="padding: 0.5em; background-color: #ccc;"
             >
               <b>
@@ -135,14 +147,14 @@ export class TLVDetailsPanel {
                   </tr>
                   {bits.map(j => (
                     <tr>
-                      <td>{j == 0 ? 1 : " "}</td>
-                      <td>{j == 1 ? 1 : " "}</td>
-                      <td>{j == 2 ? 1 : " "}</td>
-                      <td>{j == 3 ? 1 : " "}</td>
-                      <td>{j == 4 ? 1 : " "}</td>
-                      <td>{j == 5 ? 1 : " "}</td>
-                      <td>{j == 6 ? 1 : " "}</td>
-                      <td>{j == 7 ? 1 : " "}</td>
+                      <td>{j == 0 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 1 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 2 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 3 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 4 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 5 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 6 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
+                      <td>{j == 7 ? (this.hasBit(i, j) ? "1" : "0") : " "}</td>
                       <td>
                         <span class={this.hasBit(i, j) ? "bgset" : "bgunset"}>
                           {this.bitNames[i][j]}
