@@ -37,7 +37,7 @@ export class ByteArray extends Uint8Array {
       return bytes;
     }
 
-    if (fmt == "hex" && typeof data == "string") data = data.replace(/\s/g, "");
+    if ((fmt == "hex" || fmt=="base64") && typeof data == "string") data = data.replace(/\s/g, "").replace(/[\n\r]/g,"");
 
     if (Environment.isNode()) return ByteArray.from(Buffer.from(data, fmt));
 

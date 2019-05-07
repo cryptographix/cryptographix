@@ -662,6 +662,9 @@ a.has-dropdown:focus .byte-property-dropdown {
 
   font-family: monospace;
   font-size: 0.8rem;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .tree-node {
@@ -669,10 +672,17 @@ a.has-dropdown:focus .byte-property-dropdown {
   user-select: none;
   left: 10px;
   white-space: nowrap;
+  display: flex;
+  flex-direction: column;
 }
 
 .tree-node span {
+  flex-direction: row;
   margin: 2px;
+}
+
+.tree-node span:hover {
+  background-color: #ccc;
 }
 
 .tree-node-closed .tree-node {
@@ -682,7 +692,9 @@ a.has-dropdown:focus .byte-property-dropdown {
 .tree-node-closed > :before {
   position: absolute;
   left: -10px;
-  content: "+";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+    content: "\f054";
 }
 
 .tree-node-open .tree-node {
@@ -692,13 +704,17 @@ a.has-dropdown:focus .byte-property-dropdown {
 .tree-node-open > span:before {
   position: absolute;
   left: -10px;
-  content: "-";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f078";
 }
 
 .tree-node-empty:before {
   position: absolute;
   left: -15px;
-  content: "o";
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "";
 }
 
 table.tvr {

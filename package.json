@@ -4,6 +4,9 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "run": "node packages/block-tools/src/server.js"
+  },
   "devDependencies": {
     "@types/chai": "^4",
     "@types/chai-string": "^1.4.1",

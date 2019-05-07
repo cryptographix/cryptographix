@@ -2,16 +2,17 @@ import { View } from "@cryptographix/core";
 import { TLVInfo } from "./tlv-database";
 
 export class TLVDetailsPanel extends View {
-  tlvInfo: TLVInfo;
+  private tlvInfo: TLVInfo;
 
   constructor(props: { tlv: TLVInfo }) {
     super();
 
-    this.tlvInfo = props.tlv;
-    this.tlvInfoChanged();
+    this.setTLVInfo( props.tlv );
   }
 
-  tlvInfoChanged() {
+  setTLVInfo(tlvInfo: TLVInfo) {
+    this.tlvInfo = tlvInfo;
+
     this.tvrBit = [];
 
     if (this.tlvInfo) {

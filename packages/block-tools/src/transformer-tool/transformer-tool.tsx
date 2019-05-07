@@ -391,7 +391,8 @@ class Results extends View {
               createNodeView={createNodeView}
               listeners={{
                 onSelectNode: (view: TLVNode) => {
-                  this.selectedTLV = tlvDetailsView.tlvInfo = view.node;
+                  this.selectedTLV = view.node;
+                  tlvDetailsView.setTLVInfo( view.node );
                   tlvDetailsView.refresh();
 
                   return true;

@@ -32,6 +32,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@cryptographix/core": "0.1.0"
+    "@cryptographix/core": "0.1.0",
+    "@cryptographix/flow-views": "0.1.0"
   }
 }

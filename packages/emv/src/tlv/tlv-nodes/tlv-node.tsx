@@ -39,7 +39,7 @@ export class TLVNode extends TreeNodeView<TLVInfo> {
 
   type: string = "";
 
-  onSelectNode(evt: Event, _canSelect: boolean) {
+  onSelectNode(evt: Event, node: TLVInfo, _canSelect: boolean) {
     let el = evt.currentTarget as HTMLElement;
 
     if (el.classList.contains("tree-node-closed")) {
@@ -47,7 +47,8 @@ export class TLVNode extends TreeNodeView<TLVInfo> {
       el.classList.add("tree-node-open");
     } else {
       el.classList.remove("tree-node-open");
-      el.classList.add("tree-node-closed");
+      if ( node.children.length > 0 )
+        el.classList.add("tree-node-closed");
     }
 
     evt.preventDefault();
@@ -60,9 +61,9 @@ export class TLVNode extends TreeNodeView<TLVInfo> {
 
     return (
       <div
-        class="tree-node tree-node-open"
+        class={"tree-node " + ( (node.children.length > 0 )?"tree-node-open":"tree-node-empty")}
         onClick={(evt: Event) => {
-          view.onSelectNode(evt, listeners.onSelectNode(view));
+          view.onSelectNode(evt, node, listeners.onSelectNode(view));
         }}
       >
         <span>{`[${this.tag}]:${this.name}`}</span>
