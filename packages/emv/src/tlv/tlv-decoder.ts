@@ -1,4 +1,4 @@
-import { ByteArray, Transformer } from "@cryptographix/core";
+import { ByteArray, Transformer, ITreeSchemaProp } from "@cryptographix/core";
 import { block, bytesProp, objectProp, isPort } from "@cryptographix/core";
 
 import {
@@ -21,9 +21,9 @@ export class TLVDecoder extends Transformer<TLVDecoderConfig> {
   @isPort({ type: "data-in" })
   data: ByteArray;
 
-  @objectProp(TLVInfo, { title: "TLV Data" })
+  @objectProp(TLVInfo, { title: "TLV Data", isTree: true })
   @isPort({ type: "data-out" })
-  tlvs: TLVInfo[];
+  tlvData: ITreeSchemaProp<TLVInfo>;
 
   tlvDatabase: TLVDatabase;
   rootTLVInfo: RootTLVInfo;
@@ -53,7 +53,7 @@ export class TLVDecoder extends Transformer<TLVDecoderConfig> {
       throw new Error("INVALID TLV DATA");
     }
 
-    this.tlvs = this.rootTLVInfo.children;
+    this.tlvData = this.rootTLVInfo;
 
     return null; //
   }

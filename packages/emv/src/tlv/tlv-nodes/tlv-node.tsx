@@ -1,41 +1,34 @@
 import { View } from "@cryptographix/core";
+import { TreeNodeView } from "@cryptographix/flow-views";
 
 import { TLVInfo, TLVDatabaseEntry } from "../tlv-database";
 
-export interface ITreeNode {
-  children: Array<ITreeNode>;
-}
-
-export abstract class TreeView<TNode extends ITreeNode> extends View {
-  mode: "tree" | "details";
-
-  node: TNode;
-
-  constructor(props: {
-    node: TNode;
-    mode?: "tree" | "details";
-    depth?: number;
+export class TLVNode extends TreeNodeView<TLVInfo> {
+  /*constructor(props: {
+    node: TLVInfo;
+    listeners: ITreeNodeListeners;
+    mode: "tree" | "details";
+    depth: number;
   }) {
-    super();
+    super(props);
+  }*/
 
-    const { node, mode } = props;
-
-    this.node = node;
-    this.mode = mode;
-  }
-}
-
-export class TLVNode extends TreeView<TLVInfo> {
   get tag(): string {
-    return this.node.tlv.tagAsHex;
+    let { node } = this.props;
+
+    return node.tlv.tagAsHex;
   }
 
   get len(): number {
-    return this.node.tlv.len;
+    let { node } = this.props;
+
+    return node.tlv.len;
   }
 
   private get entry() {
-    return this.node.entry || new TLVDatabaseEntry(0, "Unknown", "");
+    let { node } = this.props;
+
+    return node.entry || new TLVDatabaseEntry(0, "Unknown", "");
   }
 
   get name(): string {
@@ -45,15 +38,8 @@ export class TLVNode extends TreeView<TLVInfo> {
   }
 
   type: string = "";
-  public node: TLVInfo;
 
-  mode: "tree" | "details";
-
-  constructor(props: { node: TLVInfo; mode?: "tree" | "details" }) {
-    super(props);
-  }
-
-  onClick(evt: Event) {
+  onSelectNode(evt: Event, _canSelect: boolean) {
     let el = evt.currentTarget as HTMLElement;
 
     if (el.classList.contains("tree-node-closed")) {
@@ -69,11 +55,24 @@ export class TLVNode extends TreeView<TLVInfo> {
   }
 
   render() {
+    let view = this;
+    let { node, listeners, depth } = this.props;
+
     return (
-      <div class="tree-node tree-node-open" onClick={this.onClick.bind(this)}>
+      <div
+        class="tree-node tree-node-open"
+        onClick={(evt: Event) => {
+          view.onSelectNode(evt, listeners.onSelectNode(view));
+        }}
+      >
         <span>{`[${this.tag}]:${this.name}`}</span>
-        {this.node.children.map(tlv => (
-          <TLVNode node={tlv} />
+        {node.children.map(tlv => (
+          <TLVNode
+            node={tlv}
+            listeners={listeners}
+            mode="tree"
+            depth={depth - 1}
+          />
         ))}
       </div>
     );

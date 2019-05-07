@@ -2,10 +2,9 @@ import {
   View,
   Transformer,
   IActionHandler,
-  AnySchemaProperty,
   ByteArray
 } from "@cryptographix/core";
-import { PropertyView, DropOrOpenDialog } from "@cryptographix/flow-views";
+import { PropertyView } from "@cryptographix/flow-views";
 
 import { DropdownIcon } from "./drop-down-icon";
 

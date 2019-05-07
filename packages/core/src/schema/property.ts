@@ -18,13 +18,13 @@ export interface ISchemaProperty<
   //
   type: string | ISchema<Type>;
 
-  /* present if property is an array
+  // present if property is an array
   array?: {
     //
     minItems?: number;
     //
     maxItems?: number;
-  };*/
+  };
 
   // property name on object
   name?: string;
@@ -176,6 +176,13 @@ export interface IObjectSchemaProp<TO extends Object = {}>
   extends ISchemaProperty<TO> {
   //
   type: ISchema<TO>;
+
+  //
+  isTree?: boolean;
+}
+
+export interface ITreeSchemaProp<T extends ITreeSchemaProp<any> = any> {
+  children: Array<T>;
 }
 
 /*type RecursiveSchema<A extends Object> = {

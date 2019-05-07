@@ -11,6 +11,8 @@ import {
 import { PropertyView } from "@cryptographix/flow-views";
 import { InputBytesView } from "./input-bytes-view";
 import { OutputBytesView } from "./output-bytes-view";
+import { TreeView, ITreeNodeListeners } from "@cryptographix/flow-views";
+
 import { TLVInfo, TLVNode, TLVDetailsPanel } from "@cryptographix/emv";
 
 export class TransformerToolView extends View implements IActionHandler {
@@ -340,46 +342,6 @@ class ExecButton extends View {
   </a>
 </div>*/
 
-function OutputTreeView(transformer: Transformer, key: string) {
-  let tlvInfos: TLVInfo[] = transformer[key];
-
-  const view = (
-    <section class="panel-block">
-      <div class="tree-pane">
-        {tlvInfos && tlvInfos.map(info => <TLVNode node={info} mode="tree" />)}
-      </div>
-
-      {tlvInfos && tlvInfos.length == 0 ? (
-        <div style="height: 400px; border: 3px dotted #888; border-radius: 5px; padding: 10px;">
-          <h3>
-            <i>Explore</i> mode
-          </h3>
-          <p>Decompose hexadecimal TLV data, and represent it as a tree.</p>
-          <p>
-            Context sensitive lookup, ISO / EMV and different payment-card
-            standards
-          </p>
-          <br />
-          <p>
-            try something like
-            <a
-              onClick={
-                null
-                /*(view.tlvInput =
-                  "9505 3399AA55FF 700e 5a086271550000000001 5f340100")*/
-              }
-            >
-              700e 5a086271550000000001 5f340100
-            </a>
-          </p>
-        </div>
-      ) : null}
-    </section>
-  );
-
-  return view;
-}
-
 class Results extends View {
   constructor(
     public props: {
@@ -391,9 +353,26 @@ class Results extends View {
     super();
   }
 
+  selectedTLV;
+
   render() {
     let { transformer } = this.props;
     let { helper } = transformer;
+
+    const createNodeView = (
+      treeNode: TLVInfo,
+      listeners: ITreeNodeListeners<TLVInfo>,
+      depth: number
+    ) => (
+      <TLVNode
+        node={treeNode}
+        listeners={listeners}
+        mode="tree"
+        depth={depth}
+      />
+    );
+
+    let tlvDetailsView: TLVDetailsPanel;
 
     let propertyViews = helper.outPortKeys
       // Ignore 'shared' block properties
@@ -404,10 +383,22 @@ class Results extends View {
         const schema: AnySchemaProperty = helper.getPropSchema(key);
 
         const view =
-          schema.type == "bytes"
-            ? OutputBytesView(this.props.handler, transformer, key)
-            : OutputTreeView(transformer, key);
+          schema.type == "bytes" ? (
+            OutputBytesView(this.props.handler, transformer, key)
+          ) : (
+            <TreeView
+              treeRoot={transformer[key]}
+              createNodeView={createNodeView}
+              listeners={{
+                onSelectNode: (view: TLVNode) => {
+                  this.selectedTLV = tlvDetailsView.tlvInfo = view.node;
+                  tlvDetailsView.refresh();
 
+                  return true;
+                }
+              }}
+            />
+          );
         prev[key] = view;
 
         return prev;
@@ -450,7 +441,7 @@ class Results extends View {
           {transformer.constructor.name == "TLVDecoder" && (
             <div class="columns is-centered is-desktop">
               <div class={"transform-detail column " + mainWidth}>
-                <TLVDetailsPanel tlv={transformer["tlvs"][1]} />
+                {(tlvDetailsView = <TLVDetailsPanel tlv={this.selectedTLV} />)}
               </div>
             </div>
           )}

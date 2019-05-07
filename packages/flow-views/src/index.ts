@@ -7,3 +7,5 @@ export * from "./grid-view/grid-view";
 
 export * from "./input-panel";
 export * from "./output-panel";
+
+export * from "./tree-view";

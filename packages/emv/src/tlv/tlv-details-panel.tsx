@@ -14,10 +14,12 @@ export class TLVDetailsPanel extends View {
   tlvInfoChanged() {
     this.tvrBit = [];
 
-    for (let i = 0; i < 5; ++i) {
-      for (let j = 0; j < 8; ++j) {
-        let val = this.tlvInfo.tlv.value[i] & (1 << (7 - j));
-        if (val) this.tvrBit.push(i * 8 + j);
+    if (this.tlvInfo) {
+      for (let i = 0; i < 5; ++i) {
+        for (let j = 0; j < 8; ++j) {
+          let val = this.tlvInfo.tlv.value[i] & (1 << (7 - j));
+          if (val) this.tvrBit.push(i * 8 + j);
+        }
       }
     }
   }
@@ -84,12 +86,24 @@ export class TLVDetailsPanel extends View {
   selectedTab = 0;
 
   render() {
+    return (
+      <section class="panel">
+        {this.tlvInfo && this.tlvInfo.tlv.tag == 0x95 ? (
+          this.renderTVR()
+        ) : (
+          <div />
+        )}
+      </section>
+    );
+  }
+
+  renderTVR() {
     let view = this;
     const tabs = [0, 1, 2, 3, 4];
     const bits = [0, 1, 2, 3, 4, 5, 6, 7];
 
     return (
-      <section class="panel">
+      <div>
         <header class="panel-heading is-size-6 has-background-grey-light">
           <div class="tabs">
             {tabs.map(tab => (
@@ -167,7 +181,7 @@ export class TLVDetailsPanel extends View {
             </div>
           </section>
         ))}
-      </section>
+      </div>
     );
   }
 }

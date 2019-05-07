@@ -1,5 +1,5 @@
 import { TLVDatabase, TLVDatabaseEntry, TLV, TLVParser } from ".";
-import { ByteArray } from "@cryptographix/core";
+import { ByteArray, ITreeSchemaProp } from "@cryptographix/core";
 
 function buildTLVInfos(
   tlvDatabase: TLVDatabase,
@@ -60,7 +60,7 @@ export class RootTLVInfo {
   }
 }
 
-export class TLVInfo {
+export class TLVInfo implements ITreeSchemaProp<TLVInfo> {
   public tlv: TLV;
   public entry: TLVDatabaseEntry;
 
