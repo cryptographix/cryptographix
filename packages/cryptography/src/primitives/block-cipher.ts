@@ -108,7 +108,7 @@ export class BlockCipherHelper {
         name: "ecb",
         label: "ECB (Electronic Code Book)",
         hasIV: false,
-        browserMode: true,
+        browserMode: false,
         nodeMode: true
       },
       {

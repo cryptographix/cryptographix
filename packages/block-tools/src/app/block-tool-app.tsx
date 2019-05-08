@@ -1,5 +1,5 @@
 import { View } from "@cryptographix/core";
-//import { Flow } from "@cryptographix/flow";
+import { BlockToolChooser } from "./block-tool-chooser";
 import { TLVDecoder } from "@cryptographix/emv";
 
 import { Header } from "./header";
@@ -12,9 +12,39 @@ import * as CR from "@cryptographix/cryptography";
 export class BlockToolApp extends View {
   constructor() {
     super();
+
+    let currentState = history.state;
+    console.log(currentState);
+
+    let app = this;
+
+    window.onpopstate = function(event) {
+      console.log("history changed to: " + document.location.href);
+      app.navegateTo();
+    };
+
+    //    window.history.pushState(null,null,null)
+    this.navegateTo();
   }
 
-  selectedTool = 2;
+  navegateTo() {
+    if (document.location.pathname == "/") {
+      let hash = document.location.hash.slice(1);
+      let parts = hash.split("/");
+      if (parts[0] == "block-tool") {
+        if (parts[1]) {
+          this.selectedTool = 1;
+          this.blockName = parts[1];
+        } else this.selectedTool = 0;
+
+        this.refresh();
+        this.element.scrollTo(0, 0);
+      }
+    }
+  }
+
+  selectedTool = 0;
+  blockName: string = "SecretKeyEncrypter";
   toolPanel: View;
 
   changeTool(newTool: number) {
@@ -42,26 +72,34 @@ export class BlockToolApp extends View {
   `;
 
   parseUrl() {
-    let params = {};
-
+    //let params = {};
     //    if (document.)
   }
+
   renderTool() {
     switch (this.selectedTool) {
       case 0:
+        return <BlockToolChooser />;
+
+      case 1: {
+        let b = CR[this.blockName];
+
+        if (!b) {
+          b = TLVDecoder;
+        }
+
+        return <TransformerToolView transCtor={b} />;
+      }
+
+      case 2:
         return (
           <TransformerToolView
             transCtor={CR.SecretKeyEncrypter}
             config={{ mode: "cbc" }}
           />
         );
-      case 1:
-        return (
-          <div id="flows" style="position: relative">
-            <FlowScriptView flowScript={this.net3} />
-          </div>
-        );
-      case 2: {
+
+      case 3: {
         return (
           <TransformerToolView
             transCtor={TLVDecoder}
@@ -69,9 +107,15 @@ export class BlockToolApp extends View {
           />
         );
       }
-      case 3: {
+      case 4: {
         return <BlockExplorerView transCtor={CR.SecretKeyEncrypter} />;
       }
+      case 5:
+        return (
+          <div id="flows" style="position: relative">
+            <FlowScriptView flowScript={this.net3} />
+          </div>
+        );
     }
   }
 
@@ -83,10 +127,12 @@ export class BlockToolApp extends View {
         <View.Fragment>
           <Header
             menuItems={[
+              "Select Tool",
+              "Selected Tool",
               "Secret Key Encrypter",
-              "Flow Script Viewer",
               "TLV Decoder",
-              "Block Explorer"
+              "Block Explorer",
+              "Flow Script Viewer"
             ]}
             onMenuItemChange={index => {
               me.changeTool(index);

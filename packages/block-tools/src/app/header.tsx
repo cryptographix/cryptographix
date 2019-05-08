@@ -16,9 +16,6 @@ export class Header extends View<HeaderParams> {
     //
   }
 
-  dropClicked(evt: Event) {
-    alert("here");
-  }
   render() {
     let me = this;
 
@@ -33,7 +30,7 @@ export class Header extends View<HeaderParams> {
         >
           <div class="navbar-brand">
             {!this.props.hideBrand && (
-              <a class="navbar-item" href="https://cryptographix.org/tools">
+              <a class="navbar-item" href="https://tools.cryptographix.org/">
                 <img
                   class=" "
                   src="/assets/static/images/cgx-brand/cgx-logo.png"
@@ -56,11 +53,20 @@ export class Header extends View<HeaderParams> {
 
           <div id="navbarBasicExample" class="navbar-menu">
             <div class="navbar-start">
+              <div class="navbar-item">
+                <a
+                  class="navbar-link is-arrowless has-text-info"
+                  style="font-size: 1.5rem;"
+                  href="/#block-tool"
+                >
+                  <i class="fas fa-toolbox" />
+                  &nbsp; Tools
+                </a>
+              </div>
+
+              {/*
               <div class="navbar-item has-dropdown is-hoverable">
                 <a class="navbar-link">
-                  {/*<span class="icon is-large has-text-success">
-                    <i class="fas fa-play-circle fa-2x" />
-                  </span>*/}
                   <a
                     class="has-text-info"
                     style="font-size: 1.5rem; text-transform: uppercase;"
@@ -70,7 +76,7 @@ export class Header extends View<HeaderParams> {
                 </a>
 
                 <div class="navbar-dropdown">
-                  {this.props.menuItems
+                  {false && this.props.menuItems
                     .filter(
                       item =>
                         item != this.props.menuItems[this.props.selectedItem]
@@ -79,7 +85,6 @@ export class Header extends View<HeaderParams> {
                       <a
                         class="navbar-item has-text-info"
                         style="font-size: 1rem; text-transform: uppercase;"
-                        onXClick={this.dropClicked.bind(this)}
                         onClick={(evt: Event) => {
                           let item = (evt.currentTarget as HTMLAnchorElement)
                             .text;
@@ -103,20 +108,18 @@ export class Header extends View<HeaderParams> {
                     <span style="padding-left: 1rem"> Report an issue </span>
                   </a>
                 </div>
-              </div>
+              </div>*/}
             </div>
 
             <div class="navbar-end">
               <div class="navbar-item">
                 <div class="buttons">
-                  <a class="button is-primary is-disabled" disabled>
-                    {" "}
-                    <strong>Sign up</strong>{" "}
+                  {/*<a class="button is-primary is-disabled" disabled>
+                    <strong>Sign up</strong>
                   </a>
                   <a class="button is-light is-disabled" disabled>
-                    {" "}
-                    Log in{" "}
-                  </a>
+                    Log in
+                  </a>*/}
                 </div>
               </div>
             </div>

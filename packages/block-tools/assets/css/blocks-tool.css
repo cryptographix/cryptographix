@@ -7,6 +7,27 @@ body {
   background-color: #fff;
 }
 
+a[disabled="disabled"],
+a.disabled {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.9;
+}
+
+.tool-cards {
+  margin: 20px;
+}
+.card {
+  width: 240px;
+  min-width: 240px;
+  margin-bottom: 60px;
+  border-radius: 5px;
+}
+.card-header {
+  height: 60px;
+  overflow: hidden;
+}
+
 /**
  *
  */
@@ -694,7 +715,7 @@ a.has-dropdown:focus .byte-property-dropdown {
   left: -10px;
   font-family: "Font Awesome 5 Free";
   font-weight: 900;
-    content: "\f054";
+  content: "\f054";
 }
 
 .tree-node-open .tree-node {

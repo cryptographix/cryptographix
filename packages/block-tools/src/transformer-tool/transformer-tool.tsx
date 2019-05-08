@@ -54,7 +54,7 @@ export class TransformerToolView extends View implements IActionHandler {
       }
     }
 
-    this.onExecute();
+    this.onExecute(true);
   }
 
   updateView() {
@@ -73,7 +73,7 @@ export class TransformerToolView extends View implements IActionHandler {
   }
 
   done: boolean = false;
-  async onExecute() {
+  async onExecute(firstTime: boolean = false) {
     try {
       await this.transformer.trigger().then(() => {
         if (this.done) {
@@ -83,7 +83,7 @@ export class TransformerToolView extends View implements IActionHandler {
           this.refresh();
 
           let $el = this.resultView.element;
-          $el.scrollIntoView();
+          if (!firstTime) $el.scrollIntoView();
         }
 
         //window.scrollTo(0, $el.win);
@@ -353,7 +353,7 @@ class Results extends View {
     super();
   }
 
-  selectedTLV;
+  selectedTLV: TLVInfo;
 
   render() {
     let { transformer } = this.props;
@@ -392,7 +392,7 @@ class Results extends View {
               listeners={{
                 onSelectNode: (view: TLVNode) => {
                   this.selectedTLV = view.node;
-                  tlvDetailsView.setTLVInfo( view.node );
+                  tlvDetailsView.setTLVInfo(view.node);
                   tlvDetailsView.refresh();
 
                   return true;
