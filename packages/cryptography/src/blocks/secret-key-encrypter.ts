@@ -148,12 +148,12 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
         const { keySize } = BlockCipherHelper.getAlgorithm(value);
         const { blockSize } = BlockCipherHelper.getAlgorithm(value);
 
-        helper.updatePropSchema<IBytesSchemaProp>("key", {
+        helper.updateSchemaProp<IBytesSchemaProp>("key", {
           minLength: keySize,
           maxLength: keySize
         });
 
-        helper.updatePropSchema<IBytesSchemaProp>("iv", {
+        helper.updateSchemaProp<IBytesSchemaProp>("iv", {
           minLength: blockSize,
           maxLength: blockSize
         });
@@ -164,7 +164,7 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
       case "mode": {
         const { hasIV } = BlockCipherHelper.getMode(value);
 
-        helper.updatePropSchema<IBytesSchemaProp>("iv", {
+        helper.updateSchemaProp<IBytesSchemaProp>("iv", {
           ignore: !hasIV
         });
         break;
@@ -185,7 +185,7 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
         algorithm,
         mode,
         this.key,
-        iv || ByteArray.alloc(0),
+        iv || ByteArray.alloc(this.key.length),
         padding,
         reverse ? !encrypt : encrypt,
         message

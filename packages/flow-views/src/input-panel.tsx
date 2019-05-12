@@ -32,7 +32,7 @@ export class InputTransformer extends Transformer implements IActionHandler {
       ? initConfig.initValue
       : ByteArray.from([]);
 
-    this.helper.updatePropSchema(key, propInfo);
+    this.helper.updateSchemaProp(key, propInfo);
   }
 
   private _firstTime = true;
@@ -97,7 +97,7 @@ export function InputPanel(params: { key: string; input: InputTransformer }) {
   const propRef = {
     target: input,
     key: key,
-    propertyType: input.helper.getPropSchema<IBytesSchemaProp>(key)
+    propertyType: input.helper.getSchemaProp<IBytesSchemaProp>(key)
   };
 
   return <PropertyView handler={input} propRef={propRef} />;

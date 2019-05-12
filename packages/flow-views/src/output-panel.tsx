@@ -32,7 +32,7 @@ export class OutputTransformer extends Transformer {
       ? initConfig.initValue
       : ByteArray.from([]);
 
-    this.helper.updatePropSchema(key, propInfo);
+    this.helper.updateSchemaProp(key, propInfo);
     this.helper.inPortKeys.push(key);
   }
 
@@ -54,7 +54,7 @@ export class OutputPanel extends BlockView<OutputTransformer> {
     const propRef = {
       target: output,
       key: key,
-      propertyType: output.helper.getPropSchema<IBytesSchemaProp>(key)
+      propertyType: output.helper.getSchemaProp<IBytesSchemaProp>(key)
     };
 
     //    this.addChildView( new PropertyView( {handler={this.handler} propRef={propRef} readOnly={true} />

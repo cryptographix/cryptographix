@@ -22,10 +22,13 @@ export class BlockToolChooser extends View {
     return (
       <div class="column">
         <a
-          href={`#block-tool/ ${schema.target.name}`}
+          href={`#block-tool/${tool.block.name}`}
           class={tool.disabled ? "disabled" : null}
         >
-          <div class="card" style={`background-color: #${tool.color} `}>
+          <div
+            class="card"
+            style={`background-color: #${tool.disabled ? "AAA" : tool.color} `}
+          >
             <header class="card-header has-text-lightgrey">
               <p class="card-header-icon">
                 <i class={`fas ${tool.icon} fa-2x`} />

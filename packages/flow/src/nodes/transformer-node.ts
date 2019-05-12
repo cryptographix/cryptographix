@@ -68,7 +68,7 @@ export class TransformerNode<
       IBlockSchema<TConfig, TTransformer>
     >(target);
 
-    (this.target as any) = this.schema.target;
+    (this.target as any) = target;
   }
 
   /**

@@ -15,7 +15,18 @@ class TLVDecoderConfig {
   //
 }
 
-@block({ title: "TLV Decoder", config: TLVDecoderConfig })
+@block({
+  name: "tlv-decoder",
+  namespace: "org.cryptographix.emv",
+  title: "TLV Decoder",
+  category: "EMV Basics",
+  markdown: {
+    prompt:
+      "Use the TLV Decoder to decode, inspect and validate BER-TLV data used by EMV Payment Transactions",
+    about: ""
+  },
+  config: TLVDecoderConfig
+})
 export class TLVDecoder extends Transformer<TLVDecoderConfig> {
   @bytesProp({ title: "Byte data to be decoded", ui: { widget: "multiline" } })
   @isPort({ type: "data-in" })

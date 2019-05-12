@@ -47,7 +47,7 @@ export class BlockExplorerView extends View {
 
     let inputMapper = new MapperNode({});
     flow.inPortKeys.forEach(key => {
-      let schema = block.helper.getPropSchema(key);
+      let schema = block.helper.getSchemaProp(key);
 
       let input = new TransformerNode<{}, InputTransformer>(
         InputTransformer,
@@ -69,7 +69,7 @@ export class BlockExplorerView extends View {
 
     let outputMapper = new MapperNode({});
     flow.outPortKeys.forEach(key => {
-      let schema = block.helper.getPropSchema(key);
+      let schema = block.helper.getSchemaProp(key);
 
       let output = new TransformerNode<{}, OutputTransformer>(
         OutputTransformer,

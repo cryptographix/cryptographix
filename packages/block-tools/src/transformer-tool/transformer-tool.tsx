@@ -117,7 +117,7 @@ export class TransformerToolView extends View implements IActionHandler {
             propRef={{
               target: this.transformer.config,
               key: key,
-              propertyType: helper.getPropSchema(key)
+              propertyType: helper.getSchemaProp(key)
             }}
           />
         );
@@ -235,7 +235,7 @@ export class TransformerToolView extends View implements IActionHandler {
         action.dispatchTo(this.transformer);
 
         Object.keys(this.propertyViews).forEach(key => {
-          let propInfo = this.transformer.helper.getPropSchema(key);
+          let propInfo = this.transformer.helper.getSchemaProp(key);
           let $el = this.propertyViews[key].element;
 
           if ($el) {
@@ -380,7 +380,7 @@ class Results extends View {
       .reduce<{
         [index: string]: View;
       }>((prev, key) => {
-        const schema: AnySchemaProperty = helper.getPropSchema(key);
+        const schema: AnySchemaProperty = helper.getSchemaProp(key);
 
         const view =
           schema.type == "bytes" ? (

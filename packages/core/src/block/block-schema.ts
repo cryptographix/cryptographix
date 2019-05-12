@@ -14,18 +14,20 @@ import { BlockView } from "./block-view";
  * Schema descriptor for a Block
  * Generic Parameters:
  *  TConfig = BlockConfiguration subclass
- *  TBlock  = Block subclass
  */
 export interface IBlockSchema<
-  TConfig extends BlockConfiguration = BlockConfiguration,
-  TBlock extends Block<TConfig> = Block<TConfig>
-> extends ISchema<TBlock> {
+  TConfig extends BlockConfiguration = BlockConfiguration
+> extends ISchema {
+  // override ISchema.type
   type: "block";
 
+  // friendly name for user
   title: string;
 
+  // groups similar blocks
   category?: string;
 
+  // additional descriptions for UI
   markdown?: {
     // "Tell user what to do to use as a tool"
     prompt?: string;
@@ -43,14 +45,18 @@ export interface IBlockSchema<
     usage?: string;
   };
 
+  // block-config class
   config: IConstructable<TConfig>;
 
+  // Redefine UI from ISchema
   ui?: { view: IConstructable<BlockView> };
 }
 
-export class BlockSchema {
-  static getBlockSchemaForClass(blockCtor: IConstructable): IBlockSchema {
-    return Schema.getSchemaForClass(blockCtor);
+export namespace BlockSchema {
+  export function getBlockSchemaForClass(
+    blockCtor: IConstructable
+  ): IBlockSchema {
+    return Schema.getSchemaForClass<any, IBlockSchema>(blockCtor);
   }
 }
 
@@ -65,7 +71,7 @@ export class BlockSchemaHelper<
   readonly schema: IBlockSchema<TConfig>;
 
   //
-  readonly configSchema: ISchema<TConfig>;
+  readonly configSchema: ISchema;
 
   constructor(block: TBlock) {
     //
@@ -75,7 +81,7 @@ export class BlockSchemaHelper<
     this.schema = Schema.getSchemaForObject<IBlockSchema<TConfig>>(block);
 
     //
-    this.configSchema = Schema.getSchemaForClass<TConfig, ISchema<TConfig>>(
+    this.configSchema = Schema.getSchemaForClass<TConfig, ISchema>(
       this.schema.config || ({} as any)
     );
   }
@@ -114,13 +120,13 @@ export class BlockSchemaHelper<
     return this.schema.properties.hasOwnProperty(prop);
   }
 
-  getPropSchema<TSchemaProp extends ISchemaProperty>(key: string): TSchemaProp {
+  getSchemaProp<TSchemaProp extends ISchemaProperty>(key: string): TSchemaProp {
     let schemaProp = this.propertyCache[key as string];
 
     return schemaProp as TSchemaProp;
   }
 
-  updatePropSchema<TSchemaProp extends ISchemaProperty>(
+  updateSchemaProp<TSchemaProp extends ISchemaProperty>(
     key: string,
     updatedProp: Partial<TSchemaProp>
   ): TSchemaProp {

@@ -1,16 +1,19 @@
-import { IViewModel, View } from "../view/index";
+import { IViewModel } from "../view/index";
 import { Writable } from "../schema/index";
 
 import { IActionHandler, Action } from "../dispatcher/action";
 
 import { BlockSchemaHelper } from "./block-schema";
 import { BlockConfiguration } from "./block-config";
-//import { ConfigPropertyChanged } from "./block-actions";
+import { BlockView } from "./block-view";
 
+/**
+ *
+ */
 export abstract class Block<TConfig extends BlockConfiguration = {}>
-  implements IViewModel, IActionHandler /*implements IBlock<S>*/ {
+  implements IViewModel, IActionHandler {
   //
-  view?: View;
+  view?: BlockView<this>;
 
   //
   readonly handler?: IActionHandler;
@@ -21,6 +24,9 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
   //
   readonly config: TConfig;
 
+  /**
+   *
+   */
   constructor(initConfig?: Partial<TConfig>, handler?: IActionHandler) {
     //
     this.helper = new BlockSchemaHelper<TConfig, this>(this);

@@ -29,6 +29,14 @@ export class TransformerSchemaHelper<
     return this.filterProps(prop => prop.io && prop.io.type == "data-out");
   }
 
+  get isReversible(): boolean {
+    return (
+      this.filterProps(
+        prop => prop.name == "direction" && prop.type == "boolean"
+      ).length > 0
+    );
+  }
+
   /*hasValidInputs(errors: string[] = []): boolean {
     let ok = true;
     let props = Object.entries(this.schema.properties);

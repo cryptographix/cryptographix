@@ -1,4 +1,5 @@
-import { ISchema } from ".";
+//import { ISchema } from ".";
+import { IConstructable } from "./helpers";
 import { ByteArray } from "./byte-array";
 
 /**
@@ -16,7 +17,7 @@ export interface ISchemaProperty<
   //     boolean, integer, enum, string, bytes
   //   or a sub-schema describing an object
   //
-  type: string | ISchema<Type>;
+  type: string | IConstructable<Type>;
 
   // present if property is an array
   array?: {
@@ -35,7 +36,7 @@ export interface ISchemaProperty<
   // brief description
   description?: string;
 
-  // do not set, get, use or validate property
+  // do not set, get, display, use or validate property
   ignore?: boolean;
 
   // property is optional .. undefined is a valid value
@@ -65,7 +66,7 @@ export interface ISchemaProperty<
  */
 export interface ISchemaPropPortInfo {
   //
-  type: "trigger" | "data-in" | "data-out" | ISchema<object>;
+  type: "trigger" | "data-in" | "data-out"; // | ISchema<object>;
 
   //
   primary?: boolean;
@@ -175,7 +176,7 @@ export interface IBytesSchemaProp extends ISchemaProperty<ArrayBuffer> {
 export interface IObjectSchemaProp<TO extends Object = {}>
   extends ISchemaProperty<TO> {
   //
-  type: ISchema<TO>;
+  type: IConstructable<TO>;
 
   //
   isTree?: boolean;
@@ -230,8 +231,8 @@ export type FilterSchemaProps<Base> = {
 /**
  * A schema-enhanced reference to a Property
  */
-export interface ISchemaPropReference {
-  target: object;
+export interface ISchemaPropReference<TO = object> {
+  target: TO;
   key: string;
   propertyType: AnySchemaProperty;
 }

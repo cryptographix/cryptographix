@@ -2,7 +2,7 @@ import {
   View,
   Transformer,
   IActionHandler,
-  AnySchemaProperty,
+  //  AnySchemaProperty,
   ByteArray
 } from "@cryptographix/core";
 import { PropertyView, DropOrOpenDialog } from "@cryptographix/flow-views";
@@ -20,7 +20,7 @@ export function InputBytesView(
       propRef={{
         target: transformer,
         key: key,
-        propertyType: transformer.helper.getPropSchema(key)
+        propertyType: transformer.helper.getSchemaProp(key)
       }}
     >
       <a

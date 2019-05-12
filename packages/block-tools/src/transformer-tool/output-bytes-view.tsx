@@ -20,7 +20,7 @@ export function OutputBytesView(
       propRef={{
         target: transformer,
         key: key,
-        propertyType: transformer.helper.getPropSchema(key)
+        propertyType: transformer.helper.getSchemaProp(key)
       }}
     >
       <a

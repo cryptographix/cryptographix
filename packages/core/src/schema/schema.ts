@@ -6,12 +6,9 @@ import { schemaStore } from "./schema-store";
 /**
  * Base Schema descriptor for any Object
  */
-export interface ISchema<TO = Object> {
+export interface ISchema {
   //
   type: string;
-
-  // Constructor for the class described by this schema
-  target: IConstructable<TO>;
 
   //
   name?: string;
@@ -26,20 +23,6 @@ export interface ISchema<TO = Object> {
   properties: { [key: string]: AnySchemaProperty };
 }
 
-/*function defaultValueForType<Type, PropType extends ISchemaProperty<Type>>( propInfo: PropType ) {
-  let value;
-
-  switch( propInfo.type ) {
-    case 'boolean': value = false; break;
-    case 'number': value = propInfo.min || 0; break;
-    case 'string': value = ''; break;
-    case 'enum': value = Object.keys(propInfo.options)[0] || ""; break;
-    case 'bytes': value = ByteArray.from([]); break;
-  }
-
-  return value;
-}*/
-
 /**
  * Static helpers for Schemas
  */
@@ -47,7 +30,9 @@ export abstract class Schema {
   /**
    *
    */
-  static getSchemaForObject<TSchema extends ISchema>(target: object): TSchema {
+  static getSchemaForObject<TSchema extends ISchema>(target: {
+    constructor: Function;
+  }): TSchema {
     const cls = target.constructor as IConstructable;
 
     let schema = schemaStore.ensure<TSchema>(cls);
@@ -58,26 +43,43 @@ export abstract class Schema {
   /**
    *
    */
-  static getSchemaForClass<TO, TSchema extends ISchema<TO>>(
+  static getSchemaForClass<TO, TSchema extends ISchema>(
     target: IConstructable<TO>
   ): TSchema {
     let schema = schemaStore.ensure<TSchema>(target);
 
     return schema;
   }
+
   /**
    *
    */
   static initObjectFromClass<TO>(
     target: IConstructable<TO>,
-    initObject?: Partial<TO>
+    initObject: Partial<TO> = {}
   ): TO {
-    let schema = schemaStore.ensure<ISchema<TO>>(target);
+    let schema = schemaStore.ensure<ISchema>(target);
+    let obj = new target();
 
-    return Schema.initObjectFromSchema(schema, initObject);
+    // Initialize each property from Schema information
+    // Precedence:
+    //   1. initObject parameter
+    //   2. initial value from class
+    //   3. "default" value from schema property.default
+    //   4. the default for property type
+    Object.entries(schema.properties).forEach(([key, propInfo]) => {
+      Schema.initPropertyFromPropertyType<TO>(
+        propInfo,
+        obj,
+        key as keyof TO,
+        initObject[key]
+      );
+    });
+
+    return obj;
   }
 
-  static initPropertyFromPropertyType<TO = {}>(
+  static initPropertyFromPropertyType<TO = object>(
     propInfo: AnySchemaProperty,
     obj: TO,
     key: keyof TO,
@@ -93,7 +95,7 @@ export abstract class Schema {
 
     if (propInfo.type instanceof Object) {
       // initialize sub-object
-      value = Schema.initObjectFromSchema(propInfo.type, value);
+      value = Schema.initObjectFromClass(propInfo.type, value);
     } else if (value === undefined && !propInfo.optional && useDefaultForType) {
       // no initial or default value .. use default for type
       switch (propInfo.type) {
@@ -121,33 +123,6 @@ export abstract class Schema {
     }
 
     if (value !== undefined) obj[key] = value;
-  }
-
-  /**
-   *
-   */
-  static initObjectFromSchema<TO, TSchema extends ISchema<TO>>(
-    schema: TSchema,
-    initObject: Partial<TO> = {}
-  ): TO {
-    let obj = new (schema.target as IConstructable<TO>)();
-
-    // Initialize each property from Schema information
-    // Precedence:
-    //   1. initObject parameter
-    //   2. initial value from class
-    //   3. "default" value from schema property.default
-    //   4. the default for property type
-    Object.entries(schema.properties).forEach(([key, propInfo]) => {
-      Schema.initPropertyFromPropertyType<TO>(
-        propInfo,
-        obj,
-        key as keyof TO,
-        initObject[key]
-      );
-    });
-
-    return obj;
   }
 
   static getPropertiesForObject(

@@ -17,9 +17,7 @@ import { schemaStore } from "./schema-store";
  *
  * Schemas are indexed by class (the target constructor)
  */
-export function schema(
-  meta: Omit<IObjectSchema, "target" | "properties" | "type"> = {}
-) {
+export function schema(meta: Omit<IObjectSchema, "properties" | "type"> = {}) {
   return function(target: any) {
     let schema = schemaStore.ensure<IObjectSchema>(target);
 
@@ -47,15 +45,14 @@ export function schemaProp<T>(propOptions: ISchemaProperty<T>, extra?: object) {
     );
     let existingProps = schema.properties[propertyKey] || {};
     const schemaProp = propOptions || {};
-    const type = existingProps["type"] || (propOptions && propOptions.type); // || target.constructor,
+    const type = existingProps["type"] || (propOptions && propOptions.type);
 
     let itemProps = {
       ...existingProps,
       ...schemaProp,
       ...(extra || {}),
       type,
-      name: propertyKey,
-      target
+      name: propertyKey
     };
 
     schema.properties[propertyKey] = itemProps;
@@ -111,9 +108,10 @@ export function objectProp<TO extends Object>(
   objectType: IConstructable<TO>,
   a: Omit<IObjectSchemaProp, "type" | "name"> = {}
 ) {
-  let objectSchema = schemaStore.ensure(objectType);
+  // Make sure there's a schema for this class
+  schemaStore.ensure(objectType);
 
-  return schemaProp({ ...a, type: objectSchema });
+  return schemaProp({ ...a, type: objectType });
 }
 
 /**
