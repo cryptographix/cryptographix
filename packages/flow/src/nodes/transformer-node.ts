@@ -30,7 +30,7 @@ export class TransformerNode<
   readonly initConfig: TConfig;
 
   //
-  readonly schema: IBlockSchema<TConfig, TTransformer>;
+  readonly schema: IBlockSchema<TConfig>;
 
   //
   protected block: TTransformer = null;
@@ -65,7 +65,7 @@ export class TransformerNode<
   protected initTarget(target: IConstructable<TTransformer>) {
     (this.schema as Schema) = Schema.getSchemaForClass<
       Transformer<TConfig>,
-      IBlockSchema<TConfig, TTransformer>
+      IBlockSchema<TConfig>
     >(target);
 
     (this.target as any) = target;
@@ -85,12 +85,12 @@ export class TransformerNode<
     this.block = block;
 
     this.inPortSchemas = block.helper.inPortKeys.reduce<{}>((map, key) => {
-      map[key] = block.helper.getPropSchema(key);
+      map[key] = block.helper.getSchemaProp(key);
       return map;
     }, {});
 
     this.outPortSchemas = block.helper.outPortKeys.reduce<{}>((map, key) => {
-      map[key] = block.helper.getPropSchema(key);
+      map[key] = block.helper.getSchemaProp(key);
       return map;
     }, {});
 
