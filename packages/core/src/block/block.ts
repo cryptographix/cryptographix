@@ -1,6 +1,4 @@
 import { IViewModel } from "../view/index";
-import { Writable } from "../schema/index";
-
 import { IActionHandler, Action } from "../dispatcher/action";
 
 import { BlockSchemaHelper } from "./block-schema";
@@ -16,9 +14,6 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
   view?: BlockView<this>;
 
   //
-  readonly handler?: IActionHandler;
-
-  //
   readonly helper: BlockSchemaHelper<TConfig, this>;
 
   //
@@ -27,7 +22,7 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
   /**
    *
    */
-  constructor(initConfig?: Partial<TConfig>, handler?: IActionHandler) {
+  constructor(initConfig?: Partial<TConfig>) {
     //
     this.helper = new BlockSchemaHelper<TConfig, this>(this);
 
@@ -36,23 +31,13 @@ export abstract class Block<TConfig extends BlockConfiguration = {}>
 
     //
     this.config = this.helper.initConfig(initConfig);
-
-    //
-    this.handler = handler;
   }
 
   setConfig(config: TConfig) {
-    Writable(this).config = this.helper.initConfig(config);
+    (this.config as TConfig) = this.helper.initConfig(config);
   }
 
-  handleAction(action: Action): Promise<Action> {
-    if (this.handler) {
-      switch (action.action) {
-        case "config:property-changed":
-          return action.dispatchTo(this.handler);
-      }
-    }
-
+  handleAction(_action: Action): Promise<Action> {
     return Promise.resolve<Action>(null);
   }
 }

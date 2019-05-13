@@ -104,7 +104,7 @@ export abstract class Schema {
           break;
 
         case "integer":
-          value = propInfo.min || 0;
+          value = propInfo.minValue || 0;
           break;
 
         case "string":

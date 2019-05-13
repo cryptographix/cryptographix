@@ -134,7 +134,7 @@ export class SecretKeyEncrypter extends Transformer<SecretKeyEncrypterConfig> {
       }
     }
 
-    return super.handleAction(action);
+    return null;
   }
 
   /**

@@ -151,36 +151,56 @@ export class PropertyView extends View {
     }*/
   }
 
-  stringValueChanged(evt: any) {
+  enumValueChanged(evt: any, propInfo: IEnumSchemaProp) {
     this.clearError();
     let value = (evt.target as HTMLInputElement).value;
+
+    propInfo.validator(value, propInfo);
+
+    this.value = value;
+  }
+
+  stringValueChanged(evt: any, propInfo: IStringSchemaProp) {
+    this.clearError();
+    let value = (evt.target as HTMLInputElement).value;
+
+    propInfo.validator(value, propInfo);
+
     this.value = value;
   }
 
   private byteFormat: any;
 
-  byteValueChanged(evt: Event) {
+  byteValueChanged(evt: Event, propInfo: IBytesSchemaProp) {
     this.clearError();
-    let value = (evt.target as HTMLInputElement).value;
+    let valueAsString = (evt.target as HTMLInputElement).value;
+
     try {
-      this.value = ByteArray.fromString(value, this.byteFormat);
-      //      this.value = H2BA(value);
+      let value = ByteArray.fromString(valueAsString, this.byteFormat);
+
+      propInfo.validator(value, propInfo);
+
+      this.value = value;
     } catch (e) {
       this.setError((e as Error).message);
     }
   }
 
-  boolValueChanged(evt: Event) {
+  boolValueChanged(evt: Event, propInfo: IBooleanSchemaProp) {
     this.clearError();
 
     let $el = evt.currentTarget as HTMLInputElement;
 
     let value = $el.value != "false";
 
+    propInfo.validator(value, propInfo);
+
     this.value = value;
   }
 
   renderBoolean(propInfo: IBooleanSchemaProp, value: boolean) {
+    let view = this;
+
     if (this.ui.widget === "radio") {
       const options = {
         false: propInfo.falseLabel || "false",
@@ -200,7 +220,7 @@ export class PropertyView extends View {
               value={isTrueOption}
               id={"radio-" + key}
               checked={isTrueOption == value}
-              onChange={this.boolValueChanged.bind(this)}
+              onChange={(evt: Event) => view.boolValueChanged(evt, propInfo)}
             />
             <label htmlFor={"radio-" + key} style="text-transform: uppercase">
               {label}
@@ -224,7 +244,7 @@ export class PropertyView extends View {
           <input
             type="checkbox"
             value={this.value}
-            onChange={this.boolValueChanged.bind(this)}
+            onChange={(evt: Event) => view.boolValueChanged(evt, propInfo)}
             checked={value}
           />
           {propInfo.title}
@@ -234,6 +254,8 @@ export class PropertyView extends View {
   }
 
   renderEnum(propInfo: IEnumSchemaProp, value: string) {
+    let view = this;
+
     if (this.ui.widget === "radio") {
       const $$radio = [];
 
@@ -248,7 +270,7 @@ export class PropertyView extends View {
               type="radio"
               name={this.propRef.key}
               value={key}
-              onChange={this.stringValueChanged.bind(this)}
+              onChange={(evt: Event) => view.enumValueChanged(evt, propInfo)}
               checked={checked}
             />
             {label}
@@ -285,7 +307,7 @@ export class PropertyView extends View {
         <div class="control">
           <span class="select" style="width: 100%">
             <select
-              onChange={this.stringValueChanged.bind(this)}
+              onChange={(evt: Event) => view.enumValueChanged(evt, propInfo)}
               class="input"
               placeholder={this.ui.hint}
               onFocus={(_evt: Event) => this.focus()}
@@ -299,7 +321,9 @@ export class PropertyView extends View {
     }
   }
 
-  renderBytes(_propInfo: IBytesSchemaProp, value: ByteArray) {
+  renderBytes(propInfo: IBytesSchemaProp, value: ByteArray) {
+    let view = this;
+
     let $inner: HTMLElement;
 
     this.byteFormat = (this.options["format"] || "hex").toLowerCase();
@@ -314,7 +338,7 @@ export class PropertyView extends View {
         <textarea
           class="textarea bytes"
           spellcheck="false"
-          onInput={this.byteValueChanged.bind(this)}
+          onInput={(evt: Event) => view.byteValueChanged(evt, propInfo)}
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
@@ -328,7 +352,7 @@ export class PropertyView extends View {
           class="input bytes"
           type="text"
           spellcheck="false"
-          onInput={this.byteValueChanged.bind(this)}
+          onInput={(evt: Event) => view.byteValueChanged(evt, propInfo)}
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
@@ -353,7 +377,9 @@ export class PropertyView extends View {
     );
   }
 
-  renderString(_propInfo: IStringSchemaProp, value: string) {
+  renderString(propInfo: IStringSchemaProp, value: string) {
+    let view = this;
+
     let $inner: HTMLElement;
 
     if (this.ui.widget == "multiline") {
@@ -364,8 +390,8 @@ export class PropertyView extends View {
         <textarea
           class="textarea text"
           spellcheck="false"
-          onChange={this.stringValueChanged.bind(this)}
-          onKeyUp={this.stringValueChanged.bind(this)}
+          onChange={(evt: Event) => view.stringValueChanged(evt, propInfo)}
+          onKeyUp={(evt: Event) => view.stringValueChanged(evt, propInfo)}
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
@@ -380,8 +406,8 @@ export class PropertyView extends View {
           class="input text"
           type="text"
           spellcheck="false"
-          onChange={this.stringValueChanged.bind(this)}
-          onKeyUp={this.stringValueChanged.bind(this)}
+          onChange={(evt: Event) => view.stringValueChanged(evt, propInfo)}
+          onKeyUp={(evt: Event) => view.stringValueChanged(evt, propInfo)}
           onFocus={(_evt: Event) => this.focus()}
           onBlur={(_evt: Event) => this.blur()}
           placeholder={this.ui.hint}
@@ -399,6 +425,8 @@ export class PropertyView extends View {
   }
 
   renderProp() {
+    let view = this;
+
     const value = this.value;
     const propInfo = this.propRef.propertyType;
 
@@ -409,11 +437,11 @@ export class PropertyView extends View {
             <input
               class="input"
               type="number"
-              onChange={this.stringValueChanged.bind(this)}
+              onChange={(evt: Event) => view.stringValueChanged(evt, propInfo)}
               onFocus={(_evt: Event) => this.focus()}
               onBlur={(_evt: Event) => this.blur()}
               placeholder={this.ui.hint}
-              value={value || 0}
+              value={value || "0"}
             />
           </div>
         );

@@ -58,7 +58,7 @@ export interface ISchemaProperty<
   };
 
   // custom validator
-  validator?: (value: Type) => boolean;
+  validator?: (value: Type, prop: this) => void;
 }
 
 /**
@@ -134,10 +134,10 @@ export interface IIntegerSchemaProp extends ISchemaProperty<number> {
   type: "integer";
 
   // Optional minimum-value
-  min?: number;
+  minValue?: number;
 
   // Optional maximum-value
-  max?: number;
+  maxValue?: number;
 
   // Optional step-size between min and max
   step?: number;

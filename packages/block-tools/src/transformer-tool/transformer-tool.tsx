@@ -8,7 +8,7 @@ import {
   H2BA
 } from "@cryptographix/core";
 
-import { PropertyView } from "@cryptographix/flow-views";
+import { PropertyView, PropertyValueChanged } from "@cryptographix/flow-views";
 import { InputBytesView } from "./input-bytes-view";
 import { OutputBytesView } from "./output-bytes-view";
 import { TreeView, ITreeNodeListeners } from "@cryptographix/flow-views";
@@ -59,7 +59,6 @@ export class TransformerToolView extends View implements IActionHandler {
 
   updateView() {
     alert("Hi");
-    //this.execButton.refresh();
 
     return false;
   }
@@ -72,30 +71,49 @@ export class TransformerToolView extends View implements IActionHandler {
     }
   }
 
+  error: string;
   done: boolean = false;
+  busy: boolean = false;
   async onExecute(firstTime: boolean = false) {
     try {
+      if (this.busy) return;
+
+      this.busy = true;
+      this.error = null;
       await this.transformer.trigger().then(() => {
-        if (this.done) {
+        this.done = true;
+
+        if (this.resultView) {
+          this.resultView.props.error = null;
+
           this.resultView.refresh();
         } else {
-          this.done = true;
           this.refresh();
 
           let $el = this.resultView.element;
           if (!firstTime) $el.scrollIntoView();
         }
 
+        this.busy = false;
         //window.scrollTo(0, $el.win);
       });
     } catch (e) {
-      alert(e.toString());
+      this.error = e.toString();
+      this.busy = false;
+
+      if (this.resultView) {
+        this.resultView.props.error = this.error;
+
+        this.resultView.refresh();
+      } else {
+        this.refresh();
+      }
     }
   }
 
   propertyViews: { [index: string]: View } = {};
 
-  resultView: View;
+  resultView: Results;
 
   render(): HTMLElement {
     const helper = this.transformer.helper;
@@ -211,12 +229,13 @@ export class TransformerToolView extends View implements IActionHandler {
           </div>
         </section>
 
-        {this.done
+        {this.done || this.error
           ? (this.resultView = (
               <Results
                 handler={this}
                 transformer={this.transformer}
                 isCompact={hasConfig}
+                error={this.error}
               />
             ))
           : null}
@@ -232,19 +251,24 @@ export class TransformerToolView extends View implements IActionHandler {
         action.action = "config:property-changed";
 
       case "config:property-changed": {
-        action.dispatchTo(this.transformer);
+        const key = (action as PropertyValueChanged).key;
 
-        Object.keys(this.propertyViews).forEach(key => {
-          let propInfo = this.transformer.helper.getSchemaProp(key);
-          let $el = this.propertyViews[key].element;
+        // Only execute for in-port or config
+        if (this.propertyViews.hasOwnProperty(key)) {
+          action.dispatchTo(this.transformer);
 
-          if ($el) {
-            // 'Ignored' elements to be hidden
-            $el.style.display = propInfo.ignore ? "none" : "inherit";
-          }
-        });
+          Object.keys(this.propertyViews).forEach(key => {
+            let propInfo = this.transformer.helper.getSchemaProp(key);
+            let $el = this.propertyViews[key].element;
 
-        if (this.canExecute()) this.onExecute();
+            if ($el) {
+              // 'Ignored' elements to be hidden
+              $el.style.display = propInfo.ignore ? "none" : "inherit";
+            }
+          });
+
+          if (this.canExecute()) this.onExecute();
+        }
 
         break;
       }
@@ -348,6 +372,7 @@ class Results extends View {
       handler: IActionHandler;
       transformer: Transformer;
       isCompact: boolean;
+      error?: string;
     }
   ) {
     super();
@@ -356,7 +381,7 @@ class Results extends View {
   selectedTLV: TLVInfo;
 
   render() {
-    let { transformer } = this.props;
+    let { transformer, error } = this.props;
     let { helper } = transformer;
 
     const createNodeView = (
@@ -415,30 +440,35 @@ class Results extends View {
         style="background-color: #2990b9; padding: 3rem 0.5rem 3rem 0.5rem;"
       >
         <div class="container">
-          <div class="columns is-desktop">
-            <div
-              class="column is-hidden-touch is-2 hint has-text-white"
-              style="align-self: center"
-            >
-              <i class="fa fa-angle-double-right fa-5x"> </i>
-              <p />
+          {error ? (
+            <div class="columns is-desktop is-centered">
+              <div class="column is-8-desktop">
+                <div class="transform-output message">{error}</div>
+              </div>
             </div>
-
-            <div class={"transform-outputs column " + mainWidth}>
-              {Object.entries(propertyViews).map(([_key, view]) => (
-                <div class="transform-output">{view}</div>
-              ))}
+          ) : (
+            <div class="columns is-desktop">
+              <div
+                class="column is-hidden-touch is-2 hint has-text-white"
+                style="align-self: center"
+              >
+                <i class="fa fa-angle-double-right fa-5x"> </i>
+                <p />
+              </div>
+              <div class={"transform-outputs column " + mainWidth}>
+                {Object.entries(propertyViews).map(([_key, view]) => (
+                  <div class="transform-output">{view}</div>
+                ))}
+              </div>
+              <div
+                class="column is-hidden-touch hint has-text-white"
+                style="align-self: center"
+              >
+                <i class="fa fa-angle-double-left fa-5x"> </i>
+                <p />
+              </div>
             </div>
-
-            <div
-              class="column is-hidden-touch hint has-text-white"
-              style="align-self: center"
-            >
-              <i class="fa fa-angle-double-left fa-5x"> </i>
-              <p />
-            </div>
-          </div>
-
+          )}
           {transformer.constructor.name == "TLVDecoder" && (
             <div class="columns is-centered is-desktop">
               <div class={"transform-detail column " + mainWidth}>

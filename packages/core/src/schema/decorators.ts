@@ -10,6 +10,15 @@ import {
   IObjectSchemaProp,
   ISchemaPropPortInfo
 } from "./property";
+
+import {
+  validateDefaultProp,
+  validateIntegerProp,
+  validateStringProp,
+  validateEnumProp,
+  validateBytesProp
+} from "./validators";
+
 import { schemaStore } from "./schema-store";
 
 /**
@@ -67,7 +76,11 @@ export function schemaProp<T>(propOptions: ISchemaProperty<T>, extra?: object) {
  *
  */
 export function booleanProp(a: Omit<IBooleanSchemaProp, "type" | "name"> = {}) {
-  return schemaProp<boolean>({ ...a, type: "boolean" });
+  return schemaProp<boolean>({
+    validator: validateDefaultProp,
+    ...a,
+    type: "boolean"
+  });
 }
 
 /**
@@ -77,28 +90,44 @@ export function booleanProp(a: Omit<IBooleanSchemaProp, "type" | "name"> = {}) {
 //  return schemaProp<number>({ ...a, type: "number" });
 //}
 export function integerProp(a: Omit<IIntegerSchemaProp, "type" | "name"> = {}) {
-  return schemaProp<number>({ ...a, type: "integer" });
+  return schemaProp<number>({
+    validator: validateIntegerProp,
+    ...a,
+    type: "integer"
+  });
 }
 
 /**
  *
  */
 export function stringProp(a: Omit<IStringSchemaProp, "type" | "name"> = {}) {
-  return schemaProp<string>({ ...a, type: "string" });
+  return schemaProp<string>({
+    validator: validateStringProp,
+    ...a,
+    type: "string"
+  });
 }
 
 /**
  *
  */
 export function enumProp(a: Omit<IEnumSchemaProp, "type" | "name">) {
-  return schemaProp<string>({ ...a, type: "enum" });
+  return schemaProp<string>({
+    validator: validateEnumProp,
+    ...a,
+    type: "enum"
+  });
 }
 
 /**
  *
  */
 export function bytesProp(a: Omit<IBytesSchemaProp, "type" | "name"> = {}) {
-  return schemaProp<ArrayBuffer>({ ...a, type: "bytes" });
+  return schemaProp<ArrayBuffer>({
+    validator: validateBytesProp,
+    ...a,
+    type: "bytes"
+  });
 }
 
 /**
@@ -111,7 +140,7 @@ export function objectProp<TO extends Object>(
   // Make sure there's a schema for this class
   schemaStore.ensure(objectType);
 
-  return schemaProp({ ...a, type: objectType });
+  return schemaProp({ validator: validateDefaultProp, ...a, type: objectType });
 }
 
 /**

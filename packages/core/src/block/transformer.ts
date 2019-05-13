@@ -1,5 +1,4 @@
 import { Block } from "./block";
-import { IActionHandler /*, Action*/ } from "../dispatcher/action";
 import { BlockSchemaHelper } from "./block-schema";
 import { BlockConfiguration } from "./block-config";
 import { FilterSchemaProps } from "../schema/index";
@@ -62,8 +61,8 @@ export abstract class Transformer<
 > extends Block<BC> {
   helper: TransformerSchemaHelper<BC, this>;
 
-  constructor(initConfig?: Partial<BC>, handler?: IActionHandler) {
-    super(initConfig, handler);
+  constructor(initConfig?: Partial<BC>) {
+    super(initConfig);
 
     this.helper = new TransformerSchemaHelper<BC, this>(this);
   }

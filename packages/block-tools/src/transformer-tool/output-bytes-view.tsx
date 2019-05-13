@@ -15,7 +15,7 @@ export function OutputBytesView(
 ) {
   const view = (
     <PropertyView
-      handler={handler}
+      handler={null}
       readOnly
       propRef={{
         target: transformer,
