@@ -18,7 +18,7 @@ export class BlockToolApp extends View {
 
     let app = this;
 
-    window.onpopstate = function(event) {
+    window.onpopstate = function(_event) {
       console.log("history changed to: " + document.location.href);
       app.navegateTo();
     };

@@ -17,12 +17,12 @@ export class Header extends View<HeaderParams> {
   }
 
   render() {
-    let me = this;
+    //let view = this;
 
     return (
       <header>
         <nav
-          style="box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
+          style="background-color: #161645; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); xbox-shadow: 0 2px 3px rgba(10, 10, 10, 0.1),
         0 0 0 1px rgba(10, 10, 10, 0.1); z-index: 2000"
           class="navbar is-light"
           role="navigation"

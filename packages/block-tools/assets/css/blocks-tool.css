@@ -4,7 +4,6 @@ body {
   font-family: Ubuntu, "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.42857;
-  background-color: #fff;
 }
 
 a[disabled="disabled"],
@@ -15,7 +14,7 @@ a.disabled {
 }
 
 .tool-cards {
-  margin: 20px;
+  /* margin: 20px; */
 }
 .card {
   width: 240px;
@@ -29,20 +28,23 @@ a.disabled {
 }
 
 /**
- *
+ * Property Fields
  */
 .field {
   margin-bottom: 0px;
   //border-bottom: 1px solid #e3e8ec;
   position: relative;
 }
+
 .field:last-child {
   border: none;
 }
+
 .field label,
 .field p {
   color: #90999e;
   min-width: 100%;
+  padding-left: 0.25rem;
 }
 
 .control {
@@ -112,39 +114,70 @@ input[type="checkbox"] {
   background-color: #2222;
 }
 
-.control .field .help {
+.control .field .field--warning {
   margin-top: 0px;
   margin-bottom: 0.25rem;
 }
 
 .field--invalid .label {
-  color: #ff6940;
+  color: #ff6940 !important;
 }
 
-/*.field--invalid::before {
+.field--invalid::before {
   content: "";
   display: block;
-  width: 3px;
+  width: 2px;
   background: #ff6940;
   position: absolute;
   top: 4px;
-  left: 0px;
-  bottom: 4px;
+  left: -2px;
+  bottom: 2px;
+}
+
+.field .field--warning {
+  position: absolute;
+  margin-top: -2px;
+  min-width: calc(100% + 1px);
+  left: -2px;
+  z-index: 10;
+  padding: 0.5rem 0.5rem;
+  font-size: 0.9rem;
+  word-break: break-word;
+  color: #fff;
+  background: #ff6940;
+  border-color: #ff6940;
+  border-radius: 0px 3px 3px 3px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 2s, visibility 2s;
+}
+
+.control input:focus + p.field--warning,
+.control textarea:focus + p.field--warning,
+.control select:focus + p.field--warning {
+  opacity: 1;
+  visibility: visible;
+
+  transition: opacity 2s, visibility 2s;
+}
+
+/*.field .field--warning::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  border-width: 7px;
+  border-style: solid;
+  border-color: transparent;
+  border-top-width: 0;
+  border-bottom-color: inherit;
 }*/
 
-.field--invalid textarea,
-.field--invalid input,
-.field--invalid select {
-  border: 3px solid orangered !important;
-}
-
-.field .help {
-  padding-left: 0.25rem;
-  font-size: 1rem;
-  background: cornsilk;
-  border-radius: 3px;
-}
-
+/**
+ *
+ */
 .tabs {
 }
 .tab-content {
@@ -260,7 +293,7 @@ input[type="checkbox"] {
   margin: 0px !important;
   /* visibility: hidden; */
   /* opacity: 0; */
-  background-color: #4588b3;
+  background-color: #262f62; /*#161645;*/
   border: 1px dotted #9e9e9e;
   border-radius: 3px 3px 0px 0px;
   transition: visibility 1s, opacity 0.5s;

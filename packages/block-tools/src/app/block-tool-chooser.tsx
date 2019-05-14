@@ -84,7 +84,7 @@ export class BlockToolChooser extends View {
 
   render() {
     return (
-      <section class="hero tool-cards">
+      <section class="hero tool-cards" style="background-color: #41509d">
         <div class="hero-body container">
           <div class="columns is-multiline is-variable is-3">
             {Object.keys(this.tools).map(name =>

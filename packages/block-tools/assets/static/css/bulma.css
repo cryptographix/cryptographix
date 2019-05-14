@@ -4108,7 +4108,7 @@ fieldset[disabled] .select select:hover {
 .help {
   display: block;
   font-size: 0.75rem;
-  /* margin-top: 0.25rem; */
+  margin-top: -0.25rem;
 }
 
 .help.is-white {
@@ -6422,8 +6422,8 @@ a.list-item {
 }
 
 .navbar.is-light {
-  background-color: whitesmoke;
-  color: #363636;
+  /* background-color: whitesmoke; */
+  /* color: #363636; */
 }
 
 .navbar.is-light .navbar-brand > .navbar-item,

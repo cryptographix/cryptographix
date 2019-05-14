@@ -158,7 +158,7 @@ export class TransformerToolView extends View implements IActionHandler {
 
     return (
       <View.Fragment>
-        <section style="background-color: #2980b9; padding: 1rem 0.5rem 3rem 0.5rem;">
+        <section style="background-color: #41509d; padding: 1rem 0.5rem 3rem 0.5rem;">
           <div class="container">
             <div class="columns is-centered">
               <div class="column is-6-desktop is-9-tablet has-text-centered has-text-white">
@@ -437,7 +437,7 @@ class Results extends View {
     return (
       <section
         class="section"
-        style="background-color: #2990b9; padding: 3rem 0.5rem 3rem 0.5rem;"
+        style="background-color: #ab579a; padding: 3rem 0.5rem 3rem 0.5rem;"
       >
         <div class="container">
           {error ? (

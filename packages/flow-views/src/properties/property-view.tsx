@@ -101,16 +101,26 @@ export class PropertyView extends View {
     return this.propRef.key;
   }
 
+  msgTimer: any;
   clearError() {
-    if (this.message) {
-      this.triggerUpdate();
+    if (this.msgTimer) {
+      clearTimeout(this.msgTimer);
+      this.msgTimer = null;
+    }
 
+    if (this.message) {
       this.message = null;
+
+      this.triggerUpdate();
     }
   }
+
   setError(s: string) {
-    this.message = s;
-    this.triggerUpdate();
+    //    let view = this;
+    this.msgTimer = setTimeout(() => {
+      this.message = s;
+      this.triggerUpdate();
+    }, 350);
   }
 
   _first = false;
@@ -127,7 +137,6 @@ export class PropertyView extends View {
       >
         {this.renderLabel()}
         {(this.$field = this.renderProp())}
-        {(this.$message = this.renderMessage())}
       </div>
     );
   }
@@ -136,7 +145,7 @@ export class PropertyView extends View {
    * Renders label.
    */
   renderLabel() {
-    return <label class="label  has-text-white">{this.ui.label}</label>;
+    return <label class="label has-text-white">{this.ui.label}</label>;
   }
 
   /**
@@ -145,28 +154,36 @@ export class PropertyView extends View {
   protected $message: any;
   renderMessage() {
     if (this.message) {
-      return <p class="help is-danger">{this.message}</p>;
+      return <p class="field--warning">{this.message}</p>;
     } /*else if (this.ui.hint) {
       return <p class="help is-info">{this.ui.hint}</p>;
     }*/
   }
 
   enumValueChanged(evt: any, propInfo: IEnumSchemaProp) {
-    this.clearError();
-    let value = (evt.target as HTMLInputElement).value;
+    try {
+      this.clearError();
+      let value = (evt.target as HTMLInputElement).value;
 
-    propInfo.validator(value, propInfo);
+      propInfo.validator(value, propInfo);
 
-    this.value = value;
+      this.value = value;
+    } catch (e) {
+      this.setError((e as Error).message);
+    }
   }
 
   stringValueChanged(evt: any, propInfo: IStringSchemaProp) {
-    this.clearError();
-    let value = (evt.target as HTMLInputElement).value;
+    try {
+      this.clearError();
+      let value = (evt.target as HTMLInputElement).value;
 
-    propInfo.validator(value, propInfo);
+      propInfo.validator(value, propInfo);
 
-    this.value = value;
+      this.value = value;
+    } catch (e) {
+      this.setError((e as Error).message);
+    }
   }
 
   private byteFormat: any;
@@ -191,11 +208,15 @@ export class PropertyView extends View {
 
     let $el = evt.currentTarget as HTMLInputElement;
 
-    let value = $el.value != "false";
+    try {
+      let value = $el.value != "false";
 
-    propInfo.validator(value, propInfo);
+      propInfo.validator(value, propInfo);
 
-    this.value = value;
+      this.value = value;
+    } catch (e) {
+      this.setError((e as Error).message);
+    }
   }
 
   renderBoolean(propInfo: IBooleanSchemaProp, value: boolean) {
@@ -464,7 +485,7 @@ export class PropertyView extends View {
     const $field = this.element as HTMLElement;
 
     // Set focus modifier
-    $field.classList.toggle("field--focus", this.hasFocus);
+    //$field.classList.toggle("field--focus", this.hasFocus);
 
     // Add invalid modifier
     $field.classList.toggle("field--invalid", !true || !!this.message);
@@ -478,16 +499,17 @@ export class PropertyView extends View {
     // Create new message, if any
     this.$message = this.renderMessage();
     if (this.$message) {
-      this.element.appendChild(this.$message.element);
+      //this.element.appendChild(this.$message.element);
+      $field.children[1].appendChild(this.$message.element);
     }
 
     return false;
   }
 
   viewFocused() {
-    this.triggerUpdate();
+    //  this.triggerUpdate();
   }
   viewBlurred() {
-    this.triggerUpdate();
+    //  this.triggerUpdate();
   }
 }
